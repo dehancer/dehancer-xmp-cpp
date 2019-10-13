@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.12)
 # Project
 #
 set(PROJECT_LIB dehancer_xmp_cpp)
-project(${PROJECT_LIB} VERSION 0.1.0)
+project(${PROJECT_LIB} VERSION 0.2.0)
 
 #
 # Options
@@ -228,6 +228,6 @@ set(includedir "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
 configure_file(${CMAKE_SOURCE_DIR}/dehancer-xmp-cpp.pc.in ${CMAKE_CURRENT_BINARY_DIR}/dehancer-xmp-cpp.pc @ONLY)
 
 install(FILES
-        ${CMAKE_CURRENT_BINARY_DIR}/dehancer-common-cpp.pc
+        ${CMAKE_CURRENT_BINARY_DIR}/dehancer-xmp-cpp.pc
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
         )
