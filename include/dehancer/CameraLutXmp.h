@@ -47,7 +47,7 @@ namespace dehancer {
         bool is_photo_enabled() const ;
         bool is_video_enabled() const ;
         bool is_published() const ;
-        std::string get_name() const ;
+        std::string get_id() const ;
         std::string get_vendor() const ;
         std::string get_model() const ;
         std::string get_format() const ;

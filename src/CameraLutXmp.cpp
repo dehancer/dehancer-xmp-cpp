@@ -183,6 +183,7 @@ namespace dehancer {
             "nsisPhotoEnabled",
             "nsisVideoEnabled",
             "nslicenseMatrix",
+            "nsid",
             "nsvendor",
             "nsmodel",
             "nsformat",
@@ -209,8 +210,10 @@ namespace dehancer {
       return 0;
     }
 
-    std::string CameraLutXmp::get_name() const {
-      return file::deleting_extension(file::last_component(path_));
+    std::string CameraLutXmp::get_id() const {
+      if (get_value("nsid"))
+        return get_value("nsid")->toString();
+      return get_vendor()+"-"+get_model()+"-"+get_format();
     }
 
     std::string CameraLutXmp::get_caption() const {

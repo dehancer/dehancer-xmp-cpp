@@ -33,6 +33,7 @@ TEST(XMP, XMPOpenTest) {
     for (auto lic: xmp->get_license_matrix())
       std::cout << "License, matrix: " << static_cast<int>(lic) << std::endl;
 
+    std::cout << "               id " << xmp->get_id() << std::endl;
     std::cout << "           vendor " << xmp->get_vendor() << std::endl;
     std::cout << "            model " << xmp->get_model() << std::endl;
     std::cout << "           format " << xmp->get_format() << std::endl;
