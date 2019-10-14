@@ -33,8 +33,6 @@ configure_file(include/dehancer/version.h.in ${CMAKE_BINARY_DIR}/generated/versi
 # Packages
 #
 find_package (PkgConfig QUIET)
-find_package (BLAS REQUIRED)
-find_package (LAPACK REQUIRED)
 find_package (Threads REQUIRED)
 find_package (EXPAT REQUIRED)
 find_package (ZLIB REQUIRED)
