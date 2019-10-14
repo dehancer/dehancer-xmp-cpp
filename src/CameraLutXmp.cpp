@@ -187,7 +187,7 @@ namespace dehancer {
             "nsvendor",
             "nsmodel",
             "nsformat",
-            "nsisPublished"
+            //"nsisPublished"
     };
 
     const std::vector<std::string>& CameraLutXmp::get_key_list() const {
@@ -280,8 +280,8 @@ namespace dehancer {
       return 0;
     }
 
-    bool CameraLutXmp::is_published() const {
-      if (get_value("nsisPublished")) return get_value("nsisPublished")->toString() == "True";
-      return 0;
-    }
+//    bool CameraLutXmp::is_published() const {
+//      if (get_value("nsisPublished")) return get_value("nsisPublished")->toString() == "True";
+//      return 0;
+//    }
 }
