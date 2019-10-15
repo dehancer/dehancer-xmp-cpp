@@ -116,7 +116,9 @@ find_package(GTest)
 if (NOT GTEST_FOUND)
     ExternalProject_Add(googletest
             GIT_REPOSITORY https://github.com/google/googletest
-            CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
+            CMAKE_ARGS
+            -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
+            -DCMAKE_BINARY_DIR=${CMAKE_BINARY_DIR}
             )
     set(COMMON_DEPENDECIES googletest)
 endif ()
@@ -141,7 +143,10 @@ else()
             CMAKE_ARGS
             -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+            -DCMAKE_BINARY_DIR=${CMAKE_BINARY_DIR}
             -DBUILD_TESTING=OFF
+            INSTALL_COMMAND make install
+            PREFIX=${CMAKE_BINARY_DIR}/armadillo-lib
             )
 
     set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES};armadillo-lib)
@@ -154,6 +159,10 @@ ExternalProject_Add(ed25519cpplib
         CMAKE_ARGS
         -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
         -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
+        -DCMAKE_BINARY_DIR=${CMAKE_BINARY_DIR}
+        -DBUILD_TESTING=OFF
+        INSTALL_COMMAND make install
+        PREFIX=${CMAKE_BINARY_DIR}/ed25519cpplib
         )
 set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES};ed25519cpplib)
 
@@ -162,6 +171,10 @@ ExternalProject_Add(base64cpplib
         CMAKE_ARGS
         -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
         -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
+        -DCMAKE_BINARY_DIR=${CMAKE_BINARY_DIR}
+        -DBUILD_TESTING=OFF
+        INSTALL_COMMAND make install
+        PREFIX=${CMAKE_BINARY_DIR}/base64cpplib
         )
 set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES};base64cpplib)
 
@@ -170,6 +183,10 @@ ExternalProject_Add(dehancer_common_cpplib
         CMAKE_ARGS
         -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
         -DCMAKE_OSX_DEPLOYMENT_TARGET=${DCMAKE_OSX_DEPLOYMENT_TARGET}
+        -DCMAKE_BINARY_DIR=${CMAKE_BINARY_DIR}
+        -DBUILD_TESTING=OFF
+        INSTALL_COMMAND make install
+        PREFIX=${CMAKE_BINARY_DIR}/base64cpplib
         )
 set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES};dehancer_common_cpplib)
 
@@ -178,6 +195,7 @@ ExternalProject_Add(
         SOURCE_DIR ${EXIVEDK_DB_DIR}
         CMAKE_ARGS
         -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
+        -DCMAKE_BINARY_DIR=${CMAKE_BINARY_DIR}
         -DBUILD_SHARED_LIBS=OFF
         -DCMAKE_POSITION_INDEPENDENT_CODE=ON
         -DEXIV2_BUILD_SAMPLES=OFF
@@ -185,6 +203,8 @@ ExternalProject_Add(
         -DEXIV2_ENABLE_XMP=ON
         -DBUILD_WITH_CCACHE=ON
         -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
+        INSTALL_COMMAND make install
+        PREFIX=${CMAKE_BINARY_DIR}/exiv2_lib
 )
 set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES};exiv2_lib)
 set(COMMON_LIBRARIES ${COMMON_LIBRARIES};ed25519cpp;base64cpp;exiv2;exiv2-xmp;dehancer_common_cpp)

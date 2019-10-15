@@ -280,8 +280,4 @@ namespace dehancer {
       return 0;
     }
 
-//    bool CameraLutXmp::is_published() const {
-//      if (get_value("nsisPublished")) return get_value("nsisPublished")->toString() == "True";
-//      return 0;
-//    }
 }
