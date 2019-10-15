@@ -9,7 +9,7 @@ project(${PROJECT_LIB} VERSION 0.2.1)
 #
 # Options
 #
-option(BUILD_TESTING "Enable creation of Armadilli tests." OFF)
+option(BUILD_TESTING "Enable creation of tests." OFF)
 
 #
 # Global setttings
@@ -122,37 +122,6 @@ if (NOT GTEST_FOUND)
             )
     set(COMMON_DEPENDECIES googletest)
 endif ()
-
-pkg_check_modules(armadillo armadillo)
-
-if (armadillo_FOUND)
-
-    include_directories(
-            ${armadillo_INCLUDE_DIRS}
-    )
-    link_directories(
-            ${armadillo_LIBRARY_DIRS}
-    )
-    set(COMMON_LIBRARIES ${COMMON_LIBRARIES};${armadillo_LIBRARIES})
-
-else()
-
-    ExternalProject_Add(armadillo-lib
-            GIT_REPOSITORY https://github.com/dehancer/armadillo-code
-            GIT_TAG 9.700.x
-            CMAKE_ARGS
-            -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
-            -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-            -DCMAKE_BINARY_DIR=${CMAKE_BINARY_DIR}
-            -DBUILD_TESTING=OFF
-            INSTALL_COMMAND make install
-            PREFIX=${CMAKE_BINARY_DIR}/armadillo-lib
-            )
-
-    set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES};armadillo-lib)
-    set(COMMON_LIBRARIES ${COMMON_LIBRARIES};armadillo)
-
-endif()
 
 ExternalProject_Add(ed25519cpplib
         GIT_REPOSITORY https://github.com/dnevera/ed25519cpp
