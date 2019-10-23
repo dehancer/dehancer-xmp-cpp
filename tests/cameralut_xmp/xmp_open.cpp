@@ -12,7 +12,12 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include "../dotenv/dotenv.h"
+#include "../dotenv/dotenv_utils.h"
+
 TEST(XMP, XMPOpenTest) {
+
+  auto pass = get_key();
 
   std::cout << std::endl;
 
@@ -24,7 +29,7 @@ TEST(XMP, XMPOpenTest) {
    * * read properties
    * */
 
-  auto xmp = dehancer::CameraLutXmp::Open(file_path);
+  auto xmp = dehancer::CameraLutXmp::Open(file_path, pass);
 
   EXPECT_TRUE(xmp);
 
@@ -52,36 +57,32 @@ TEST(XMP, XMPOpenTest) {
           else if (value->typeId() == Exiv2::TypeId::signedLong || value->typeId() == Exiv2::TypeId::unsignedLong)
             std::cout << " clut_xmp[number] key: " << key << " = " << value->toLong() << std::endl;
           else {
-            std::cout << " mlut_xmp key: " << key << " type:  " << std::hex << value->typeId() << std::endl;
+            std::cout << " clut_xmp key: " << key << " type:  " << std::hex << value->typeId() << std::endl;
           }
         }
     });
 
-//    EXPECT_TRUE(xmp->get_cluts().size() == 1);
-//
-//    for (int i = 0; i < 3; i++) {
-//      auto data = xmp->get_cluts()[i];
-//
-//      std::ofstream outFile;
-//
-//      std::string file = "./";
-//      xmp->get_name();
-//      file.append(xmp->get_name());
-//      file.append("[");
-//      file.append(std::to_string(i));
-//      file.append("].png");
-//
-//      outFile.open(file, std::fstream::out | std::ofstream::binary);
-//
-//      std::copy(data.begin(), data.end(), std::ostreambuf_iterator<char>(outFile));
-//
-//      auto str = std::string(data.begin(), data.end());
-//
-//      std::cout << " mlut_xmp luts: " << xmp->get_cluts().size() << "  >> " << std::endl;
-//      std::copy(data.begin(), data.end(), std::ostream_iterator<uint16_t>(std::cout, " "));
-//
-//      std::cout << std::endl;
-//    }
+    EXPECT_TRUE(xmp->get_clut().size() > 0);
+
+      auto data = xmp->get_clut();
+
+    std::ofstream outFile;
+
+    std::string file = "./";
+    xmp->get_id();
+    file.append(xmp->get_id());
+    file.append(".png");
+
+    outFile.open(file, std::fstream::out | std::ofstream::binary);
+
+    std::copy(data.begin(), data.end(), std::ostreambuf_iterator<char>(outFile));
+
+    auto str = std::string(data.begin(), data.end());
+
+    std::cout << " mlut_xmp luts: " << xmp->get_clut().size() << "  >> " << std::endl;
+    std::copy(data.begin(), data.end(), std::ostream_iterator<uint16_t>(std::cout, " "));
+
+    std::cout << std::endl;
 
   } else {
     std::cerr << "Error: " << xmp.error().message() << std::endl;
