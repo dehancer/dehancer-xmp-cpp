@@ -12,7 +12,13 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include "../dotenv/dotenv.h"
+#include "../dotenv/dotenv_utils.h"
+
+
 TEST(XMP, XMPOpenTest) {
+
+  auto pass = get_key();
 
   std::cout << std::endl;
 
@@ -24,7 +30,7 @@ TEST(XMP, XMPOpenTest) {
    * * read properties
    * */
 
-  auto xmp = dehancer::MLutXmp::Open(file_path);
+  auto xmp = dehancer::MLutXmp::Open(file_path, pass);
 
   EXPECT_TRUE(xmp);
 
