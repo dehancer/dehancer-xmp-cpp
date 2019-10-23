@@ -69,7 +69,7 @@ namespace dehancer {
             std::stringstream iss;
 
             iss << xmp_clut_prefix << "clutList[" << i + 1 << "]";
-            
+
             if (iss.str() == md->key()) {
 
               is_clut = true;
