@@ -23,6 +23,10 @@ namespace dehancer {
 
     public:
 
+
+        static dehancer::expected<MLutXmp,Error> Create(const std::string &buffer, const Blowfish::KeyType& key);
+        static dehancer::expected<MLutXmp,Error> Create(const std::string &buffer);
+
         /**
          * Open xmp-mlut-file
          * @param path - file path
@@ -56,5 +60,9 @@ namespace dehancer {
         std::string path_;
         std::map<std::string, Exiv2::Value::UniquePtr> meta_;
         std::vector<CLutBuffer> cluts_;
+
+    private:
+        static dehancer::expected<MLutXmp,Error> parse(const std::string &metaBuffer,
+                                                       const Blowfish::KeyType &key, const std::string& path);
     };
 }

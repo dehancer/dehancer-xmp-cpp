@@ -25,7 +25,6 @@ namespace dehancer {
 
     public:
 
-
         static dehancer::expected<CameraLutXmp,Error> Create(const std::string &buffer, const Blowfish::KeyType& key);
         static dehancer::expected<CameraLutXmp,Error> Create(const std::string &buffer);
 
