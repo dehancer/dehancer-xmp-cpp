@@ -171,7 +171,6 @@ namespace dehancer {
             "nslutType",
             "nsisPhotoEnabled",
             "nsisVideoEnabled",
-            "nsisPublished",
             "nstags",
             "serial",
             "datetime"
@@ -271,11 +270,6 @@ namespace dehancer {
 
     bool MLutXmp::is_video_enabled()  const {
       if (get_value("nsisVideoEnabled")) return get_value("nsisVideoEnabled")->toString() == "True";
-      return false;
-    }
-
-    bool MLutXmp::is_published()  const {
-      if (get_value("nsisPublished")) return get_value("nsisPublished")->toString() == "True";
       return false;
     }
 
