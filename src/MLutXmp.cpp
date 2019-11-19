@@ -156,18 +156,22 @@ namespace dehancer {
     }
 
     static std::vector<std::string> keys = {
+            "nsid",
+            "nscaption",
+            "nsdescription",
             "nsrevision",
             "nscolorType",
             "nsISOIndex",
             "nsexpandBlendingMode",
             "nsexpandImpact",
             "nsauthor",
-            "nscaption",
-            "nsdescription",
             "nsmaintainer",
             "nslutSize",
             "nsfilmType",
             "nslutType",
+            "nsisPhotoEnabled",
+            "nsisVideoEnabled",
+            "nsisPublished",
             "nstags",
             "serial",
             "datetime"
@@ -206,7 +210,21 @@ namespace dehancer {
       if (get_value("nsrevision"))
         return get_value("nsrevision")->toLong();
       return 0;
-    };
+    }
+
+    std::string MLutXmp::get_id() const {
+
+      if (get_value("nsid"))
+        return get_value("nsid")->toString();
+
+      else if (!get_caption().empty())
+        return get_caption();
+
+      else if (!get_name().empty())
+        return get_name();
+
+      return "";
+    }
 
     std::string MLutXmp::get_name() const {
       return file::deleting_extension(file::last_component(path_));
@@ -244,6 +262,21 @@ namespace dehancer {
 
     const std::vector<MLutXmp::CLutBuffer>& MLutXmp::get_cluts() const {
       return cluts_;
+    }
+
+    bool MLutXmp::is_photo_enabled()  const {
+      if (get_value("nsisPhotoEnabled")) return get_value("nsisPhotoEnabled")->toString() == "True";
+      return false;
+    }
+
+    bool MLutXmp::is_video_enabled()  const {
+      if (get_value("nsisVideoEnabled")) return get_value("nsisVideoEnabled")->toString() == "True";
+      return false;
+    }
+
+    bool MLutXmp::is_published()  const {
+      if (get_value("nsisPublished")) return get_value("nsisPublished")->toString() == "True";
+      return false;
     }
 
 }

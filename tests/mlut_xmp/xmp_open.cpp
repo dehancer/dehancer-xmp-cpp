@@ -36,8 +36,14 @@ TEST(XMP, XMPOpenTest) {
 
   if (xmp) {
 
+    std::cout << "               id: " << xmp->get_id() << std::endl;
+    std::cout << " is photo enabled: " << xmp->is_photo_enabled() << std::endl;
+    std::cout << " is video enabled: " << xmp->is_video_enabled() << std::endl;
+
+
     auto list = xmp->get_key_list();
     std::cout << std::endl;
+
 
     std::for_each(list.begin(), list.end(), [&xmp](const std::string &key) {
         auto value = xmp->get_value(key);

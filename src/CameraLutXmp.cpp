@@ -271,12 +271,12 @@ namespace dehancer {
 
     bool CameraLutXmp::is_photo_enabled()  const {
       if (get_value("nsisPhotoEnabled")) return get_value("nsisPhotoEnabled")->toString() == "True";
-      return 0;
+      return false;
     }
 
     bool CameraLutXmp::is_video_enabled()  const {
       if (get_value("nsisVideoEnabled")) return get_value("nsisVideoEnabled")->toString() == "True";
-      return 0;
+      return false;
     }
 
 }

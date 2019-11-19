@@ -41,8 +41,12 @@ namespace dehancer {
 
         time_t get_datetime() const ;
         int get_revision() const ;
+        std::string get_id() const ;
         std::string get_name() const ;
         std::string get_caption() const ;
+        bool is_photo_enabled() const ;
+        bool is_video_enabled() const ;
+        bool is_published() const ;
         std::string get_description() const ;
         std::string get_tags() const ;
         std::string get_author() const ;
