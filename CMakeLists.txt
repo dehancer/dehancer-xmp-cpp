@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.12)
 # Project
 #
 set(PROJECT_LIB dehancer_xmp_cpp)
-project(${PROJECT_LIB} VERSION 0.3.2)
+project(${PROJECT_LIB} VERSION 0.3.3)
 
 #
 # Options
@@ -19,7 +19,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 # googletes, etc
 set (EXTERNAL_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/external)
-set (EXTERNAL_INSTALL_LOCATION ${CMAKE_BINARY_DIR}/external)
+    set (EXTERNAL_INSTALL_LOCATION ${CMAKE_BINARY_DIR}/external)
 set (EXTERNAL_INCLUDE_DIR ${EXTERNAL_INSTALL_LOCATION}/include)
 set (EXIVEDK_DB_DIR ${CMAKE_SOURCE_DIR}/external/exiv2)
 

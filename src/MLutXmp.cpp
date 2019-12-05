@@ -15,6 +15,11 @@ namespace dehancer {
     static const std::string xmp_meta_prefix = "MLutXmp.Dehancer.mlutAttributes.undo[1]/rdf:";
     static const std::string xmp_clut_prefix = "MLutXmp.Dehancer.mlutClutList.undo[1]/rdf:";
 
+    inline bool  has_prefix(const std::string& str, const std::string& prefix) {
+      auto res = std::mismatch(prefix.begin(), prefix.end(), str.begin());
+      return res.first == prefix.end();
+    }
+
     template<typename T>
     std::vector<T> slice(std::vector<T> const &v, int m, int n)
     {
@@ -93,6 +98,13 @@ namespace dehancer {
 
         bool is_clut = false;
 
+        std::stringstream lic_matrix_prefix;
+        lic_matrix_prefix << xmp_meta_prefix << "nslicenseMatrix[";
+
+        if (has_prefix(md->key(), lic_matrix_prefix.str())) {
+          xmp.license_matrix_.push_back(static_cast<dehancer::License::Type>(md->getValue()->toLong()));
+        }
+
         if (!key.empty()) {
 
 
@@ -140,6 +152,7 @@ namespace dehancer {
       for (auto &v: other.cluts_) {
         cluts_.push_back(v);
       }
+      license_matrix_ = other.license_matrix_;
     };
 
     Exiv2::Value::UniquePtr MLutXmp::get_value(const std::string &name) const {
@@ -171,6 +184,7 @@ namespace dehancer {
             "nslutType",
             "nsisPhotoEnabled",
             "nsisVideoEnabled",
+            "nslicenseMatrix",
             "nstags",
             "serial",
             "datetime"
@@ -178,6 +192,10 @@ namespace dehancer {
 
     const std::vector<std::string>& MLutXmp::get_key_list() const {
       return keys;
+    }
+
+    const std::vector<dehancer::License::Type>& MLutXmp::get_license_matrix() const {
+      return license_matrix_;
     }
 
     const int MLutXmp::get_ISO_index() const {
