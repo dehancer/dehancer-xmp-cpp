@@ -40,6 +40,11 @@ TEST(XMP, XMPOpenTest) {
     std::cout << " is photo enabled: " << xmp->is_photo_enabled() << std::endl;
     std::cout << " is video enabled: " << xmp->is_video_enabled() << std::endl;
 
+    auto lics = xmp->get_license_matrix();
+
+    for(auto l: lics) {
+      std::cout << " has lic: " << static_cast<int>(l) << std::endl;
+    }
 
     auto list = xmp->get_key_list();
     std::cout << std::endl;

@@ -12,6 +12,7 @@
 #include "dehancer/Common.h"
 #include "dehancer/Deferred.h"
 #include "dehancer/Blowfish.h"
+#include "dehancer/License.h"
 
 namespace dehancer {
 
@@ -53,6 +54,7 @@ namespace dehancer {
         const int   get_ISO_index() const ;
         const int   get_expand_mode() const;
         const float get_expand_impact() const;
+        const std::vector<dehancer::License::Type>& get_license_matrix() const ;
         const std::vector<CLutBuffer>& get_cluts() const ;
 
         MLutXmp(const MLutXmp& other);
@@ -63,6 +65,7 @@ namespace dehancer {
         std::string path_;
         std::map<std::string, Exiv2::Value::UniquePtr> meta_;
         std::vector<CLutBuffer> cluts_;
+        std::vector<dehancer::License::Type> license_matrix_;
 
     private:
         static dehancer::expected<MLutXmp,Error> parse(const std::string &metaBuffer,
