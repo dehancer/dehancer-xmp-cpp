@@ -6,7 +6,7 @@ includedir=@includedir@
 Name: dehancer-xmp-cpp
 Description: Dehancer xmp layer SDK
 Version: @PROJECT_VERSION@
-URL: https://github.com/dehancer/ dehancer-xmp-cpp
+URL: https://github.com/dehancer/dehancer-xmp-cpp
 Requires.private: @requires_private@
 Libs: -L${libdir} -l dehancer_xmp_cpp
 Libs.private: @libs_private@

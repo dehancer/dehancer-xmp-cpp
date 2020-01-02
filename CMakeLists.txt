@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.12)
 # Project
 #
 set(PROJECT_LIB dehancer_xmp_cpp)
-project(${PROJECT_LIB} VERSION 0.3.3)
+project(${PROJECT_LIB} VERSION 0.3.4)
 
 #
 # Options
@@ -16,6 +16,9 @@ option(BUILD_TESTING "Enable creation of tests." OFF)
 #
 set(VERSION_FILE "version.txt")
 set(CMAKE_CXX_STANDARD 17)
+
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 
 # googletes, etc
 set (EXTERNAL_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/external)
@@ -128,6 +131,7 @@ ExternalProject_Add(ed25519cpplib
         -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
         -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
         -DBUILD_TESTING=OFF
+        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
         INSTALL_COMMAND make install
         PREFIX=${CMAKE_BINARY_DIR}/ed25519cpplib
         )
@@ -139,6 +143,7 @@ ExternalProject_Add(base64cpplib
         -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
         -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
         -DBUILD_TESTING=OFF
+        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
         INSTALL_COMMAND make install
         PREFIX=${CMAKE_BINARY_DIR}/base64cpplib
         )
@@ -150,6 +155,7 @@ ExternalProject_Add(dehancer_common_cpplib
         -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
         -DCMAKE_OSX_DEPLOYMENT_TARGET=${DCMAKE_OSX_DEPLOYMENT_TARGET}
         -DBUILD_TESTING=OFF
+        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
         INSTALL_COMMAND make install
         PREFIX=${CMAKE_BINARY_DIR}/base64cpplib
         )
@@ -167,6 +173,7 @@ ExternalProject_Add(
         -DEXIV2_ENABLE_XMP=ON
         -DBUILD_WITH_CCACHE=ON
         -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
+        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
         INSTALL_COMMAND make install
         PREFIX=${CMAKE_BINARY_DIR}/exiv2_lib
 )
