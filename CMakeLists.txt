@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.12)
 # Project
 #
 set(PROJECT_LIB dehancer_xmp_cpp)
-project(${PROJECT_LIB} VERSION 0.3.4)
+project(${PROJECT_LIB} VERSION 0.3.5)
 
 #
 # Options
@@ -22,7 +22,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 
 # googletes, etc
 set (EXTERNAL_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/external)
-    set (EXTERNAL_INSTALL_LOCATION ${CMAKE_BINARY_DIR}/external)
+set (EXTERNAL_INSTALL_LOCATION ${CMAKE_BINARY_DIR}/external)
 set (EXTERNAL_INCLUDE_DIR ${EXTERNAL_INSTALL_LOCATION}/include)
 set (EXIVEDK_DB_DIR ${CMAKE_SOURCE_DIR}/external/exiv2)
 
@@ -50,7 +50,7 @@ endif()
 # Programms
 #
 find_program(CCACHE_FOUND ccache)
-find_program(MAKE_EXE NAMES gmake nmake make)
+#find_program(MAKE_EXE NAMES gmake nmake make)
 
 #
 # CCache settings
@@ -110,7 +110,14 @@ include(ExternalProject)
 # External project dependencies
 #
 set(COMMON_DEPENDECIES)
-set(COMMON_LIBRARIES ${BLAS_LIBRARIES};${LAPACK_LIBRARIES};${CMAKE_THREAD_LIBS_INIT};${MKL_LIBRARIES}; ${EXPAT_LIBRARIES}; ${ZLIB_LIBRARIES}; ${Iconv_LIBRARIES}; )
+set(COMMON_LIBRARIES
+        ${BLAS_LIBRARIES};
+        ${LAPACK_LIBRARIES};
+        ${CMAKE_THREAD_LIBS_INIT};
+        ${MKL_LIBRARIES};
+        ${EXPAT_LIBRARIES};
+        ${ZLIB_LIBRARIES};
+        ${Iconv_LIBRARIES}; )
 
 #
 # Google Test
@@ -145,9 +152,29 @@ ExternalProject_Add(base64cpplib
         -DBUILD_TESTING=OFF
         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
         INSTALL_COMMAND make install
-        PREFIX=${CMAKE_BINARY_DIR}/base64cpplib
         )
 set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES};base64cpplib)
+
+ExternalProject_Add(exiv2_lib
+        SOURCE_DIR ${EXIVEDK_DB_DIR}
+        CMAKE_ARGS
+        -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
+        -DBUILD_SHARED_LIBS=OFF
+        -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+        -DEXIV2_BUILD_SAMPLES=OFF
+        -DEXIV2_BUILD_EXIV2_COMMAND=ON
+        -DEXIV2_ENABLE_XMP=ON
+        -DBUILD_WITH_CCACHE=ON
+        BUILD_COMMAND make
+        INSTALL_COMMAND make install
+        BUILD_ALWAYS ON
+        LOG_DOWNLOAD ON
+        LOG_CONFIGURE ON
+        LOG_BUILD ON
+        LOG_INSTALL ON
+        LOG_OUTPUT_ON_FAILURE ON
+)
+set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES};exiv2_lib)
 
 ExternalProject_Add(dehancer_common_cpplib
         GIT_REPOSITORY https://github.com/dehancer/dehancer-common-cpp
@@ -157,29 +184,10 @@ ExternalProject_Add(dehancer_common_cpplib
         -DBUILD_TESTING=OFF
         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
         INSTALL_COMMAND make install
-        PREFIX=${CMAKE_BINARY_DIR}/base64cpplib
         )
 set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES};dehancer_common_cpplib)
 
-ExternalProject_Add(
-        exiv2_lib
-        SOURCE_DIR ${EXIVEDK_DB_DIR}
-        CMAKE_ARGS
-        -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
-        -DBUILD_SHARED_LIBS=OFF
-        -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-        -DEXIV2_BUILD_SAMPLES=OFF
-        -DEXIV2_BUILD_EXIV2_COMMAND=OFF
-        -DEXIV2_ENABLE_XMP=ON
-        -DBUILD_WITH_CCACHE=ON
-        -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
-        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-        INSTALL_COMMAND make install
-        PREFIX=${CMAKE_BINARY_DIR}/exiv2_lib
-)
-set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES};exiv2_lib)
-set(COMMON_LIBRARIES ${COMMON_LIBRARIES};ed25519cpp;base64cpp;exiv2;exiv2-xmp;dehancer_common_cpp)
-
+set(COMMON_LIBRARIES ${COMMON_LIBRARIES};dehancer_common_cpp;ed25519cpp;base64cpp;exiv2;exiv2-xmp)
 
 #
 # Details
@@ -199,6 +207,7 @@ if(BUILD_TESTING)
     add_subdirectory(tests)
     enable_testing ()
 endif()
+
 
 # Install package
 #

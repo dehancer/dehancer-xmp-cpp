@@ -4,15 +4,6 @@ FILE(GLOB PUBLIC_INCLUDE_FILES
         ${CMAKE_SOURCE_DIR}/include/dehancer/*.h
         )
 
-FILE(GLOB PUBLIC_EXIV2_INCLUDE_FILES
-        ${CMAKE_BINARY_DIR}/external/include/exiv2/*.hpp
-        ${CMAKE_BINARY_DIR}/external/include/exiv2/*.h
-        )
-
-FILE(GLOB PUBLIC_EXIV2_LIB_FILES
-        ${CMAKE_BINARY_DIR}/external/lib/libexiv2*.*
-        )
-
 file (GLOB COMMON_SRC ${COMMON_SRC}
         ../src/*.cpp
         ../src/*.c
@@ -21,10 +12,10 @@ file (GLOB COMMON_SRC ${COMMON_SRC}
 add_library(${PROJECT_NAME} ${COMMON_SRC})
 
 if (COMMON_DEPENDECIES)
-    add_dependencies(${PROJECT_NAME} ${COMMON_DEPENDECIES})
+    add_dependencies(${PROJECT_LIB} ${COMMON_DEPENDECIES})
+else()
+    add_dependencies(${PROJECT_LIB} exiv2_lib)
 endif()
-
-
 
 set(config_install_dir "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 set(generated_dir "${CMAKE_CURRENT_BINARY_DIR}/generated")
@@ -45,10 +36,9 @@ configure_package_config_file(
         INSTALL_DESTINATION "${config_install_dir}"
 )
 
-
-install(TARGETS ${PROJECT_LIB}   DESTINATION lib)
+install(TARGETS ${PROJECT_LIB} DESTINATION lib)
 install(FILES   ${PUBLIC_INCLUDE_FILES} DESTINATION include/dehancer)
-install(FILES   ${PUBLIC_EXIV2_INCLUDE_FILES} DESTINATION include/exiv2)
-install(FILES   ${PUBLIC_EXIV2_LIB_FILES} DESTINATION lib)
 install(FILES   ${project_config} ${version_config} DESTINATION lib/cmake/${PROJECT_LIB})
-install(FILES cmake/${PROJECT_LIB}.cmake DESTINATION lib/cmake/${PROJECT_LIB})
+install(FILES   cmake/${PROJECT_LIB}.cmake DESTINATION lib/cmake/${PROJECT_LIB})
+
+add_subdirectory(exiv2)
