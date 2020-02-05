@@ -20,6 +20,16 @@ namespace dehancer {
 
     public:
 
+        enum class ColorType:int  {
+            color = 0,
+            bw    = 1
+        };
+
+        enum class FilmType:int {
+            negative  = 0,
+            positive  = 1
+        };
+
         using CLutBuffer = std::vector<std::uint8_t>;
 
     public:
@@ -54,6 +64,10 @@ namespace dehancer {
         const int   get_ISO_index() const ;
         const int   get_expand_mode() const;
         const float get_expand_impact() const;
+
+        const FilmType  get_film_type() const ;
+        const ColorType get_color_type() const;
+
         const std::vector<dehancer::License::Type>& get_license_matrix() const ;
         const std::vector<CLutBuffer>& get_cluts() const ;
 
