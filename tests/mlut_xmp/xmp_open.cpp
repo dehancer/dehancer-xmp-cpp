@@ -39,6 +39,8 @@ TEST(XMP, XMPOpenTest) {
     std::cout << "               id: " << xmp->get_id() << std::endl;
     std::cout << " is photo enabled: " << xmp->is_photo_enabled() << std::endl;
     std::cout << " is video enabled: " << xmp->is_video_enabled() << std::endl;
+    std::cout << "       color tyoe: " << (int)xmp->get_color_type() << std::endl;
+    std::cout << "        film tyoe: " << (int)xmp->get_color_type() << std::endl;
 
     auto lics = xmp->get_license_matrix();
 

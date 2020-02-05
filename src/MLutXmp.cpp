@@ -198,6 +198,18 @@ namespace dehancer {
       return license_matrix_;
     }
 
+    const MLutXmp::ColorType MLutXmp::get_color_type() const {
+      if (get_value("nscolorType"))
+        return static_cast< MLutXmp::ColorType>(get_value("nscolorType")->toLong());
+      return MLutXmp::ColorType::color;
+    }
+
+    const MLutXmp::FilmType MLutXmp::get_film_type() const {
+      if (get_value("nsfilmType"))
+        return static_cast< MLutXmp::FilmType>(get_value("nsfilmType")->toLong());
+      return MLutXmp::FilmType::negative;
+    }
+
     const int MLutXmp::get_ISO_index() const {
       if (get_value("nsISOIndex"))
         return get_value("nsISOIndex")->toLong();
