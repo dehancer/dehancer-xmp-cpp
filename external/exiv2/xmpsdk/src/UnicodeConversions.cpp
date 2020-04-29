@@ -706,7 +706,7 @@ static void UTF8_to_UTF16Nat ( const UTF8Unit * utf8In,   const size_t utf8Len,
 	
 	while ( (utf8Left > 0) && (utf16Left > 0) ) {
 	
-		// Do a open of ASCII, it copies 1 input unit into 1 output unit.
+		// Do a run of ASCII, it copies 1 input unit into 1 output unit.
 		size_t i, limit = utf8Left;
 		if ( limit > utf16Left ) limit = utf16Left;
 		for ( i = 0; i < limit; ++i ) {
@@ -719,7 +719,7 @@ static void UTF8_to_UTF16Nat ( const UTF8Unit * utf8In,   const size_t utf8Len,
 		utf8Left  -= i;
 		utf16Left -= i;
 		
-		// Do a open of non-ASCII, it copies multiple input units into 1 or 2 output units.
+		// Do a run of non-ASCII, it copies multiple input units into 1 or 2 output units.
 		while ( (utf8Left > 0) && (utf16Left > 0) ) {
 			UTF32Unit cp;
 			size_t len8, len16;
@@ -764,7 +764,7 @@ static void UTF8_to_UTF32Nat ( const UTF8Unit *  utf8In,   const size_t utf8Len,
 	
 	while ( (utf8Left > 0) && (utf32Left > 0) ) {
 	
-		// Do a open of ASCII, it copies 1 input unit into 1 output unit.
+		// Do a run of ASCII, it copies 1 input unit into 1 output unit.
 		size_t i, limit = utf8Left;
 		if ( limit > utf32Left ) limit = utf32Left;
 		for ( i = 0; i < limit; ++i ) {
@@ -777,7 +777,7 @@ static void UTF8_to_UTF32Nat ( const UTF8Unit *  utf8In,   const size_t utf8Len,
 		utf8Left -= i;
 		utf32Left -= i;
 		
-		// Do a open of non-ASCII, it copies variable input into 1 output unit.
+		// Do a run of non-ASCII, it copies variable input into 1 output unit.
 		while ( (utf8Left > 0) && (utf32Left > 0) ) {
 			size_t len;
 			UTF8Unit inUnit = *utf8Pos;
@@ -814,7 +814,7 @@ static void UTF16Nat_to_UTF8 ( const UTF16Unit * utf16In,   const size_t utf16Le
 	
 	while ( (utf16Left > 0) && (utf8Left > 0) ) {
 	
-		// Do a open of ASCII, it copies 1 input unit into 1 output unit.
+		// Do a run of ASCII, it copies 1 input unit into 1 output unit.
 		size_t i, limit = utf16Left;
 		if ( limit > utf8Left ) limit = utf8Left;
 		for ( i = 0; i < limit; ++i ) {
@@ -827,7 +827,7 @@ static void UTF16Nat_to_UTF8 ( const UTF16Unit * utf16In,   const size_t utf16Le
 		utf16Left -= i;
 		utf8Left  -= i;
 		
-		// Do a open of non-ASCII inside the BMP, it copies 1 input unit into multiple output units.
+		// Do a run of non-ASCII inside the BMP, it copies 1 input unit into multiple output units.
 		while ( (utf16Left > 0) && (utf8Left > 0) ) {
 			size_t len8;
 			UTF16Unit inUnit = *utf16Pos;
@@ -841,7 +841,7 @@ static void UTF16Nat_to_UTF8 ( const UTF16Unit * utf16In,   const size_t utf16Le
 			utf8Pos   += len8;
 		}
 		
-		// Do a open of surrogate pairs, it copies 2 input units into multiple output units.
+		// Do a run of surrogate pairs, it copies 2 input units into multiple output units.
 		while ( (utf16Left > 0) && (utf8Left > 0) ) {
 			UTF32Unit cp;
 			size_t len16, len8;
@@ -882,7 +882,7 @@ static void UTF32Nat_to_UTF8 ( const UTF32Unit * utf32In,   const size_t utf32Le
 	
 	while ( (utf32Left > 0) && (utf8Left > 0) ) {
 	
-		// Do a open of ASCII, it copies 1 input unit into 1 output unit.
+		// Do a run of ASCII, it copies 1 input unit into 1 output unit.
 		size_t i, limit = utf32Left;
 		if ( limit > utf8Left ) limit = utf8Left;
 		for ( i = 0; i < limit; ++i ) {
@@ -895,7 +895,7 @@ static void UTF32Nat_to_UTF8 ( const UTF32Unit * utf32In,   const size_t utf32Le
 		utf32Left -= i;
 		utf8Left  -= i;
 		
-		// Do a open of non-ASCII, it copies 1 input unit into multiple output units.
+		// Do a run of non-ASCII, it copies 1 input unit into multiple output units.
 		while ( (utf32Left > 0) && (utf8Left > 0) ) {
 			size_t len;
 			UTF32Unit inUnit = *utf32Pos;
@@ -932,7 +932,7 @@ static void UTF16Nat_to_UTF32Nat ( const UTF16Unit * utf16In,   const size_t utf
 	
 	while ( (utf16Left > 0) && (utf32Left > 0) ) {
 	
-		// Do a open of BMP, it copies 1 input unit into 1 output unit.
+		// Do a run of BMP, it copies 1 input unit into 1 output unit.
 		size_t i, limit = utf16Left;
 		if ( limit > utf32Left ) limit = utf32Left;
 		for ( i = 0; i < limit; ++i ) {
@@ -945,7 +945,7 @@ static void UTF16Nat_to_UTF32Nat ( const UTF16Unit * utf16In,   const size_t utf
 		utf16Left -= i;
 		utf32Left -= i;
 		
-		// Do a open of surrogate pairs, it copies 2 input units into 1 output unit.
+		// Do a run of surrogate pairs, it copies 2 input units into 1 output unit.
 		while ( (utf16Left > 0) && (utf32Left > 0) ) {
 			size_t len;
 			UTF16Unit inUnit = *utf16Pos;
@@ -983,7 +983,7 @@ static void UTF32Nat_to_UTF16Nat ( const UTF32Unit * utf32In,   const size_t utf
 	
 	while ( (utf32Left > 0) && (utf16Left > 0) ) {
 	
-		// Do a open of BMP, it copies 1 input unit into 1 output unit.
+		// Do a run of BMP, it copies 1 input unit into 1 output unit.
 		size_t i, limit = utf32Left;
 		if ( limit > utf16Left ) limit = utf16Left;
 		for ( i = 0; i < limit; ++i ) {
@@ -996,7 +996,7 @@ static void UTF32Nat_to_UTF16Nat ( const UTF32Unit * utf32In,   const size_t utf
 		utf32Left -= i;
 		utf16Left -= i;
 		
-		// Do a open of non-BMP, it copies 1 input unit into 2 output units.
+		// Do a run of non-BMP, it copies 1 input unit into 2 output units.
 		while ( (utf32Left > 0) && (utf16Left > 0) ) {
 			size_t len;
 			UTF32Unit inUnit = *utf32Pos;
@@ -1138,7 +1138,7 @@ static void UTF8_to_UTF16Swp ( const UTF8Unit * utf8In,   const size_t utf8Len,
 	
 	while ( (utf8Left > 0) && (utf16Left > 0) ) {
 	
-		// Do a open of ASCII, it copies 1 input unit into 1 output unit.
+		// Do a run of ASCII, it copies 1 input unit into 1 output unit.
 		size_t i, limit = utf8Left;
 		if ( limit > utf16Left ) limit = utf16Left;
 		for ( i = 0; i < limit; ++i ) {
@@ -1151,7 +1151,7 @@ static void UTF8_to_UTF16Swp ( const UTF8Unit * utf8In,   const size_t utf8Len,
 		utf8Left  -= i;
 		utf16Left -= i;
 		
-		// Do a open of non-ASCII, it copies multiple input units into 1 or 2 output units.
+		// Do a run of non-ASCII, it copies multiple input units into 1 or 2 output units.
 		while ( (utf8Left > 0) && (utf16Left > 0) ) {
 			UTF32Unit cp;
 			size_t len8, len16;
@@ -1196,7 +1196,7 @@ static void UTF8_to_UTF32Swp ( const UTF8Unit *  utf8In,   const size_t utf8Len,
 	
 	while ( (utf8Left > 0) && (utf32Left > 0) ) {
 	
-		// Do a open of ASCII, it copies 1 input unit into 1 output unit.
+		// Do a run of ASCII, it copies 1 input unit into 1 output unit.
 		size_t i, limit = utf8Left;
 		if ( limit > utf32Left ) limit = utf32Left;
 		for ( i = 0; i < limit; ++i ) {
@@ -1209,7 +1209,7 @@ static void UTF8_to_UTF32Swp ( const UTF8Unit *  utf8In,   const size_t utf8Len,
 		utf8Left -= i;
 		utf32Left -= i;
 		
-		// Do a open of non-ASCII, it copies variable input into 1 output unit.
+		// Do a run of non-ASCII, it copies variable input into 1 output unit.
 		while ( (utf8Left > 0) && (utf32Left > 0) ) {
 			size_t len;
 			UTF32Unit cp;
@@ -1248,7 +1248,7 @@ static void UTF16Swp_to_UTF8 ( const UTF16Unit * utf16In,   const size_t utf16Le
 	
 	while ( (utf16Left > 0) && (utf8Left > 0) ) {
 	
-		// Do a open of ASCII, it copies 1 input unit into 1 output unit.
+		// Do a run of ASCII, it copies 1 input unit into 1 output unit.
 		size_t i, limit = utf16Left;
 		if ( limit > utf8Left ) limit = utf8Left;
 		for ( i = 0; i < limit; ++i ) {
@@ -1261,7 +1261,7 @@ static void UTF16Swp_to_UTF8 ( const UTF16Unit * utf16In,   const size_t utf16Le
 		utf16Left -= i;
 		utf8Left  -= i;
 		
-		// Do a open of non-ASCII inside the BMP, it copies 1 input unit into multiple output units.
+		// Do a run of non-ASCII inside the BMP, it copies 1 input unit into multiple output units.
 		while ( (utf16Left > 0) && (utf8Left > 0) ) {
 			size_t len8;
 			UTF16Unit inUnit = UTF16InSwap(utf16Pos);
@@ -1275,7 +1275,7 @@ static void UTF16Swp_to_UTF8 ( const UTF16Unit * utf16In,   const size_t utf16Le
 			utf8Pos   += len8;
 		}
 		
-		// Do a open of surrogate pairs, it copies 2 input units into multiple output units.
+		// Do a run of surrogate pairs, it copies 2 input units into multiple output units.
 		while ( (utf16Left > 0) && (utf8Left > 0) ) {
 			UTF32Unit cp;
 			size_t len16, len8;
@@ -1316,7 +1316,7 @@ static void UTF32Swp_to_UTF8 ( const UTF32Unit * utf32In,   const size_t utf32Le
 	
 	while ( (utf32Left > 0) && (utf8Left > 0) ) {
 	
-		// Do a open of ASCII, it copies 1 input unit into 1 output unit.
+		// Do a run of ASCII, it copies 1 input unit into 1 output unit.
 		size_t i, limit = utf32Left;
 		if ( limit > utf8Left ) limit = utf8Left;
 		for ( i = 0; i < limit; ++i ) {
@@ -1329,7 +1329,7 @@ static void UTF32Swp_to_UTF8 ( const UTF32Unit * utf32In,   const size_t utf32Le
 		utf32Left -= i;
 		utf8Left  -= i;
 		
-		// Do a open of non-ASCII, it copies 1 input unit into multiple output units.
+		// Do a run of non-ASCII, it copies 1 input unit into multiple output units.
 		while ( (utf32Left > 0) && (utf8Left > 0) ) {
 			size_t len;
 			UTF32Unit cp = UTF32InSwap(utf32Pos);
@@ -1366,7 +1366,7 @@ static void UTF16Swp_to_UTF32Swp ( const UTF16Unit * utf16In,   const size_t utf
 	
 	while ( (utf16Left > 0) && (utf32Left > 0) ) {
 	
-		// Do a open of BMP, it copies 1 input unit into 1 output unit.
+		// Do a run of BMP, it copies 1 input unit into 1 output unit.
 		size_t i, limit = utf16Left;
 		if ( limit > utf32Left ) limit = utf32Left;
 		for ( i = 0; i < limit; ++i ) {
@@ -1379,7 +1379,7 @@ static void UTF16Swp_to_UTF32Swp ( const UTF16Unit * utf16In,   const size_t utf
 		utf16Left -= i;
 		utf32Left -= i;
 		
-		// Do a open of surrogate pairs, it copies 2 input units into 1 output unit.
+		// Do a run of surrogate pairs, it copies 2 input units into 1 output unit.
 		while ( (utf16Left > 0) && (utf32Left > 0) ) {
 			size_t len;
 			UTF32Unit cp;
@@ -1421,7 +1421,7 @@ static void UTF32Swp_to_UTF16Swp ( const UTF32Unit * utf32In,   const size_t utf
 	
 	while ( (utf32Left > 0) && (utf16Left > 0) ) {
 	
-		// Do a open of BMP, it copies 1 input unit into 1 output unit.
+		// Do a run of BMP, it copies 1 input unit into 1 output unit.
 		size_t i, limit = utf32Left;
 		if ( limit > utf16Left ) limit = utf16Left;
 		for ( i = 0; i < limit; ++i ) {
@@ -1434,7 +1434,7 @@ static void UTF32Swp_to_UTF16Swp ( const UTF32Unit * utf32In,   const size_t utf
 		utf32Left -= i;
 		utf16Left -= i;
 		
-		// Do a open of non-BMP, it copies 1 input unit into 2 output units.
+		// Do a run of non-BMP, it copies 1 input unit into 2 output units.
 		while ( (utf32Left > 0) && (utf16Left > 0) ) {
 			size_t len;
 			UTF32Unit inUnit = UTF32InSwap(utf32Pos);
@@ -1472,7 +1472,7 @@ static void UTF16Nat_to_UTF32Swp ( const UTF16Unit * utf16In,   const size_t utf
 	
 	while ( (utf16Left > 0) && (utf32Left > 0) ) {
 	
-		// Do a open of BMP, it copies 1 input unit into 1 output unit.
+		// Do a run of BMP, it copies 1 input unit into 1 output unit.
 		size_t i, limit = utf16Left;
 		if ( limit > utf32Left ) limit = utf32Left;
 		for ( i = 0; i < limit; ++i ) {
@@ -1485,7 +1485,7 @@ static void UTF16Nat_to_UTF32Swp ( const UTF16Unit * utf16In,   const size_t utf
 		utf16Left -= i;
 		utf32Left -= i;
 		
-		// Do a open of surrogate pairs, it copies 2 input units into 1 output unit.
+		// Do a run of surrogate pairs, it copies 2 input units into 1 output unit.
 		while ( (utf16Left > 0) && (utf32Left > 0) ) {
 			size_t len;
 			UTF32Unit cp;
@@ -1525,7 +1525,7 @@ static void UTF16Swp_to_UTF32Nat ( const UTF16Unit * utf16In,   const size_t utf
 	
 	while ( (utf16Left > 0) && (utf32Left > 0) ) {
 	
-		// Do a open of BMP, it copies 1 input unit into 1 output unit.
+		// Do a run of BMP, it copies 1 input unit into 1 output unit.
 		size_t i, limit = utf16Left;
 		if ( limit > utf32Left ) limit = utf32Left;
 		for ( i = 0; i < limit; ++i ) {
@@ -1538,7 +1538,7 @@ static void UTF16Swp_to_UTF32Nat ( const UTF16Unit * utf16In,   const size_t utf
 		utf16Left -= i;
 		utf32Left -= i;
 		
-		// Do a open of surrogate pairs, it copies 2 input units into 1 output unit.
+		// Do a run of surrogate pairs, it copies 2 input units into 1 output unit.
 		while ( (utf16Left > 0) && (utf32Left > 0) ) {
 			size_t len;
 			UTF16Unit inUnit = UTF16InSwap(utf16Pos);
@@ -1576,7 +1576,7 @@ static void UTF32Nat_to_UTF16Swp ( const UTF32Unit * utf32In,   const size_t utf
 	
 	while ( (utf32Left > 0) && (utf16Left > 0) ) {
 	
-		// Do a open of BMP, it copies 1 input unit into 1 output unit.
+		// Do a run of BMP, it copies 1 input unit into 1 output unit.
 		size_t i, limit = utf32Left;
 		if ( limit > utf16Left ) limit = utf16Left;
 		for ( i = 0; i < limit; ++i ) {
@@ -1589,7 +1589,7 @@ static void UTF32Nat_to_UTF16Swp ( const UTF32Unit * utf32In,   const size_t utf
 		utf32Left -= i;
 		utf16Left -= i;
 		
-		// Do a open of non-BMP, it copies 1 input unit into 2 output units.
+		// Do a run of non-BMP, it copies 1 input unit into 2 output units.
 		while ( (utf32Left > 0) && (utf16Left > 0) ) {
 			size_t len;
 			UTF32Unit inUnit = *utf32Pos;
@@ -1627,7 +1627,7 @@ static void UTF32Swp_to_UTF16Nat ( const UTF32Unit * utf32In,   const size_t utf
 	
 	while ( (utf32Left > 0) && (utf16Left > 0) ) {
 	
-		// Do a open of BMP, it copies 1 input unit into 1 output unit.
+		// Do a run of BMP, it copies 1 input unit into 1 output unit.
 		size_t i, limit = utf32Left;
 		if ( limit > utf16Left ) limit = utf16Left;
 		for ( i = 0; i < limit; ++i ) {
@@ -1640,7 +1640,7 @@ static void UTF32Swp_to_UTF16Nat ( const UTF32Unit * utf32In,   const size_t utf
 		utf32Left -= i;
 		utf16Left -= i;
 		
-		// Do a open of non-BMP, it copies 1 input unit into 2 output units.
+		// Do a run of non-BMP, it copies 1 input unit into 2 output units.
 		while ( (utf32Left > 0) && (utf16Left > 0) ) {
 			size_t len;
 			UTF32Unit inUnit = UTF32InSwap(utf32Pos);

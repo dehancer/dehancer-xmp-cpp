@@ -36,6 +36,7 @@
 #include "value.hpp"
 #include "image.hpp"
 #include "jpgimage.hpp"
+#include "sonymn_int.hpp"
 #include "i18n.h"             // NLS support.
 
 // + standard includes
@@ -44,6 +45,7 @@
 #include <iomanip>
 #include <cassert>
 #include <limits>
+#include <ostream>
 
 // *****************************************************************************
 namespace {
@@ -217,7 +219,7 @@ namespace Exiv2 {
             TiffPath tiffPath;
             TiffCreator::getPath(tiffPath, object->tag(), object->group(), root_);
             pRoot_->addPath(object->tag(), tiffPath, pRoot_, std::move(clone));
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
             ExifKey key(object->tag(), groupName(object->group()));
             std::cerr << "Copied " << key << "\n";
 #endif
@@ -461,6 +463,78 @@ namespace Exiv2 {
         }
     } // TiffMetadataDecoder::decodeIptc
 
+    static const TagInfo* findTag(const TagInfo* pList,uint16_t tag)
+    {
+        while ( pList->tag_ != 0xffff && pList->tag_ != tag ) pList++;
+        return  pList->tag_ != 0xffff  ? pList : NULL;
+    }
+
+    void TiffDecoder::decodeCanonAFInfo(const TiffEntryBase* object) {
+        // report Exif.Canon.AFInfo as usual
+        TiffDecoder::decodeStdTiffEntry(object);
+        if ( object->pValue()->count() < 3 || object->pValue()->typeId() != unsignedShort ) return; // insufficient data
+
+        // create vector of signedShorts from unsignedShorts in Exif.Canon.AFInfo
+        std::vector<int16_t>  ints;
+        std::vector<uint16_t> uint;
+        for (int i = 0; i < object->pValue()->count(); i++) {
+            ints.push_back((int16_t) object->pValue()->toLong(i));
+            uint.push_back((uint16_t) object->pValue()->toLong(i));
+        }
+        // Check this is AFInfo2 (ints[0] = bytes in object)
+        if ( ints[0] != object->pValue()->count()*2 ) return ;
+
+        std::string familyGroup(std::string("Exif.") + groupName(object->group()) + ".");
+
+        const uint16_t nPoints = uint.at(2);
+        const uint16_t nMasks  = (nPoints+15)/(sizeof(uint16_t) * 8);
+        int            nStart  = 0;
+
+        struct {
+            uint16_t tag    ;
+            uint16_t size   ;
+            bool     bSigned;
+        } records[] = {
+            { 0x2600 , 1       , true  }, // AFInfoSize
+            { 0x2601 , 1       , true  }, // AFAreaMode
+            { 0x2602 , 1       , true  }, // AFNumPoints
+            { 0x2603 , 1       , true  }, // AFValidPoints
+            { 0x2604 , 1       , true  }, // AFCanonImageWidth
+            { 0x2605 , 1       , true  }, // AFCanonImageHeight
+            { 0x2606 , 1       , true  }, // AFImageWidth"
+            { 0x2607 , 1       , true  }, // AFImageHeight
+            { 0x2608 , nPoints , true  }, // AFAreaWidths
+            { 0x2609 , nPoints , true  }, // AFAreaHeights
+            { 0x260a , nPoints , true  }, // AFXPositions
+            { 0x260b , nPoints , true  }, // AFYPositions
+            { 0x260c , nMasks  , false }, // AFPointsInFocus
+            { 0x260d , nMasks  , false }, // AFPointsSelected
+            { 0x260e , nMasks  , false }, // AFPrimaryPoint
+            { 0xffff , 0       , true  }  // end marker
+        };
+        // check we have enough data!
+        uint16_t count = 0;
+        for ( uint16_t i = 0; records[i].tag != 0xffff ; i++) count += records[i].size ;
+        if  ( count > ints.size() ) return ;
+
+        for ( uint16_t i = 0; records[i].tag != 0xffff ; i++) {
+            const TagInfo* pTags = ExifTags::tagList("Canon") ;
+            const TagInfo* pTag  = findTag(pTags,records[i].tag);
+            if ( pTag ) {
+                auto v = Exiv2::Value::create(records[i].bSigned?Exiv2::signedShort:Exiv2::unsignedShort);
+                std::ostringstream    s;
+                if ( records[i].bSigned ) {
+                    for ( int16_t k = 0 ; k < records[i].size ; k++ ) s << " " << ints.at(nStart++);
+                } else {
+                    for ( int16_t k = 0 ; k < records[i].size ; k++ ) s << " " << uint.at(nStart++);
+                }
+
+                v->read(s.str());
+                exifData_[familyGroup + pTag->name_] = *v;
+            }
+        }
+    }
+
     void TiffDecoder::decodeTiffEntry(const TiffEntryBase* object)
     {
         assert(object != 0);
@@ -697,7 +771,7 @@ namespace Exiv2 {
         ul2Data(buf + 4, pTiffEntry->count(),    byteOrder);
         // Move data to offset field, if it fits and is not yet there.
         if (pTiffEntry->size() <= 4 && buf + 8 != pTiffEntry->pData()) {
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
             std::cerr << "Copying data for tag " << pTiffEntry->tag()
                       << " to offset area.\n";
 #endif
@@ -777,18 +851,21 @@ namespace Exiv2 {
         assert(object != 0);
 
         if (object->cfg() == 0 || !object->decoded()) return;
-        int32_t size = object->TiffEntryBase::doSize();
+        std::uint32_t size = object->TiffEntryBase::doSize();
         if (size == 0) return;
         if (!object->initialize(pRoot_)) return;
 
         // Re-encrypt buffer if necessary
-        const CryptFct cryptFct = object->cfg()->cryptFct_;
+        CryptFct cryptFct = object->cfg()->cryptFct_;
+        if ( cryptFct == sonyTagDecipher ) {
+             cryptFct  = sonyTagEncipher;
+        }
         if (cryptFct != 0) {
             const byte* pData = object->pData();
             DataBuf buf = cryptFct(object->tag(), pData, size, pRoot_);
             if (buf.size_ > 0) {
                 pData = buf.pData_;
-                size = buf.size_;
+                size = static_cast<std::uint32_t>(buf.size_);
             }
             if (!object->updOrigDataBuf(pData, size)) {
                 setDirty();
@@ -841,7 +918,7 @@ namespace Exiv2 {
             }
             else {
                 setDirty();
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
                 std::cerr << "DELETING          " << key << ", idx = " << object->idx() << "\n";
 #endif
             }
@@ -868,7 +945,7 @@ namespace Exiv2 {
         if (del_ && pos != exifData_.end()) {
             exifData_.erase(pos);
         }
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
         std::cerr << "\n";
 #endif
     } // TiffEncoder::encodeTiffComponent
@@ -892,7 +969,7 @@ namespace Exiv2 {
             assert(object->pValue());
             if (  object->sizeDataArea_
                 < static_cast<uint32_t>(object->pValue()->sizeDataArea())) {
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
                 ExifKey key(object->tag(), groupName(object->group()));
                 std::cerr << "DATAAREA GREW     " << key << "\n";
 #endif
@@ -900,7 +977,7 @@ namespace Exiv2 {
             }
             else {
                 // Write the new dataarea, fill with 0x0
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
                 ExifKey key(object->tag(), groupName(object->group()));
                 std::cerr << "Writing data area for " << key << "\n";
 #endif
@@ -924,17 +1001,17 @@ namespace Exiv2 {
     {
         encodeOffsetEntry(object, datum);
 
-        uint32_t sizeDataArea = object->pValue()->sizeDataArea();
+        size_t sizeDataArea = object->pValue()->sizeDataArea();
 
         if (sizeDataArea > 0 && writeMethod() == wmNonIntrusive) {
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
             std::cerr << "\t DATAAREA IS SET (NON-INTRUSIVE WRITING)";
 #endif
             setDirty();
         }
 
         if (sizeDataArea > 0 && writeMethod() == wmIntrusive) {
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
             std::cerr << "\t DATAAREA IS SET (INTRUSIVE WRITING)";
 #endif
             // Set pseudo strips (without a data pointer) from the size tag
@@ -947,12 +1024,12 @@ namespace Exiv2 {
                           << " not found. Writing only one strip.\n";
 #endif
                 object->strips_.clear();
-                object->strips_.push_back(std::make_pair(zero, sizeDataArea));
+                object->strips_.push_back(std::make_pair(zero, (uint32_t)sizeDataArea));
             }
             else {
                 uint32_t sizeTotal = 0;
                 object->strips_.clear();
-                for (long i = 0; i < pos->count(); ++i) {
+                for (long i = 0; i < static_cast<long>(pos->count()); ++i) {
                     uint32_t len = pos->toLong(i);
                     object->strips_.push_back(std::make_pair(zero, len));
                     sizeTotal += len;
@@ -970,7 +1047,7 @@ namespace Exiv2 {
         }
 
         if (sizeDataArea == 0 && writeMethod() == wmIntrusive) {
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
             std::cerr << "\t USE STRIPS FROM SOURCE TREE IMAGE ENTRY";
 #endif
             // Set strips from source tree
@@ -1013,18 +1090,18 @@ namespace Exiv2 {
         assert(object != 0);
         assert(datum != 0);
 
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
         bool tooLarge = false;
 #endif
-        uint32_t newSize = datum->size();
+        size_t newSize = datum->size();
         if (newSize > object->size_) { // value doesn't fit, encode for intrusive writing
             setDirty();
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
             tooLarge = true;
 #endif
         }
         object->updateValue(datum->getValue(), byteOrder()); // clones the value
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
         ExifKey key(object->tag(), groupName(object->group()));
         std::cerr << "UPDATING DATA     " << key;
         if (tooLarge) {
@@ -1038,11 +1115,11 @@ namespace Exiv2 {
         assert(object != 0);
         assert(datum != 0);
 
-        uint32_t newSize = datum->size();
+        size_t newSize = datum->size();
         if (newSize > object->size_) { // value doesn't fit, encode for intrusive writing
             setDirty();
             object->updateValue(datum->getValue(), byteOrder()); // clones the value
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
             ExifKey key(object->tag(), groupName(object->group()));
             std::cerr << "UPDATING DATA     " << key;
             std::cerr << "\t\t\t ALLOCATED " << object->size() << " BYTES";
@@ -1050,7 +1127,7 @@ namespace Exiv2 {
         }
         else {
             object->setValue(datum->getValue()); // clones the value
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
             ExifKey key(object->tag(), groupName(object->group()));
             std::cerr << "NOT UPDATING      " << key;
             std::cerr << "\t\t\t PRESERVE VALUE DATA";
@@ -1096,7 +1173,7 @@ namespace Exiv2 {
             TiffCreator::getPath(tiffPath, i->tag(), group, root);
             TiffComponent* tc = pRootDir->addPath(i->tag(), tiffPath, pRootDir);
             TiffEntryBase* object = dynamic_cast<TiffEntryBase*>(tc);
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
             if (object == 0) {
                 std::cerr << "Warning: addPath() didn't add an entry for "
                           << i->groupName()
@@ -1133,7 +1210,7 @@ namespace Exiv2 {
     } // TiffEncoder::add
 
     TiffReader::TiffReader(const byte*    pData,
-                           uint32_t       size,
+                           size_t size,
                            TiffComponent* pRoot,
                            TiffRwState    state)
         : pData_(pData),
@@ -1423,11 +1500,11 @@ namespace Exiv2 {
             EXV_ERROR << "Failed to read "
                       << groupName(object->ifd_.group())
                       << " IFD Makernote header.\n";
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
             if (static_cast<uint32_t>(pLast_ - object->start()) >= 16) {
                 hexdump(std::cerr, object->start(), 16);
             }
-#endif // DEBUG
+#endif // EXIV2_DEBUG_MESSAGES
 #endif // SUPPRESS_WARNINGS
             setGo(geKnownMakernote, false);
             return;
@@ -1467,7 +1544,7 @@ namespace Exiv2 {
         p += 2;
         TiffType tiffType = getUShort(p, byteOrder());
         TypeId typeId = toTypeId(tiffType, object->tag(), object->group());
-        long typeSize = TypeInfo::typeSize(typeId);
+        size_t typeSize = TypeInfo::typeSize(typeId);
         if (0 == typeSize) {
 #ifndef SUPPRESS_WARNINGS
             EXV_WARNING << "Directory " << groupName(object->group())
@@ -1492,12 +1569,12 @@ namespace Exiv2 {
             return;
         }
         p += 4;
-        uint32_t isize= 0; // size of Exif.Sony1.PreviewImage
+        size_t isize= 0; // size of Exif.Sony1.PreviewImage
 
         if (count > std::numeric_limits<uint32_t>::max() / typeSize) {
             throw Error(kerArithmeticOverflow);
         }
-        uint32_t size = typeSize * count;
+        size_t size = typeSize * count;
         uint32_t offset = getLong(p, byteOrder());
         byte* pData = p;
         if (   size > 4
@@ -1566,7 +1643,7 @@ namespace Exiv2 {
         }
 
         object->setValue(std::move(v));
-        object->setData(pData, size);
+        object->setData(pData, (int32_t)size);
         object->setOffset(offset);
         object->setIdx(nextIdx(object->group()));
 
@@ -1584,7 +1661,6 @@ namespace Exiv2 {
             postList_.push_back(object);
             return;
         }
-
         // Check duplicates
         TiffFinder finder(object->tag(), object->group());
         pRoot_->accept(finder);

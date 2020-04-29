@@ -1,7 +1,3 @@
-cmake_minimum_required(VERSION 3.12)
-
-include(cmake/CheckIncludeFile.cmake)
-
 add_library(exiv2-xmp STATIC
     src/ExpatAdapter.cpp
     src/MD5.cpp
@@ -30,8 +26,7 @@ add_library(exiv2-xmp STATIC
     include/XMP_Version.h
 )
 
-include_directories(./include)
-
+# TODO: Use imported target EXPAT::EXPAT when we upgrade CMake version
 target_link_libraries(exiv2-xmp
     PRIVATE 
         ${EXPAT_LIBRARY}
@@ -52,7 +47,7 @@ if (MSVC)
     target_compile_definitions(exiv2-xmp PRIVATE XML_STATIC)
 endif()
 
-check_include_file(stdint.h  EXV_HAVE_STDINT_H)
+check_include_file( "stdint.h"  EXV_HAVE_STDINT_H )
 if (EXV_HAVE_STDINT_H)
     target_compile_definitions(exiv2-xmp PRIVATE EXV_HAVE_STDINT_H)
 endif()

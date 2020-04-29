@@ -40,6 +40,7 @@
 #include "tiffimage.hpp"
 #include "tiffimage_int.hpp"
 #include "convert.hpp"
+#include "safe_op.hpp"
 
 #include <cmath>
 #include <iomanip>
@@ -131,7 +132,7 @@ namespace Exiv2 {
         if (!io_->isopen()) throw Error(kerInputDataReadFailed);
         if (!outIo.isopen()) throw Error(kerImageWriteFailed);
 
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
         std::cout << "Writing metadata" << std::endl;
 #endif
 
@@ -176,7 +177,7 @@ namespace Exiv2 {
         std::string xmp(xmpPacket_);
 
         /* Verify for a VP8X Chunk First before writing in
-         case we have any exif or mlut_xmp data, also check
+         case we have any exif or xmp data, also check
          for any chunks with alpha frame/layer set */
         while ( !io_->eof() && (uint64_t) io_->tell() < filesize) {
             io_->read(chunkId.pData_, WEBP_TAG_SIZE);
@@ -376,7 +377,7 @@ namespace Exiv2 {
             us2Data(data, (uint16_t) blob.size()+8, bigEndian);
             ul2Data(data, (uint32_t) blob.size(), littleEndian);
             if (outIo.write(data, WEBP_TAG_SIZE) != WEBP_TAG_SIZE) throw Error(kerImageWriteFailed);
-            if (outIo.write((const byte*)&blob[0], static_cast<long>(blob.size())) != (long)blob.size())
+            if (outIo.write((const byte*)&blob[0], blob.size()) != blob.size())
             {
                 throw Error(kerImageWriteFailed);
             }
@@ -389,7 +390,7 @@ namespace Exiv2 {
             if (outIo.write((const byte*)WEBP_CHUNK_HEADER_XMP, WEBP_TAG_SIZE) != WEBP_TAG_SIZE) throw Error(kerImageWriteFailed);
             ul2Data(data, (uint32_t) xmpPacket().size(), littleEndian);
             if (outIo.write(data, WEBP_TAG_SIZE) != WEBP_TAG_SIZE) throw Error(kerImageWriteFailed);
-            if (outIo.write((const byte*)xmp.data(), static_cast<long>(xmp.size())) != (long)xmp.size()) {
+            if (outIo.write((const byte*)xmp.data(), xmp.size()) != xmp.size()) {
                 throw Error(kerImageWriteFailed);
             }
             if (outIo.tell() % 2) {
@@ -489,29 +490,54 @@ namespace Exiv2 {
         DataBuf chunkId(5);
         chunkId.pData_[4] = '\0' ;
 
-        io_->read(data, WEBP_TAG_SIZE * 3);
+        io_->readOrThrow(data, WEBP_TAG_SIZE * 3);
 
-        const uint32_t filesize = Exiv2::getULong(data + WEBP_TAG_SIZE, littleEndian) + 8;
-        enforce(filesize <= io_->size(), Exiv2::kerCorruptedMetadata);
-        WebPImage::decodeChunks(filesize);
+        const uint32_t filesize_u32 =
+            Safe::add(Exiv2::getULong(data + WEBP_TAG_SIZE, littleEndian), 8U);
+        enforce(filesize_u32 <= io_->size(), Exiv2::kerCorruptedMetadata);
+
+        // Check that `filesize_u32` is safe to cast to `long`. The `#if`
+        // is needed because this check is redundant on platforms where
+        // `long` is 64 bits.  On those platforms, it causes the build to
+        // fail due to a compiler warning in clang.
+#if LONG_MAX < UINT_MAX
+        enforce(filesize_u32 <= static_cast<size_t>(std::numeric_limits<long>::max()),
+                Exiv2::kerCorruptedMetadata);
+#endif
+
+        WebPImage::decodeChunks(static_cast<long>(filesize_u32));
 
     } // WebPImage::readMetadata
 
-    void WebPImage::decodeChunks(uint64_t filesize)
+    void WebPImage::decodeChunks(long filesize)
     {
         DataBuf   chunkId(5);
         byte      size_buff[WEBP_TAG_SIZE];
         bool      has_canvas_data = false;
 
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
         std::cout << "Reading metadata" << std::endl;
 #endif
 
         chunkId.pData_[4] = '\0' ;
-        while ( !io_->eof() && (uint64_t) io_->tell() < filesize) {
-            io_->read(chunkId.pData_, WEBP_TAG_SIZE);
-            io_->read(size_buff, WEBP_TAG_SIZE);
-            const uint32_t size = Exiv2::getULong(size_buff, littleEndian);
+        while (!io_->eof() && io_->tell() < filesize) {
+            io_->readOrThrow(chunkId.pData_, WEBP_TAG_SIZE);
+            io_->readOrThrow(size_buff, WEBP_TAG_SIZE);
+
+            const uint32_t size_u32 = Exiv2::getULong(size_buff, littleEndian);
+
+            // Check that `size_u32` is safe to cast to `long`. The `#if`
+            // is needed because this check is redundant on platforms where
+            // `long` is 64 bits.  On those platforms, it causes the build
+            // to fail due to a compiler warning in clang.
+#if LONG_MAX < UINT_MAX
+            enforce(size_u32 <= static_cast<size_t>(std::numeric_limits<long>::max()),
+                    Exiv2::kerCorruptedMetadata);
+#endif
+            const long size = static_cast<long>(size_u32);
+
+            // Check that `size` is within bounds.
+            enforce(io_->tell() <= filesize, Exiv2::kerCorruptedMetadata);
             enforce(size <= (filesize - io_->tell()), Exiv2::kerCorruptedMetadata);
 
             DataBuf payload(size);
@@ -522,7 +548,7 @@ namespace Exiv2 {
                 has_canvas_data = true;
                 byte size_buf[WEBP_TAG_SIZE];
 
-                io_->read(payload.pData_, payload.size_);
+                io_->readOrThrow(payload.pData_, payload.size_);
 
                 // Fetch width
                 memcpy(&size_buf, &payload.pData_[4], 3);
@@ -537,7 +563,7 @@ namespace Exiv2 {
                 enforce(size >= 10, Exiv2::kerCorruptedMetadata);
 
                 has_canvas_data = true;
-                io_->read(payload.pData_, payload.size_);
+                io_->readOrThrow(payload.pData_, payload.size_);
                 byte size_buf[WEBP_TAG_SIZE];
 
                 // Fetch width""
@@ -558,7 +584,7 @@ namespace Exiv2 {
                 byte size_buf_w[2];
                 byte size_buf_h[3];
 
-                io_->read(payload.pData_, payload.size_);
+                io_->readOrThrow(payload.pData_, payload.size_);
 
                 // Fetch width
                 memcpy(&size_buf_w, &payload.pData_[1], 2);
@@ -576,7 +602,7 @@ namespace Exiv2 {
                 has_canvas_data = true;
                 byte size_buf[WEBP_TAG_SIZE];
 
-                io_->read(payload.pData_, payload.size_);
+                io_->readOrThrow(payload.pData_, payload.size_);
 
                 // Fetch width
                 memcpy(&size_buf, &payload.pData_[6], 3);
@@ -588,10 +614,10 @@ namespace Exiv2 {
                 size_buf[3] = 0;
                 pixelHeight_ = Exiv2::getULong(size_buf, littleEndian) + 1;
             } else if (equalsWebPTag(chunkId, WEBP_CHUNK_HEADER_ICCP)) {
-                io_->read(payload.pData_, payload.size_);
+                io_->readOrThrow(payload.pData_, payload.size_);
                 this->setIccProfile(payload);
             } else if (equalsWebPTag(chunkId, WEBP_CHUNK_HEADER_EXIF)) {
-                io_->read(payload.pData_, payload.size_);
+                io_->readOrThrow(payload.pData_, payload.size_);
 
                 // 4 meaningful bytes + 2 padding bytes
                 byte  exifLongHeader[]   = { 0xFF, 0x01, 0xFF, 0xE1, 0x00, 0x00 };
@@ -603,22 +629,22 @@ namespace Exiv2 {
                 bool  s_header = false;
                 bool  le_header = false;
                 bool  be_header = false;
-                long  pos = getHeaderOffset (payload.pData_, payload.size_, (byte*)&exifLongHeader, 4);
+                long  pos = getHeaderOffset (payload.pData_, (long)payload.size_, (byte*)&exifLongHeader, 4);
 
                 if (pos == -1) {
-                    pos = getHeaderOffset (payload.pData_, payload.size_, (byte*)&exifLongHeader, 6);
+                    pos = getHeaderOffset (payload.pData_, (long)payload.size_, (byte*)&exifLongHeader, 6);
                     if (pos != -1) {
                         s_header = true;
                     }
                 }
                 if (pos == -1) {
-                    pos = getHeaderOffset (payload.pData_, payload.size_, (byte*)&exifTiffLEHeader, 3);
+                    pos = getHeaderOffset (payload.pData_, (long)payload.size_, (byte*)&exifTiffLEHeader, 3);
                     if (pos != -1) {
                         le_header = true;
                     }
                 }
                 if (pos == -1) {
-                    pos = getHeaderOffset (payload.pData_, payload.size_, (byte*)&exifTiffBEHeader, 4);
+                    pos = getHeaderOffset (payload.pData_, (long)payload.size_, (byte*)&exifTiffBEHeader, 4);
                     if (pos != -1) {
                         be_header = true;
                     }
@@ -631,18 +657,18 @@ namespace Exiv2 {
                     offset += 12;
                 }
 
-                const long sizePayload = payload.size_ + offset;
+                const uint16_t sizePayload = (uint16_t)(payload.size_ + offset);
                 rawExifData = (byte*)malloc(sizePayload);
 
                 byte  sizeBuff[2];
                 if (s_header) {
-                    us2Data(sizeBuff, (uint16_t) (sizePayload - 6), bigEndian);
+                    us2Data(sizeBuff, (sizePayload - 6), bigEndian);
                     memcpy(rawExifData, (char*)&exifLongHeader, 4);
                     memcpy(rawExifData + 4, (char*)&sizeBuff, 2);
                 }
 
                 if (be_header || le_header) {
-                    us2Data(sizeBuff, (uint16_t) (sizePayload - 6), bigEndian);
+                    us2Data(sizeBuff, (sizePayload - 6), bigEndian);
                     memcpy(rawExifData, (char*)&exifLongHeader, 4);
                     memcpy(rawExifData + 4, (char*)&sizeBuff, 2);
                     memcpy(rawExifData + 6, (char*)&exifShortHeader, 6);
@@ -650,7 +676,7 @@ namespace Exiv2 {
 
                 memcpy(rawExifData + offset, payload.pData_, payload.size_);
 
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
                 std::cout << "Display Hex Dump [size:" << (unsigned long)sizePayload << "]" << std::endl;
                 std::cout << Internal::binaryToHex(rawExifData, sizePayload);
 #endif
@@ -659,7 +685,7 @@ namespace Exiv2 {
                     XmpData  xmpData;
                     ByteOrder bo = ExifParser::decode(exifData_,
                                                       payload.pData_ + pos,
-                                                      payload.size_ - pos);
+                                                      static_cast<uint32_t>(payload.size_ - (size_t)pos));
                     setByteOrder(bo);
                 }
                 else
@@ -673,14 +699,14 @@ namespace Exiv2 {
                 if (rawExifData)
                     free(rawExifData);
             } else if (equalsWebPTag(chunkId, WEBP_CHUNK_HEADER_XMP)) {
-                io_->read(payload.pData_, payload.size_);
+                io_->readOrThrow(payload.pData_, payload.size_);
                 xmpPacket_.assign(reinterpret_cast<char*>(payload.pData_), payload.size_);
                 if (xmpPacket_.size() > 0 && XmpParser::decode(xmpData_, xmpPacket_)) {
 #ifndef SUPPRESS_WARNINGS
                     EXV_WARNING << "Failed to decode XMP metadata." << std::endl;
 #endif
                 } else {
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
                     std::cout << "Display Hex Dump [size:" << (unsigned long)payload.size_ << "]" << std::endl;
                     std::cout << Internal::binaryToHex(payload.pData_, payload.size_);
 #endif
@@ -706,6 +732,9 @@ namespace Exiv2 {
 
     bool isWebPType(BasicIo& iIo, bool /*advance*/)
     {
+        if (iIo.size() < 12) {
+          return false;
+        }
         const int32_t len = 4;
         const unsigned char RiffImageId[4] = { 'R', 'I', 'F' ,'F'};
         const unsigned char WebPImageId[4] = { 'W', 'E', 'B' ,'P'};
@@ -786,7 +815,7 @@ namespace Exiv2 {
         /* Handle inject an icc profile right after VP8X chunk */
         if (has_icc) {
             byte size_buff[WEBP_TAG_SIZE];
-            ul2Data(size_buff, iccProfile_.size_, littleEndian);
+            ul2Data(size_buff, (uint32_t)iccProfile_.size_, littleEndian);
             if (iIo.write((const byte*)WEBP_CHUNK_HEADER_VP8X, WEBP_TAG_SIZE) != WEBP_TAG_SIZE)
                 throw Error(kerImageWriteFailed);
             if (iIo.write(size_buff, WEBP_TAG_SIZE) != WEBP_TAG_SIZE)
@@ -801,12 +830,15 @@ namespace Exiv2 {
         }
     }
 
-    long WebPImage::getHeaderOffset(byte *data, long data_size,
-                                    byte *header, long header_size) {
+    long WebPImage::getHeaderOffset(byte* data, size_t data_size, byte* header, size_t header_size)
+    {
+        if (data_size < header_size) {
+            return -1;
+        }
         long pos = -1;
-        for (long i=0; i < data_size - header_size; i++) {
+        for (size_t i = 0; i < data_size - header_size; i++) {
             if (memcmp(header, &data[i], header_size) == 0) {
-                pos = i;
+                pos = (long)i;
                 break;
             }
         }

@@ -25,8 +25,7 @@
            <a href="mailto:ahuggel@gmx.net">ahuggel@gmx.net</a>
   @date    11-Apr-06, ahu: created
  */
-#ifndef TIFFVISITOR_INT_HPP_
-#define TIFFVISITOR_INT_HPP_
+#pragma once
 
 // *****************************************************************************
 // included header files
@@ -332,6 +331,8 @@ namespace Exiv2 {
         void decodeIptc(const TiffEntryBase* object);
         //! Decode XMP packet from an XMLPacket tag
         void decodeXmp(const TiffEntryBase* object);
+        //! Decode Exif.Canon.AFInfo
+        void decodeCanonAFInfo(const TiffEntryBase* object);
         //@}
 
     private:
@@ -638,10 +639,7 @@ namespace Exiv2 {
           @param state     State object for creation function, byte order and
                            base offset.
          */
-        TiffReader(const byte*          pData,
-                   uint32_t             size,
-                   TiffComponent*       pRoot,
-                   TiffRwState          state);
+        TiffReader(const byte* pData, size_t size, TiffComponent* pRoot, TiffRwState state);
 
         //! Virtual destructor
         ~TiffReader() override;
@@ -717,7 +715,7 @@ namespace Exiv2 {
 
         // DATA
         const byte*          pData_;      //!< Pointer to the memory buffer
-        const uint32_t       size_;       //!< Size of the buffer
+        const size_t         size_;       //!< Size of the buffer
         const byte*          pLast_;      //!< Pointer to the last byte
         TiffComponent* const pRoot_;      //!< Root element of the composite
         TiffRwState*         pState_;     //!< Pointer to the state in effect (origState_ or mnState_)
@@ -730,5 +728,3 @@ namespace Exiv2 {
     }; // class TiffReader
 
 }}                                      // namespace Internal, Exiv2
-
-#endif                                  // #ifndef TIFFVISITOR_INT_HPP_

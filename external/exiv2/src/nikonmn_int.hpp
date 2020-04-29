@@ -38,8 +38,7 @@
   @date    17-May-04, ahu: created<BR>
            25-May-04, ahu: combined all Nikon formats in one component
  */
-#ifndef NIKONMN_INT_HPP_
-#define NIKONMN_INT_HPP_
+#pragma once
 
 // *****************************************************************************
 // included header files
@@ -124,7 +123,9 @@ namespace Exiv2 {
         //! Return read-only list of built-in Auto Focus tags
         static const TagInfo* tagListAf();
         //! Return read-only list of built-in Auto Focus 2 tags
-        static const TagInfo* tagListAf2();
+        static const TagInfo* tagListAf21();
+        //! Return read-only list of built-in Auto Focus 2 tags
+        static const TagInfo* tagListAf22();
         //! Return read-only list of built-in AF Fine Tune tags
         static const TagInfo* tagListAFT();
         //! Return read-only list of built-in File Info tags
@@ -235,7 +236,9 @@ namespace Exiv2 {
         //! Auto Focus tag information
         static const TagInfo tagInfoAf_[];
         //! Auto Focus tag 2 information
-        static const TagInfo tagInfoAf2_[];
+        static const TagInfo tagInfoAf21_[];
+        //! Auto Focus tag 2 information
+        static const TagInfo tagInfoAf22_[];
         //! AF Fine Tune tag information
         static const TagInfo tagInfoAFT_[];
         //! File Info tag information
@@ -280,5 +283,3 @@ namespace Exiv2 {
     }; // class Nikon3MakerNote
 
 }}                                      // namespace Internal, Exiv2
-
-#endif                                  // #ifndef NIKONMN_INT_HPP_

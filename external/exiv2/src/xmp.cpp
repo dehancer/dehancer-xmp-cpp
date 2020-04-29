@@ -18,7 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301 USA.
  */
 /*
-  File:      mlut_xmp.cpp
+  File:      xmp.cpp
   Author(s): Andreas Huggel (ahu) <ahuggel@gmx.net>
   History:   13-July-07, ahu: created
  */
@@ -217,17 +217,17 @@ namespace Exiv2 {
         return TypeInfo::typeName(typeId());
     }
 
-    long Xmpdatum::typeSize() const
+    size_t Xmpdatum::typeSize() const
     {
         return 0;
     }
 
-    long Xmpdatum::count() const
+    size_t Xmpdatum::count() const
     {
         return p_->value_.get() == 0 ? 0 : p_->value_->count();
     }
 
-    long Xmpdatum::size() const
+    size_t Xmpdatum::size() const
     {
         return p_->value_.get() == 0 ? 0 : p_->value_->size();
     }
@@ -754,7 +754,7 @@ namespace Exiv2 {
         // Register custom namespaces with XMP-SDK
         for (XmpProperties::NsRegistry::iterator i = XmpProperties::nsRegistry_.begin();
              i != XmpProperties::nsRegistry_.end(); ++i) {
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
             std::cerr << "Registering " << i->second.prefix_ << " : " << i->first << "\n";
 #endif
             registerNs(i->first, i->second.prefix_);
@@ -795,7 +795,7 @@ namespace Exiv2 {
                 || i->typeId() == xmpAlt) {
                 printNode(ns, i->tagName(), "", options);
                 meta.SetProperty(ns.c_str(), i->tagName().c_str(), 0, options);
-                for (int idx = 0; idx < i->count(); ++idx) {
+                for (long idx = 0; idx < static_cast<long>(i->count()); ++idx) {
                     const std::string item = i->tagName() + "[" + toString(idx + 1) + "]";
                     printNode(ns, item, i->toString(idx), 0);
                     meta.SetProperty(ns.c_str(), item.c_str(), i->toString(idx).c_str());
@@ -931,7 +931,7 @@ namespace {
         return var;
     }
 
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
     void printNode(const std::string& schemaNs,
                    const std::string& propPath,
                    const std::string& propValue,
@@ -974,7 +974,7 @@ namespace {
                    const std::string& ,
                    const XMP_OptionBits& )
     {}
-#endif // DEBUG
+#endif // EXIV2_DEBUG_MESSAGES
 
     Exiv2::XmpKey::UniquePtr makeXmpKey(const std::string& schemaNs,
                                       const std::string& propPath)

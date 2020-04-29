@@ -445,7 +445,7 @@ namespace Exiv2 {
         TagInfo(0x0021, "DataDump", N_("Data Dump"), N_("Data dump"), panasonicId, makerTags, undefined, -1, printValue),
         TagInfo(0x0022, "0x0022", "0x0022", N_("Unknown"), panasonicId, makerTags, unsignedShort, -1, printValue),
         TagInfo(0x0023, "WhiteBalanceBias", N_("White Balance Bias"), N_("White balance adjustment"), panasonicId, makerTags, signedShort, -1, print0x0023),
-        TagInfo(0x0024, "FlashBias", N_("FlashBias"), N_("Flash impact"), panasonicId, makerTags, signedShort, -1, printValue),
+        TagInfo(0x0024, "FlashBias", N_("FlashBias"), N_("Flash bias"), panasonicId, makerTags, signedShort, -1, printValue),
         TagInfo(0x0025, "InternalSerialNumber", N_("Internal Serial Number"), N_("This number is unique, and contains the date of manufacture, but is not the same as the number printed on the camera body."), panasonicId, makerTags, undefined, -1, printPanasonicText),
         TagInfo(0x0026, "ExifVersion", "Exif Version", N_("Exif version"), panasonicId, makerTags, undefined, -1, printExifVersion),
         TagInfo(0x0027, "0x0027", "0x0027", N_("Unknown"), panasonicId, makerTags, unsignedShort, -1, printValue),
@@ -570,7 +570,7 @@ namespace Exiv2 {
         return os;
     } // PanasonicMakerNote::print0x000f
 
-    // tag White balance impact
+    // tag White balance bias
     std::ostream& PanasonicMakerNote::print0x0023(std::ostream& os,
                                                   const Value& value,
                                                   const ExifData*)

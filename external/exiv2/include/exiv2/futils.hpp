@@ -25,12 +25,12 @@
   @date    12-Dec-03, ahu: created<BR>
            02-Apr-05, ahu: moved to Exiv2 namespace
  */
-#ifndef FUTILS_HPP_
-#define FUTILS_HPP_
+#pragma once
 
 #include "exiv2lib_export.h"
 #include "config.h"
 
+#include <vector>
 #include <string>
 
 // namespace extensions
@@ -178,6 +178,9 @@ namespace Exiv2
     //! @brief Return the path of the current process.
     EXIV2API std::string getProcessPath();
 
+    //! @brief Return vector of libraries in memory.
+    EXIV2API std::vector<std::string> getLoadedLibraries();
+
     /*!
       @brief A container for URL components. It also provides the method to parse a
             URL to get the protocol, host, path, port, querystring, username, password.
@@ -206,5 +209,3 @@ namespace Exiv2
     };
 
 }  // namespace Exiv2
-
-#endif // #ifndef FUTILS_HPP_

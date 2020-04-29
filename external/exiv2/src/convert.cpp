@@ -310,133 +310,133 @@ namespace Exiv2 {
 
     // Order is important for computing digests
     const Converter::Conversion Converter::conversion_[] = {
-        { mdExif, "Exif.Image.ImageWidth",                "MLutXmp.tiff.ImageWidth",                &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Image.ImageLength",               "MLutXmp.tiff.ImageLength",               &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Image.BitsPerSample",             "MLutXmp.tiff.BitsPerSample",             &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Image.Compression",               "MLutXmp.tiff.Compression",               &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Image.PhotometricInterpretation", "MLutXmp.tiff.PhotometricInterpretation", &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Image.Orientation",               "MLutXmp.tiff.Orientation",               &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Image.SamplesPerPixel",           "MLutXmp.tiff.SamplesPerPixel",           &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Image.PlanarConfiguration",       "MLutXmp.tiff.PlanarConfiguration",       &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Image.YCbCrSubSampling",          "MLutXmp.tiff.YCbCrSubSampling",          &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Image.YCbCrPositioning",          "MLutXmp.tiff.YCbCrPositioning",          &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Image.XResolution",               "MLutXmp.tiff.XResolution",               &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Image.YResolution",               "MLutXmp.tiff.YResolution",               &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Image.ResolutionUnit",            "MLutXmp.tiff.ResolutionUnit",            &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Image.TransferFunction",          "MLutXmp.tiff.TransferFunction",          &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Image.WhitePoint",                "MLutXmp.tiff.WhitePoint",                &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Image.PrimaryChromaticities",     "MLutXmp.tiff.PrimaryChromaticities",     &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Image.YCbCrCoefficients",         "MLutXmp.tiff.YCbCrCoefficients",         &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Image.ReferenceBlackWhite",       "MLutXmp.tiff.ReferenceBlackWhite",       &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Image.DateTime",                  "MLutXmp.mlut_xmp.ModifyDate",                 &Converter::cnvExifDate , &Converter::cnvXmpDate  }, // MWG Guidelines
-        { mdExif, "Exif.Image.ImageDescription",          "MLutXmp.dc.description",                 &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Image.Make",                      "MLutXmp.tiff.Make",                      &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Image.Model",                     "MLutXmp.tiff.Model",                     &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Image.Software",                  "MLutXmp.tiff.Software",                  &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Image.Artist",                    "MLutXmp.dc.creator",                     &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Image.Rating",                    "MLutXmp.mlut_xmp.Rating",                     &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Image.Copyright",                 "MLutXmp.dc.rights",                      &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.ExifVersion",               "MLutXmp.exif.ExifVersion",               &Converter::cnvExifVersion, &Converter::cnvXmpVersion },
-        { mdExif, "Exif.Photo.FlashpixVersion",           "MLutXmp.exif.FlashpixVersion",           &Converter::cnvExifVersion, &Converter::cnvXmpVersion },
-        { mdExif, "Exif.Photo.ColorSpace",                "MLutXmp.exif.ColorSpace",                &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.ComponentsConfiguration",   "MLutXmp.exif.ComponentsConfiguration",   &Converter::cnvExifArray, &Converter::cnvXmpArray },
-        { mdExif, "Exif.Photo.CompressedBitsPerPixel",    "MLutXmp.exif.CompressedBitsPerPixel",    &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.PixelXDimension",           "MLutXmp.exif.PixelXDimension",           &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.PixelYDimension",           "MLutXmp.exif.PixelYDimension",           &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.UserComment",               "MLutXmp.exif.UserComment",               &Converter::cnvExifComment, &Converter::cnvXmpComment },
-        { mdExif, "Exif.Photo.RelatedSoundFile",          "MLutXmp.exif.RelatedSoundFile",          &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.DateTimeOriginal",          "MLutXmp.photoshop.DateCreated",          &Converter::cnvExifDate,  &Converter::cnvXmpDate  }, // MWG Guidelines
-        { mdExif, "Exif.Photo.DateTimeDigitized",         "MLutXmp.mlut_xmp.CreateDate",                 &Converter::cnvExifDate,  &Converter::cnvXmpDate  }, // MWG Guidelines
-        { mdExif, "Exif.Photo.ExposureTime",              "MLutXmp.exif.ExposureTime",              &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.FNumber",                   "MLutXmp.exif.FNumber",                   &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.ExposureProgram",           "MLutXmp.exif.ExposureProgram",           &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.SpectralSensitivity",       "MLutXmp.exif.SpectralSensitivity",       &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.ISOSpeedRatings",           "MLutXmp.exif.ISOSpeedRatings",           &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.OECF",                      "MLutXmp.exif.OECF",                      &Converter::cnvExifValue, &Converter::cnvXmpValue }, // FIXME ?
-        { mdExif, "Exif.Photo.ShutterSpeedValue",         "MLutXmp.exif.ShutterSpeedValue",         &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.ApertureValue",             "MLutXmp.exif.ApertureValue",             &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.BrightnessValue",           "MLutXmp.exif.BrightnessValue",           &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.ExposureBiasValue",         "MLutXmp.exif.ExposureBiasValue",         &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.MaxApertureValue",          "MLutXmp.exif.MaxApertureValue",          &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.SubjectDistance",           "MLutXmp.exif.SubjectDistance",           &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.MeteringMode",              "MLutXmp.exif.MeteringMode",              &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.LightSource",               "MLutXmp.exif.LightSource",               &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.Flash",                     "MLutXmp.exif.Flash",                     &Converter::cnvExifFlash, &Converter::cnvXmpFlash },
-        { mdExif, "Exif.Photo.FocalLength",               "MLutXmp.exif.FocalLength",               &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.SubjectArea",               "MLutXmp.exif.SubjectArea",               &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.FlashEnergy",               "MLutXmp.exif.FlashEnergy",               &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.SpatialFrequencyResponse",  "MLutXmp.exif.SpatialFrequencyResponse",  &Converter::cnvExifValue, &Converter::cnvXmpValue }, // FIXME ?
-        { mdExif, "Exif.Photo.FocalPlaneXResolution",     "MLutXmp.exif.FocalPlaneXResolution",     &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.FocalPlaneYResolution",     "MLutXmp.exif.FocalPlaneYResolution",     &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.FocalPlaneResolutionUnit",  "MLutXmp.exif.FocalPlaneResolutionUnit",  &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.SubjectLocation",           "MLutXmp.exif.SubjectLocation",           &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.ExposureIndex",             "MLutXmp.exif.ExposureIndex",             &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.SensingMethod",             "MLutXmp.exif.SensingMethod",             &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.FileSource",                "MLutXmp.exif.FileSource",                &Converter::cnvExifValue, &Converter::cnvXmpValue }, // FIXME ?
-        { mdExif, "Exif.Photo.SceneType",                 "MLutXmp.exif.SceneType",                 &Converter::cnvExifValue, &Converter::cnvXmpValue }, // FIXME ?
-        { mdExif, "Exif.Photo.CFAPattern",                "MLutXmp.exif.CFAPattern",                &Converter::cnvExifValue, &Converter::cnvXmpValue }, // FIXME ?
-        { mdExif, "Exif.Photo.CustomRendered",            "MLutXmp.exif.CustomRendered",            &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.ExposureMode",              "MLutXmp.exif.ExposureMode",              &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.WhiteBalance",              "MLutXmp.exif.WhiteBalance",              &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.DigitalZoomRatio",          "MLutXmp.exif.DigitalZoomRatio",          &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.FocalLengthIn35mmFilm",     "MLutXmp.exif.FocalLengthIn35mmFilm",     &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.SceneCaptureType",          "MLutXmp.exif.SceneCaptureType",          &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.GainControl",               "MLutXmp.exif.GainControl",               &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.Contrast",                  "MLutXmp.exif.Contrast",                  &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.Saturation",                "MLutXmp.exif.Saturation",                &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.Sharpness",                 "MLutXmp.exif.Sharpness",                 &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.DeviceSettingDescription",  "MLutXmp.exif.DeviceSettingDescription",  &Converter::cnvExifValue, &Converter::cnvXmpValue }, // FIXME ?
-        { mdExif, "Exif.Photo.SubjectDistanceRange",      "MLutXmp.exif.SubjectDistanceRange",      &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.Photo.ImageUniqueID",             "MLutXmp.exif.ImageUniqueID",             &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.GPSInfo.GPSVersionID",            "MLutXmp.exif.GPSVersionID",              &Converter::cnvExifGPSVersion, &Converter::cnvXmpGPSVersion },
-        { mdExif, "Exif.GPSInfo.GPSLatitude",             "MLutXmp.exif.GPSLatitude",               &Converter::cnvExifGPSCoord, &Converter::cnvXmpGPSCoord },
-        { mdExif, "Exif.GPSInfo.GPSLongitude",            "MLutXmp.exif.GPSLongitude",              &Converter::cnvExifGPSCoord, &Converter::cnvXmpGPSCoord },
-        { mdExif, "Exif.GPSInfo.GPSAltitudeRef",          "MLutXmp.exif.GPSAltitudeRef",            &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.GPSInfo.GPSAltitude",             "MLutXmp.exif.GPSAltitude",               &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.GPSInfo.GPSTimeStamp",            "MLutXmp.exif.GPSTimeStamp",              &Converter::cnvExifDate,  &Converter::cnvXmpDate  }, // FIXME ?
-        { mdExif, "Exif.GPSInfo.GPSSatellites",           "MLutXmp.exif.GPSSatellites",             &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.GPSInfo.GPSStatus",               "MLutXmp.exif.GPSStatus",                 &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.GPSInfo.GPSMeasureMode",          "MLutXmp.exif.GPSMeasureMode",            &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.GPSInfo.GPSDOP",                  "MLutXmp.exif.GPSDOP",                    &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.GPSInfo.GPSSpeedRef",             "MLutXmp.exif.GPSSpeedRef",               &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.GPSInfo.GPSSpeed",                "MLutXmp.exif.GPSSpeed",                  &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.GPSInfo.GPSTrackRef",             "MLutXmp.exif.GPSTrackRef",               &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.GPSInfo.GPSTrack",                "MLutXmp.exif.GPSTrack",                  &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.GPSInfo.GPSImgDirectionRef",      "MLutXmp.exif.GPSImgDirectionRef",        &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.GPSInfo.GPSImgDirection",         "MLutXmp.exif.GPSImgDirection",           &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.GPSInfo.GPSMapDatum",             "MLutXmp.exif.GPSMapDatum",               &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.GPSInfo.GPSDestLatitude",         "MLutXmp.exif.GPSDestLatitude",           &Converter::cnvExifGPSCoord, &Converter::cnvXmpGPSCoord },
-        { mdExif, "Exif.GPSInfo.GPSDestLongitude",        "MLutXmp.exif.GPSDestLongitude",          &Converter::cnvExifGPSCoord, &Converter::cnvXmpGPSCoord },
-        { mdExif, "Exif.GPSInfo.GPSDestBearingRef",       "MLutXmp.exif.GPSDestBearingRef",         &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.GPSInfo.GPSDestBearing",          "MLutXmp.exif.GPSDestBearing",            &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.GPSInfo.GPSDestDistanceRef",      "MLutXmp.exif.GPSDestDistanceRef",        &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.GPSInfo.GPSDestDistance",         "MLutXmp.exif.GPSDestDistance",           &Converter::cnvExifValue, &Converter::cnvXmpValue },
-        { mdExif, "Exif.GPSInfo.GPSProcessingMethod",     "MLutXmp.exif.GPSProcessingMethod",       &Converter::cnvExifValue, &Converter::cnvXmpValue }, // FIXME ?
-        { mdExif, "Exif.GPSInfo.GPSAreaInformation",      "MLutXmp.exif.GPSAreaInformation",        &Converter::cnvExifValue, &Converter::cnvXmpValue }, // FIXME ?
-        { mdExif, "Exif.GPSInfo.GPSDifferential",         "MLutXmp.exif.GPSDifferential",           &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Image.ImageWidth",                "Xmp.tiff.ImageWidth",                &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Image.ImageLength",               "Xmp.tiff.ImageLength",               &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Image.BitsPerSample",             "Xmp.tiff.BitsPerSample",             &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Image.Compression",               "Xmp.tiff.Compression",               &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Image.PhotometricInterpretation", "Xmp.tiff.PhotometricInterpretation", &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Image.Orientation",               "Xmp.tiff.Orientation",               &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Image.SamplesPerPixel",           "Xmp.tiff.SamplesPerPixel",           &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Image.PlanarConfiguration",       "Xmp.tiff.PlanarConfiguration",       &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Image.YCbCrSubSampling",          "Xmp.tiff.YCbCrSubSampling",          &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Image.YCbCrPositioning",          "Xmp.tiff.YCbCrPositioning",          &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Image.XResolution",               "Xmp.tiff.XResolution",               &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Image.YResolution",               "Xmp.tiff.YResolution",               &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Image.ResolutionUnit",            "Xmp.tiff.ResolutionUnit",            &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Image.TransferFunction",          "Xmp.tiff.TransferFunction",          &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Image.WhitePoint",                "Xmp.tiff.WhitePoint",                &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Image.PrimaryChromaticities",     "Xmp.tiff.PrimaryChromaticities",     &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Image.YCbCrCoefficients",         "Xmp.tiff.YCbCrCoefficients",         &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Image.ReferenceBlackWhite",       "Xmp.tiff.ReferenceBlackWhite",       &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Image.DateTime",                  "Xmp.xmp.ModifyDate",                 &Converter::cnvExifDate , &Converter::cnvXmpDate  }, // MWG Guidelines
+        { mdExif, "Exif.Image.ImageDescription",          "Xmp.dc.description",                 &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Image.Make",                      "Xmp.tiff.Make",                      &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Image.Model",                     "Xmp.tiff.Model",                     &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Image.Software",                  "Xmp.tiff.Software",                  &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Image.Artist",                    "Xmp.dc.creator",                     &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Image.Rating",                    "Xmp.xmp.Rating",                     &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Image.Copyright",                 "Xmp.dc.rights",                      &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.ExifVersion",               "Xmp.exif.ExifVersion",               &Converter::cnvExifVersion, &Converter::cnvXmpVersion },
+        { mdExif, "Exif.Photo.FlashpixVersion",           "Xmp.exif.FlashpixVersion",           &Converter::cnvExifVersion, &Converter::cnvXmpVersion },
+        { mdExif, "Exif.Photo.ColorSpace",                "Xmp.exif.ColorSpace",                &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.ComponentsConfiguration",   "Xmp.exif.ComponentsConfiguration",   &Converter::cnvExifArray, &Converter::cnvXmpArray },
+        { mdExif, "Exif.Photo.CompressedBitsPerPixel",    "Xmp.exif.CompressedBitsPerPixel",    &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.PixelXDimension",           "Xmp.exif.PixelXDimension",           &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.PixelYDimension",           "Xmp.exif.PixelYDimension",           &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.UserComment",               "Xmp.exif.UserComment",               &Converter::cnvExifComment, &Converter::cnvXmpComment },
+        { mdExif, "Exif.Photo.RelatedSoundFile",          "Xmp.exif.RelatedSoundFile",          &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.DateTimeOriginal",          "Xmp.photoshop.DateCreated",          &Converter::cnvExifDate,  &Converter::cnvXmpDate  }, // MWG Guidelines
+        { mdExif, "Exif.Photo.DateTimeDigitized",         "Xmp.xmp.CreateDate",                 &Converter::cnvExifDate,  &Converter::cnvXmpDate  }, // MWG Guidelines
+        { mdExif, "Exif.Photo.ExposureTime",              "Xmp.exif.ExposureTime",              &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.FNumber",                   "Xmp.exif.FNumber",                   &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.ExposureProgram",           "Xmp.exif.ExposureProgram",           &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.SpectralSensitivity",       "Xmp.exif.SpectralSensitivity",       &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.ISOSpeedRatings",           "Xmp.exif.ISOSpeedRatings",           &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.OECF",                      "Xmp.exif.OECF",                      &Converter::cnvExifValue, &Converter::cnvXmpValue }, // FIXME ?
+        { mdExif, "Exif.Photo.ShutterSpeedValue",         "Xmp.exif.ShutterSpeedValue",         &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.ApertureValue",             "Xmp.exif.ApertureValue",             &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.BrightnessValue",           "Xmp.exif.BrightnessValue",           &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.ExposureBiasValue",         "Xmp.exif.ExposureBiasValue",         &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.MaxApertureValue",          "Xmp.exif.MaxApertureValue",          &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.SubjectDistance",           "Xmp.exif.SubjectDistance",           &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.MeteringMode",              "Xmp.exif.MeteringMode",              &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.LightSource",               "Xmp.exif.LightSource",               &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.Flash",                     "Xmp.exif.Flash",                     &Converter::cnvExifFlash, &Converter::cnvXmpFlash },
+        { mdExif, "Exif.Photo.FocalLength",               "Xmp.exif.FocalLength",               &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.SubjectArea",               "Xmp.exif.SubjectArea",               &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.FlashEnergy",               "Xmp.exif.FlashEnergy",               &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.SpatialFrequencyResponse",  "Xmp.exif.SpatialFrequencyResponse",  &Converter::cnvExifValue, &Converter::cnvXmpValue }, // FIXME ?
+        { mdExif, "Exif.Photo.FocalPlaneXResolution",     "Xmp.exif.FocalPlaneXResolution",     &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.FocalPlaneYResolution",     "Xmp.exif.FocalPlaneYResolution",     &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.FocalPlaneResolutionUnit",  "Xmp.exif.FocalPlaneResolutionUnit",  &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.SubjectLocation",           "Xmp.exif.SubjectLocation",           &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.ExposureIndex",             "Xmp.exif.ExposureIndex",             &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.SensingMethod",             "Xmp.exif.SensingMethod",             &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.FileSource",                "Xmp.exif.FileSource",                &Converter::cnvExifValue, &Converter::cnvXmpValue }, // FIXME ?
+        { mdExif, "Exif.Photo.SceneType",                 "Xmp.exif.SceneType",                 &Converter::cnvExifValue, &Converter::cnvXmpValue }, // FIXME ?
+        { mdExif, "Exif.Photo.CFAPattern",                "Xmp.exif.CFAPattern",                &Converter::cnvExifValue, &Converter::cnvXmpValue }, // FIXME ?
+        { mdExif, "Exif.Photo.CustomRendered",            "Xmp.exif.CustomRendered",            &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.ExposureMode",              "Xmp.exif.ExposureMode",              &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.WhiteBalance",              "Xmp.exif.WhiteBalance",              &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.DigitalZoomRatio",          "Xmp.exif.DigitalZoomRatio",          &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.FocalLengthIn35mmFilm",     "Xmp.exif.FocalLengthIn35mmFilm",     &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.SceneCaptureType",          "Xmp.exif.SceneCaptureType",          &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.GainControl",               "Xmp.exif.GainControl",               &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.Contrast",                  "Xmp.exif.Contrast",                  &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.Saturation",                "Xmp.exif.Saturation",                &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.Sharpness",                 "Xmp.exif.Sharpness",                 &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.DeviceSettingDescription",  "Xmp.exif.DeviceSettingDescription",  &Converter::cnvExifValue, &Converter::cnvXmpValue }, // FIXME ?
+        { mdExif, "Exif.Photo.SubjectDistanceRange",      "Xmp.exif.SubjectDistanceRange",      &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.Photo.ImageUniqueID",             "Xmp.exif.ImageUniqueID",             &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.GPSInfo.GPSVersionID",            "Xmp.exif.GPSVersionID",              &Converter::cnvExifGPSVersion, &Converter::cnvXmpGPSVersion },
+        { mdExif, "Exif.GPSInfo.GPSLatitude",             "Xmp.exif.GPSLatitude",               &Converter::cnvExifGPSCoord, &Converter::cnvXmpGPSCoord },
+        { mdExif, "Exif.GPSInfo.GPSLongitude",            "Xmp.exif.GPSLongitude",              &Converter::cnvExifGPSCoord, &Converter::cnvXmpGPSCoord },
+        { mdExif, "Exif.GPSInfo.GPSAltitudeRef",          "Xmp.exif.GPSAltitudeRef",            &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.GPSInfo.GPSAltitude",             "Xmp.exif.GPSAltitude",               &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.GPSInfo.GPSTimeStamp",            "Xmp.exif.GPSTimeStamp",              &Converter::cnvExifDate,  &Converter::cnvXmpDate  }, // FIXME ?
+        { mdExif, "Exif.GPSInfo.GPSSatellites",           "Xmp.exif.GPSSatellites",             &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.GPSInfo.GPSStatus",               "Xmp.exif.GPSStatus",                 &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.GPSInfo.GPSMeasureMode",          "Xmp.exif.GPSMeasureMode",            &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.GPSInfo.GPSDOP",                  "Xmp.exif.GPSDOP",                    &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.GPSInfo.GPSSpeedRef",             "Xmp.exif.GPSSpeedRef",               &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.GPSInfo.GPSSpeed",                "Xmp.exif.GPSSpeed",                  &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.GPSInfo.GPSTrackRef",             "Xmp.exif.GPSTrackRef",               &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.GPSInfo.GPSTrack",                "Xmp.exif.GPSTrack",                  &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.GPSInfo.GPSImgDirectionRef",      "Xmp.exif.GPSImgDirectionRef",        &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.GPSInfo.GPSImgDirection",         "Xmp.exif.GPSImgDirection",           &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.GPSInfo.GPSMapDatum",             "Xmp.exif.GPSMapDatum",               &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.GPSInfo.GPSDestLatitude",         "Xmp.exif.GPSDestLatitude",           &Converter::cnvExifGPSCoord, &Converter::cnvXmpGPSCoord },
+        { mdExif, "Exif.GPSInfo.GPSDestLongitude",        "Xmp.exif.GPSDestLongitude",          &Converter::cnvExifGPSCoord, &Converter::cnvXmpGPSCoord },
+        { mdExif, "Exif.GPSInfo.GPSDestBearingRef",       "Xmp.exif.GPSDestBearingRef",         &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.GPSInfo.GPSDestBearing",          "Xmp.exif.GPSDestBearing",            &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.GPSInfo.GPSDestDistanceRef",      "Xmp.exif.GPSDestDistanceRef",        &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.GPSInfo.GPSDestDistance",         "Xmp.exif.GPSDestDistance",           &Converter::cnvExifValue, &Converter::cnvXmpValue },
+        { mdExif, "Exif.GPSInfo.GPSProcessingMethod",     "Xmp.exif.GPSProcessingMethod",       &Converter::cnvExifValue, &Converter::cnvXmpValue }, // FIXME ?
+        { mdExif, "Exif.GPSInfo.GPSAreaInformation",      "Xmp.exif.GPSAreaInformation",        &Converter::cnvExifValue, &Converter::cnvXmpValue }, // FIXME ?
+        { mdExif, "Exif.GPSInfo.GPSDifferential",         "Xmp.exif.GPSDifferential",           &Converter::cnvExifValue, &Converter::cnvXmpValue },
 
-        { mdIptc, "Iptc.Application2.ObjectName",         "MLutXmp.dc.title",                       &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc },
-        { mdIptc, "Iptc.Application2.Urgency",            "MLutXmp.photoshop.Urgency",              &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc },
-        { mdIptc, "Iptc.Application2.Category",           "MLutXmp.photoshop.Category",             &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc },
-        { mdIptc, "Iptc.Application2.SuppCategory",       "MLutXmp.photoshop.SupplementalCategories", &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc },
-        { mdIptc, "Iptc.Application2.Keywords",           "MLutXmp.dc.subject",                     &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc },
-        { mdIptc, "Iptc.Application2.SubLocation",        "MLutXmp.iptc.Location",                  &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc },
-        { mdIptc, "Iptc.Application2.SpecialInstructions","MLutXmp.photoshop.Instructions",         &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc },
-        { mdIptc, "Iptc.Application2.DateCreated",        "MLutXmp.photoshop.DateCreated",          &Converter::cnvNone, &Converter::cnvXmpValueToIptc }, // FIXME to IPTC Date and IPTC Time
-        { mdIptc, "Iptc.Application2.DigitizationDate",   "MLutXmp.mlut_xmp.CreateDate",                 &Converter::cnvNone, &Converter::cnvXmpValueToIptc }, // FIXME to IPTC Date and IPTC Time
-        { mdIptc, "Iptc.Application2.Byline",             "MLutXmp.dc.creator",                     &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc },
-        { mdIptc, "Iptc.Application2.BylineTitle",        "MLutXmp.photoshop.AuthorsPosition",      &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc },
-        { mdIptc, "Iptc.Application2.City",               "MLutXmp.photoshop.City",                 &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc },
-        { mdIptc, "Iptc.Application2.ProvinceState",      "MLutXmp.photoshop.State",                &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc },
-        { mdIptc, "Iptc.Application2.CountryCode",        "MLutXmp.iptc.CountryCode",               &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc },
-        { mdIptc, "Iptc.Application2.CountryName",        "MLutXmp.photoshop.Country",              &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc },
-        { mdIptc, "Iptc.Application2.TransmissionReference", "MLutXmp.photoshop.TransmissionReference", &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc },
-        { mdIptc, "Iptc.Application2.Headline",            "MLutXmp.photoshop.Headline",            &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc },
-        { mdIptc, "Iptc.Application2.Credit",             "MLutXmp.photoshop.Credit",               &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc },
-        { mdIptc, "Iptc.Application2.Source",             "MLutXmp.photoshop.Source",               &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc },
-        { mdIptc, "Iptc.Application2.Copyright",          "MLutXmp.dc.rights",                      &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc },
-        { mdIptc, "Iptc.Application2.Caption",            "MLutXmp.dc.description",                 &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc },
-        { mdIptc, "Iptc.Application2.Writer",             "MLutXmp.photoshop.CaptionWriter",        &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc }
+        { mdIptc, "Iptc.Application2.ObjectName",         "Xmp.dc.title",                       &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc },
+        { mdIptc, "Iptc.Application2.Urgency",            "Xmp.photoshop.Urgency",              &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc },
+        { mdIptc, "Iptc.Application2.Category",           "Xmp.photoshop.Category",             &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc },
+        { mdIptc, "Iptc.Application2.SuppCategory",       "Xmp.photoshop.SupplementalCategories", &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc },
+        { mdIptc, "Iptc.Application2.Keywords",           "Xmp.dc.subject",                     &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc },
+        { mdIptc, "Iptc.Application2.SubLocation",        "Xmp.iptc.Location",                  &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc },
+        { mdIptc, "Iptc.Application2.SpecialInstructions","Xmp.photoshop.Instructions",         &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc },
+        { mdIptc, "Iptc.Application2.DateCreated",        "Xmp.photoshop.DateCreated",          &Converter::cnvNone, &Converter::cnvXmpValueToIptc }, // FIXME to IPTC Date and IPTC Time
+        { mdIptc, "Iptc.Application2.DigitizationDate",   "Xmp.xmp.CreateDate",                 &Converter::cnvNone, &Converter::cnvXmpValueToIptc }, // FIXME to IPTC Date and IPTC Time
+        { mdIptc, "Iptc.Application2.Byline",             "Xmp.dc.creator",                     &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc },
+        { mdIptc, "Iptc.Application2.BylineTitle",        "Xmp.photoshop.AuthorsPosition",      &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc },
+        { mdIptc, "Iptc.Application2.City",               "Xmp.photoshop.City",                 &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc },
+        { mdIptc, "Iptc.Application2.ProvinceState",      "Xmp.photoshop.State",                &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc },
+        { mdIptc, "Iptc.Application2.CountryCode",        "Xmp.iptc.CountryCode",               &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc },
+        { mdIptc, "Iptc.Application2.CountryName",        "Xmp.photoshop.Country",              &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc },
+        { mdIptc, "Iptc.Application2.TransmissionReference", "Xmp.photoshop.TransmissionReference", &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc },
+        { mdIptc, "Iptc.Application2.Headline",            "Xmp.photoshop.Headline",            &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc },
+        { mdIptc, "Iptc.Application2.Credit",             "Xmp.photoshop.Credit",               &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc },
+        { mdIptc, "Iptc.Application2.Source",             "Xmp.photoshop.Source",               &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc },
+        { mdIptc, "Iptc.Application2.Copyright",          "Xmp.dc.rights",                      &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc },
+        { mdIptc, "Iptc.Application2.Caption",            "Xmp.dc.description",                 &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc },
+        { mdIptc, "Iptc.Application2.Writer",             "Xmp.photoshop.CaptionWriter",        &Converter::cnvIptcValue, &Converter::cnvXmpValueToIptc }
 
     };
 
@@ -544,7 +544,7 @@ namespace Exiv2 {
         Exiv2::ExifData::iterator pos = exifData_->findKey(ExifKey(from));
         if (pos == exifData_->end()) return;
         if (!prepareXmpTarget(to)) return;
-        for (int i = 0; i < pos->count(); ++i) {
+        for (long i = 0; i < (long)pos->count(); ++i) {
             std::string value = pos->toString(i);
             if (!pos->value().ok()) {
 #ifndef SUPPRESS_WARNINGS
@@ -691,7 +691,7 @@ namespace Exiv2 {
         if (pos == exifData_->end()) return;
         if (!prepareXmpTarget(to)) return;
         std::ostringstream value;
-        for (int i = 0; i < pos->count(); ++i) {
+        for (long i = 0; i < (long)pos->count(); ++i) {
             value << static_cast<char>(pos->toLong(i));
         }
         (*xmpData_)[to] = value.str();
@@ -704,7 +704,7 @@ namespace Exiv2 {
         if (pos == exifData_->end()) return;
         if (!prepareXmpTarget(to)) return;
         std::ostringstream value;
-        for (int i = 0; i < pos->count(); ++i) {
+        for (long i = 0; i < (long)pos->count(); ++i) {
             if (i > 0) value << '.';
             value << pos->toLong(i);
         }
@@ -725,11 +725,11 @@ namespace Exiv2 {
             return;
         }
 
-        (*xmpData_)["MLutXmp.exif.Flash/exif:Fired"] = static_cast<bool>(value & 1);
-        (*xmpData_)["MLutXmp.exif.Flash/exif:Return"] = (value >> 1) & 3;
-        (*xmpData_)["MLutXmp.exif.Flash/exif:Mode"] = (value >> 3) & 3;
-        (*xmpData_)["MLutXmp.exif.Flash/exif:Function"] = static_cast<bool>((value >> 5) & 1);
-        (*xmpData_)["MLutXmp.exif.Flash/exif:RedEyeMode"] = static_cast<bool>((value >> 6) & 1);
+        (*xmpData_)["Xmp.exif.Flash/exif:Fired"] = static_cast<bool>(value & 1);
+        (*xmpData_)["Xmp.exif.Flash/exif:Return"] = (value >> 1) & 3;
+        (*xmpData_)["Xmp.exif.Flash/exif:Mode"] = (value >> 3) & 3;
+        (*xmpData_)["Xmp.exif.Flash/exif:Function"] = static_cast<bool>((value >> 5) & 1);
+        (*xmpData_)["Xmp.exif.Flash/exif:RedEyeMode"] = static_cast<bool>((value >> 6) & 1);
 
         if (erase_) exifData_->erase(pos);
     }
@@ -822,7 +822,7 @@ namespace Exiv2 {
         Exiv2::XmpData::iterator pos = xmpData_->findKey(XmpKey(from));
         if (pos == xmpData_->end()) return;
         std::ostringstream array;
-        for (int i = 0; i < pos->count(); ++i) {
+        for (long i = 0; i < (long)pos->count(); ++i) {
             std::string value = pos->toString(i);
             if (!pos->value().ok()) {
 #ifndef SUPPRESS_WARNINGS
@@ -831,7 +831,8 @@ namespace Exiv2 {
                 return;
             }
             array << value;
-            if (i != pos->count() - 1) array << " ";
+            if (i != static_cast<long>(pos->count()) - 1)
+              array << " ";
         }
         (*exifData_)[to] = array.str();
         if (erase_) xmpData_->erase(pos);
@@ -1150,9 +1151,8 @@ namespace Exiv2 {
             return;
         }
 
-        int count = pos->count();
         bool added = false;
-        for (int i = 0; i < count; ++i) {
+        for (long i = 0; i < static_cast<long>(pos->count()); ++i) {
             std::string value = pos->toString(i);
             if (!pos->value().ok()) {
 #ifndef SUPPRESS_WARNINGS
@@ -1191,7 +1191,7 @@ namespace Exiv2 {
                 if (pos == exifData_->end()) continue;
                 DataBuf data(pos->size());
                 pos->copy(data.pData_, littleEndian /* FIXME ? */);
-                MD5Update ( &context, data.pData_, data.size_);
+                MD5Update ( &context, data.pData_, (uint32_t)data.size_);
             }
         }
         MD5Final(digest, &context);
@@ -1213,15 +1213,15 @@ namespace Exiv2 {
     void Converter::writeExifDigest()
     {
 #ifdef EXV_HAVE_XMP_TOOLKIT
-        (*xmpData_)["MLutXmp.tiff.NativeDigest"] = computeExifDigest(true);
-        (*xmpData_)["MLutXmp.exif.NativeDigest"] = computeExifDigest(false);
+        (*xmpData_)["Xmp.tiff.NativeDigest"] = computeExifDigest(true);
+        (*xmpData_)["Xmp.exif.NativeDigest"] = computeExifDigest(false);
 #endif
     }
 
     void Converter::syncExifWithXmp()
     {
-        Exiv2::XmpData::iterator td = xmpData_->findKey(XmpKey("MLutXmp.tiff.NativeDigest"));
-        Exiv2::XmpData::iterator ed = xmpData_->findKey(XmpKey("MLutXmp.exif.NativeDigest"));
+        Exiv2::XmpData::iterator td = xmpData_->findKey(XmpKey("Xmp.tiff.NativeDigest"));
+        Exiv2::XmpData::iterator ed = xmpData_->findKey(XmpKey("Xmp.exif.NativeDigest"));
         if (td != xmpData_->end() && ed != xmpData_->end()) {
             if (td->value().toString() == computeExifDigest(true) &&
                 ed->value().toString() == computeExifDigest(false)) {
@@ -1350,7 +1350,7 @@ namespace {
     {
         // Naive byte-swapping, I'm sure this can be done more efficiently
         if (str.size() & 1) {
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
             EXV_DEBUG << "swapBytes: Size " << str.size() << " of input string is not even.\n";
 #endif
             return false;
@@ -1365,53 +1365,55 @@ namespace {
 
     bool mb2wc(UINT cp, std::string& str)
     {
-        if (str.empty()) return true;
+        if (str.empty())
+            return true;
         int len = MultiByteToWideChar(cp, 0, str.c_str(), (int)str.size(), 0, 0);
         if (len == 0) {
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
             EXV_DEBUG << "mb2wc: Failed to determine required size of output buffer.\n";
 #endif
             return false;
         }
         std::vector<std::string::value_type> out;
-        out.resize(len * 2);
-        int ret = MultiByteToWideChar(cp, 0, str.c_str(), (int)str.size(), (LPWSTR)&out[0], len * 2);
+        out.reserve(len * 2);
+        int ret = MultiByteToWideChar(cp, 0, str.c_str(), (int)str.size(), (LPWSTR)out.data(), len * 2);
         if (ret == 0) {
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
             EXV_DEBUG << "mb2wc: Failed to convert the input string to a wide character string.\n";
 #endif
             return false;
         }
-        str.assign(out.begin(), out.end());
+        str.assign(out.data(), static_cast<size_t>(len) * 2);
         return true;
     }
 
     bool wc2mb(UINT cp, std::string& str)
     {
-        if (str.empty()) return true;
+        if (str.empty())
+            return true;
         if (str.size() & 1) {
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
             EXV_DEBUG << "wc2mb: Size " << str.size() << " of input string is not even.\n";
 #endif
             return false;
         }
         int len = WideCharToMultiByte(cp, 0, (LPCWSTR)str.data(), (int)str.size() / 2, 0, 0, 0, 0);
         if (len == 0) {
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
             EXV_DEBUG << "wc2mb: Failed to determine required size of output buffer.\n";
 #endif
             return false;
         }
         std::vector<std::string::value_type> out;
-        out.resize(len);
-        int ret = WideCharToMultiByte(cp, 0, (LPCWSTR)str.data(), (int)str.size() / 2, (LPSTR)&out[0], len, 0, 0);
+        out.reserve(len);
+        int ret = WideCharToMultiByte(cp, 0, (LPCWSTR)str.data(), (int)str.size() / 2, (LPSTR)out.data(), len, 0, 0);
         if (ret == 0) {
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
             EXV_DEBUG << "wc2mb: Failed to convert the input string to a multi byte string.\n";
 #endif
             return false;
         }
-        str.assign(out.begin(), out.end());
+        str.assign(out.data(), static_cast<size_t>(len));
         return true;
     }
 

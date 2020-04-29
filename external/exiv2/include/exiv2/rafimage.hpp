@@ -24,8 +24,7 @@
            <a href="mailto:ahuggel@gmx.net">ahuggel@gmx.net</a>
   @date    05-Feb-07, ahu: created
  */
-#ifndef RAFIMAGE_HPP_
-#define RAFIMAGE_HPP_
+#pragma once
 
 // *****************************************************************************
 #include "exiv2lib_export.h"
@@ -44,11 +43,6 @@ namespace Exiv2 {
 
 // *****************************************************************************
 // class definitions
-
-    // Add RAF to the supported image formats
-    namespace ImageType {
-        const int raf = 8;          //!< RAF image type (see class RafImage)
-    }
 
     /*!
       @brief Class to access raw Fujifilm RAF images. Exif metadata is
@@ -109,16 +103,11 @@ namespace Exiv2 {
         int pixelHeight() const override;
         //@}
 
-    private:
-        //! @name NOT implemented
-        //@{
-        //! Copy constructor
-        RafImage(const RafImage& rhs);
-        //! Assignment operator
-        RafImage& operator=(const RafImage& rhs);
-        //@}
-
-    }; // class RafImage
+        RafImage& operator=(const RafImage& rhs) = delete;
+        RafImage& operator=(const RafImage&& rhs) = delete;
+        RafImage(const RafImage& rhs) = delete;
+        RafImage(const RafImage&& rhs) = delete;
+    };  // class RafImage
 
 // *****************************************************************************
 // template, inline and free functions
@@ -136,5 +125,3 @@ namespace Exiv2 {
     EXIV2API bool isRafType(BasicIo& iIo, bool advance);
 
 }                                       // namespace Exiv2
-
-#endif                                  // #ifndef RAFIMAGE_HPP_

@@ -26,8 +26,7 @@
            11-Feb-04, ahu: isolated as a component
            31-Jul-04, brad: added Time, Data and String values
  */
-#ifndef VALUE_HPP_
-#define VALUE_HPP_
+#pragma once
 
 // *****************************************************************************
 #include "exiv2lib_export.h"
@@ -80,7 +79,7 @@ namespace Exiv2 {
 
           @return 0 if successful.
          */
-        virtual int read(const byte* buf, long len, ByteOrder byteOrder) =0;
+        virtual int read(const byte* buf, size_t len, ByteOrder byteOrder) =0;
         /*!
           @brief Set the value from a string buffer. The format of the string
                  corresponds to that of the write() method, i.e., a string
@@ -104,7 +103,7 @@ namespace Exiv2 {
           @param len Size of the data area
           @return Return -1 if the value has no data area, else 0.
          */
-        virtual int setDataArea(const byte* buf, long len);
+        virtual int setDataArea(const byte* buf, size_t len);
         //@}
 
         //! @name Accessors
@@ -176,7 +175,7 @@ namespace Exiv2 {
          */
         virtual Rational toRational(long n =0) const =0;
         //! Return the size of the data area, 0 if there is none.
-        virtual long sizeDataArea() const;
+        virtual size_t sizeDataArea() const;
         /*!
           @brief Return a copy of the data area if the value has one. The
                  caller owns this copy and DataBuf ensures that it will be
@@ -266,9 +265,7 @@ namespace Exiv2 {
 
         explicit DataValue(TypeId typeId =undefined);
 
-        DataValue(const byte* buf,
-                  long len, ByteOrder byteOrder =invalidByteOrder,
-                  TypeId typeId =undefined);
+        DataValue(const byte* buf, size_t len, ByteOrder byteOrder = invalidByteOrder, TypeId typeId = undefined);
 
         virtual ~DataValue();
 
@@ -286,7 +283,7 @@ namespace Exiv2 {
 
           @return 0 if successful.
          */
-        int read(const byte* buf, long len, ByteOrder byteOrder = invalidByteOrder) override;
+        int read(const byte* buf, size_t len, ByteOrder byteOrder = invalidByteOrder) override;
 
         //! Set the data from a string of integer values (e.g., "0 1 2 3")
         int read(const std::string& buf) override;
@@ -374,7 +371,7 @@ namespace Exiv2 {
 
           @return 0 if successful.
          */
-        int read(const byte* buf, long len, ByteOrder byteOrder =invalidByteOrder) override;
+        int read(const byte* buf, size_t len, ByteOrder byteOrder =invalidByteOrder) override;
         //@}
 
         //! @name Accessors
@@ -530,14 +527,13 @@ namespace Exiv2 {
 
         //! Charset information lookup functions. Implemented as a static class.
         class EXIV2API CharsetInfo {
-            //! Prevent construction: not implemented.
-            CharsetInfo() {}
-            //! Prevent copy-construction: not implemented.
-            CharsetInfo(const CharsetInfo&);
-            //! Prevent assignment: not implemented.
-            CharsetInfo& operator=(const CharsetInfo&);
-
         public:
+            CharsetInfo() = delete;
+            CharsetInfo& operator=(const CharsetInfo& rhs) = delete;
+            CharsetInfo& operator=(const CharsetInfo&& rhs) = delete;
+            CharsetInfo(const CharsetInfo& rhs) = delete;
+            CharsetInfo(const CharsetInfo&& rhs) = delete;
+
             //! Return the name for a charset id
             static const char* name(CharsetId charsetId);
             //! Return the code for a charset id
@@ -584,7 +580,7 @@ namespace Exiv2 {
         /*!
           @brief Read the comment from a byte buffer.
          */
-        int read(const byte* buf, long len, ByteOrder byteOrder) override;
+        int read(const byte* buf, size_t len, ByteOrder byteOrder) override;
         //@}
 
         //! @name Accessors
@@ -698,7 +694,7 @@ namespace Exiv2 {
 
           @return 0 if successful.
          */
-        int read(const byte* buf, long len, ByteOrder byteOrder =invalidByteOrder) override;
+        int read(const byte* buf, size_t len, ByteOrder byteOrder =invalidByteOrder) override;
 
         int read(const std::string& buf) override =0;
         //@}
@@ -1019,7 +1015,7 @@ namespace Exiv2 {
           @return 0 if successful<BR>
                   1 in case of an unsupported date format
          */
-        int read(const byte* buf, long len, ByteOrder byteOrder =invalidByteOrder) override;
+        int read(const byte* buf, size_t len, ByteOrder byteOrder =invalidByteOrder) override;
 
         /*!
           @brief Set the value to that of the string buf.
@@ -1130,7 +1126,7 @@ namespace Exiv2 {
           @return 0 if successful<BR>
                   1 in case of an unsupported time format
          */
-        int read(const byte* buf, long len, ByteOrder byteOrder =invalidByteOrder) override;
+        int read(const byte* buf, size_t len, ByteOrder byteOrder =invalidByteOrder) override;
 
         /*!
           @brief Set the value to that of the string buf.
@@ -1271,7 +1267,7 @@ namespace Exiv2 {
         //@{
         //! Assignment operator.
         ValueType<T>& operator=(const ValueType<T>& rhs);
-        int read(const byte* buf, long len, ByteOrder byteOrder) override;
+        int read(const byte* buf, size_t len, ByteOrder byteOrder) override;
         /*!
           @brief Set the data from a string of values of type T (e.g.,
                  "0 1 2 3" or "1/2 1/3 1/4" depending on what T is).
@@ -1283,7 +1279,7 @@ namespace Exiv2 {
           @brief Set the data area. This method copies (clones) the buffer
                  pointed to by buf.
          */
-        int setDataArea(const byte* buf, long len) override;
+        int setDataArea(const byte* buf, size_t len) override;
         //@}
 
         //! @name Accessors
@@ -1304,7 +1300,7 @@ namespace Exiv2 {
         float toFloat(long n =0) const override;
         Rational toRational(long n =0) const override;
         //! Return the size of the data area.
-        long sizeDataArea() const override;
+        size_t sizeDataArea() const override;
         /*!
           @brief Return a copy of the data area in a DataBuf. The caller owns
                  this copy and DataBuf ensures that it will be deleted.
@@ -1336,7 +1332,7 @@ namespace Exiv2 {
         //! Pointer to the buffer, 0 if none has been allocated
         byte* pDataArea_;
         //! The current size of the buffer
-        long sizeDataArea_;
+        size_t sizeDataArea_;
     }; // class ValueType
 
     //! Unsigned short value type
@@ -1569,13 +1565,13 @@ namespace Exiv2 {
     }
 
     template<typename T>
-    int ValueType<T>::read(const byte* buf, long len, ByteOrder byteOrder)
+    int ValueType<T>::read(const byte* buf, size_t len, ByteOrder byteOrder)
     {
         value_.clear();
-        long ts = TypeInfo::typeSize(typeId());
+        size_t ts = TypeInfo::typeSize(typeId());
         if (ts != 0)
             if (len % ts != 0) len = (len / ts) * ts;
-        for (long i = 0; i < len; i += ts) {
+        for (size_t i = 0; i < len; i += ts) {
             value_.push_back(getValue<T>(buf + i, byteOrder));
         }
         return 0;
@@ -1731,7 +1727,7 @@ namespace Exiv2 {
     }
 
     template<typename T>
-    long ValueType<T>::sizeDataArea() const
+    size_t ValueType<T>::sizeDataArea() const
     {
         return sizeDataArea_;
     }
@@ -1743,7 +1739,7 @@ namespace Exiv2 {
     }
 
     template<typename T>
-    int ValueType<T>::setDataArea(const byte* buf, long len)
+    int ValueType<T>::setDataArea(const byte* buf, size_t len)
     {
         byte* tmp = 0;
         if (len > 0) {
@@ -1756,5 +1752,3 @@ namespace Exiv2 {
         return 0;
     }
 }                                       // namespace Exiv2
-
-#endif                                  // #ifndef VALUE_HPP_

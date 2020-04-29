@@ -264,7 +264,7 @@ EmitRDFArrayTag	( XMP_OptionBits  arrayForm,
 // Append a property or qualifier value to the output with appropriate XML escaping. The escaped
 // characters for elements and attributes are '&', '<', '>', and ASCII controls (tab, LF, CR). In
 // addition, '"' is escaped for attributes. For efficiency, this is done in a double loop. The outer
-// loop makes sure the whole value is processed. The inner loop does a contiguous unescaped open
+// loop makes sure the whole value is processed. The inner loop does a contiguous unescaped run
 // followed by one escaped character (if we're not at the end).
 //
 // We depend on parsing and SetProperty logic to make sure there are no invalid ASCII controls in

@@ -141,7 +141,7 @@ namespace Exiv2 {
 
     void PsdImage::readMetadata()
     {
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
         std::cerr << "Exiv2::PsdImage::readMetadata: Reading Photoshop file " << io_->path() << "\n";
 #endif
         if (io_->open() != 0) {
@@ -197,7 +197,10 @@ namespace Exiv2 {
         uint32_t resourcesLength = getULong(buf, bigEndian);
         enforce(resourcesLength < io_->size(), Exiv2::kerCorruptedMetadata);
 
-        while (resourcesLength > 0) {
+        while (resourcesLength > 0)
+        {
+            enforce(resourcesLength >= 8, Exiv2::kerCorruptedMetadata);
+            resourcesLength -= 8;
             if (io_->read(buf, 8) != 8) {
                 throw Error(kerNotAnImage, "Photoshop");
             }
@@ -209,24 +212,30 @@ namespace Exiv2 {
             uint32_t resourceNameLength = buf[6] & ~1;
 
             // skip the resource name, plus any padding
+            enforce(resourceNameLength <= resourcesLength, Exiv2::kerCorruptedMetadata);
+            resourcesLength -= resourceNameLength;
             io_->seek(resourceNameLength, BasicIo::cur);
 
             // read resource size
+            enforce(resourcesLength >= 4, Exiv2::kerCorruptedMetadata);
+            resourcesLength -= 4;
             if (io_->read(buf, 4) != 4) {
                 throw Error(kerNotAnImage, "Photoshop");
             }
             uint32_t resourceSize = getULong(buf, bigEndian);
-            uint32_t curOffset = io_->tell();
+            int64 curOffset = io_->tell();
 
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
             std::cerr << std::hex << "resourceId: " << resourceId << std::dec << " length: " << resourceSize << std::hex
                       << "\n";
 #endif
 
+            enforce(resourceSize <= resourcesLength, Exiv2::kerCorruptedMetadata);
             readResourceBlock(resourceId, resourceSize);
-            resourceSize = (resourceSize + 1) & ~1;  // pad to even
+            resourceSize = (resourceSize + 1) & ~1;        // pad to even
+            enforce(resourceSize <= resourcesLength, Exiv2::kerCorruptedMetadata);
+            resourcesLength -= resourceSize;
             io_->seek(curOffset + resourceSize, BasicIo::beg);
-            resourcesLength -= Safe::add(Safe::add(static_cast<uint32_t>(12), resourceNameLength), resourceSize);
         }
 
     }  // PsdImage::readMetadata
@@ -253,7 +262,7 @@ namespace Exiv2 {
                 io_->read(rawExif.pData_, rawExif.size_);
                 if (io_->error() || io_->eof())
                     throw Error(kerFailedToReadImageData);
-                ByteOrder bo = ExifParser::decode(exifData_, rawExif.pData_, rawExif.size_);
+                ByteOrder bo = ExifParser::decode(exifData_, rawExif.pData_, (uint32_t)rawExif.size_);
                 setByteOrder(bo);
                 if (rawExif.size_ > 0 && byteOrder() == invalidByteOrder) {
 #ifndef SUPPRESS_WARNINGS
@@ -353,7 +362,7 @@ namespace Exiv2 {
         if (!outIo.isopen())
             throw Error(kerImageWriteFailed);
 
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
         std::cout << "Exiv2::PsdImage::doWriteMetadata: Writing PSD file " << io_->path() << "\n";
         std::cout << "Exiv2::PsdImage::doWriteMetadata: tmp file created " << outIo.path() << "\n";
 #endif
@@ -389,15 +398,15 @@ namespace Exiv2 {
         ul2Data(buf, colorDataLength, bigEndian);
         if (outIo.write(buf, 4) != 4)
             throw Error(kerImageWriteFailed);
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
         std::cerr << std::dec << "colorDataLength: " << colorDataLength << "\n";
 #endif
         // Copy colorData
-        uint32_t readTotal = 0;
-        long toRead = 0;
+        size_t readTotal = 0;
+        size_t toRead = 0;
         while (readTotal < colorDataLength) {
-            toRead = static_cast<long>(colorDataLength - readTotal) < lbuf.size_
-                         ? static_cast<long>(colorDataLength - readTotal)
+            toRead = static_cast<size_t>(colorDataLength - readTotal) < lbuf.size_
+                         ? static_cast<size_t>(colorDataLength - readTotal)
                          : lbuf.size_;
             if (io_->read(lbuf.pData_, toRead) != toRead)
                 throw Error(kerNotAnImage, "Photoshop");
@@ -408,21 +417,21 @@ namespace Exiv2 {
         if (outIo.error())
             throw Error(kerImageWriteFailed);
 
-        uint32_t resLenOffset = io_->tell();  // remember for later update
+        int64 resLenOffset = io_->tell();  // remember for later update
 
         // Read length of all resource blocks from original PSD
         if (io_->read(buf, 4) != 4)
             throw Error(kerNotAnImage, "Photoshop");
 
         uint32_t oldResLength = getULong(buf, bigEndian);
-        uint32_t newResLength = 0;
+        size_t newResLength = 0;
 
         // Write oldResLength (will be updated later)
         ul2Data(buf, oldResLength, bigEndian);
         if (outIo.write(buf, 4) != 4)
             throw Error(kerImageWriteFailed);
 
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
         std::cerr << std::dec << "oldResLength: " << oldResLength << "\n";
 #endif
 
@@ -450,7 +459,7 @@ namespace Exiv2 {
 
             // read rest of resource name, plus any padding
             DataBuf resName(256);
-            if (io_->read(resName.pData_, adjResourceNameLen) != static_cast<long>(adjResourceNameLen))
+            if (io_->read(resName.pData_, adjResourceNameLen) != static_cast<size_t>(adjResourceNameLen))
                 throw Error(kerNotAnImage, "Photoshop");
 
             // read resource size (actual length w/o padding!)
@@ -459,7 +468,7 @@ namespace Exiv2 {
 
             uint32_t resourceSize = getULong(buf, bigEndian);
             uint32_t pResourceSize = (resourceSize + 1) & ~1;  // padded resource size
-            uint32_t curOffset = io_->tell();
+            int64 curOffset = io_->tell();
 
             // Write IPTC_NAA resource block
             if ((resourceId == kPhotoshopResourceID_IPTC_NAA || resourceId > kPhotoshopResourceID_IPTC_NAA) &&
@@ -485,7 +494,7 @@ namespace Exiv2 {
             // Copy all other resource blocks
             if (resourceId != kPhotoshopResourceID_IPTC_NAA && resourceId != kPhotoshopResourceID_ExifInfo &&
                 resourceId != kPhotoshopResourceID_XMPPacket) {
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
                 std::cerr << std::hex << "copy : resourceType: " << resourceType << "\n";
                 std::cerr << std::hex << "copy : resourceId: " << resourceId << "\n";
                 std::cerr << std::dec;
@@ -504,7 +513,7 @@ namespace Exiv2 {
                 buf[0] = resourceNameFirstChar;
                 if (outIo.write(buf, 1) != 1)
                     throw Error(kerImageWriteFailed);
-                if (outIo.write(resName.pData_, adjResourceNameLen) != static_cast<long>(adjResourceNameLen))
+                if (outIo.write(resName.pData_, adjResourceNameLen) != static_cast<size_t>(adjResourceNameLen))
                     throw Error(kerImageWriteFailed);
                 ul2Data(buf, resourceSize, bigEndian);
                 if (outIo.write(buf, 4) != 4)
@@ -513,9 +522,7 @@ namespace Exiv2 {
                 readTotal = 0;
                 toRead = 0;
                 while (readTotal < pResourceSize) {
-                    toRead = static_cast<long>(pResourceSize - readTotal) < lbuf.size_
-                                 ? static_cast<long>(pResourceSize - readTotal)
-                                 : lbuf.size_;
+                    toRead = (pResourceSize - readTotal) < lbuf.size_ ? (pResourceSize - readTotal) : lbuf.size_;
                     if (io_->read(lbuf.pData_, toRead) != toRead) {
                         throw Error(kerNotAnImage, "Photoshop");
                     }
@@ -552,7 +559,7 @@ namespace Exiv2 {
         io_->populateFakeData();
 
         // Copy remaining data
-        long readSize = 0;
+        size_t readSize = 0;
         while ((readSize = io_->read(lbuf.pData_, lbuf.size_))) {
             if (outIo.write(lbuf.pData_, readSize) != readSize)
                 throw Error(kerImageWriteFailed);
@@ -561,24 +568,24 @@ namespace Exiv2 {
             throw Error(kerImageWriteFailed);
 
             // Update length of resources
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
         std::cerr << "newResLength: " << newResLength << "\n";
 #endif
         outIo.seek(resLenOffset, BasicIo::beg);
-        ul2Data(buf, newResLength, bigEndian);
+        ul2Data(buf, (uint32_t)newResLength, bigEndian);
         if (outIo.write(buf, 4) != 4)
             throw Error(kerImageWriteFailed);
 
     }  // PsdImage::doWriteMetadata
 
-    uint32_t PsdImage::writeIptcData(const IptcData& iptcData, BasicIo& out) const
+    size_t PsdImage::writeIptcData(const IptcData& iptcData, BasicIo& out) const
     {
-        uint32_t resLength = 0;
+        size_t resLength = 0;
 
         if (iptcData.count() > 0) {
             DataBuf rawIptc = IptcParser::encode(iptcData);
             if (rawIptc.size_ > 0) {
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
                 std::cerr << std::hex << "write: resourceId: " << kPhotoshopResourceID_IPTC_NAA << "\n";
                 std::cerr << std::dec << "Writing IPTC_NAA: size: " << rawIptc.size_ << "\n";
 #endif
@@ -591,7 +598,7 @@ namespace Exiv2 {
                 us2Data(buf, 0, bigEndian);                      // nullptr resource name
                 if (out.write(buf, 2) != 2)
                     throw Error(kerImageWriteFailed);
-                ul2Data(buf, rawIptc.size_, bigEndian);
+                ul2Data(buf, (uint32_t)rawIptc.size_, bigEndian);
                 if (out.write(buf, 4) != 4)
                     throw Error(kerImageWriteFailed);
                 // Write encoded Iptc data
@@ -610,9 +617,9 @@ namespace Exiv2 {
         return resLength;
     }
 
-    uint32_t PsdImage::writeExifData(const ExifData& exifData, BasicIo& out)
+    size_t PsdImage::writeExifData(const ExifData& exifData, BasicIo& out)
     {
-        uint32_t resLength = 0;
+        size_t resLength = 0;
 
         if (exifData.count() > 0) {
             Blob blob;
@@ -624,7 +631,7 @@ namespace Exiv2 {
             ExifParser::encode(blob, bo, exifData);
 
             if (blob.size() > 0) {
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
                 std::cerr << std::hex << "write: resourceId: " << kPhotoshopResourceID_ExifInfo << "\n";
                 std::cerr << std::dec << "Writing ExifInfo: size: " << blob.size() << "\n";
 #endif
@@ -641,9 +648,9 @@ namespace Exiv2 {
                 if (out.write(buf, 4) != 4)
                     throw Error(kerImageWriteFailed);
                 // Write encoded Exif data
-                if (out.write(&blob[0], static_cast<long>(blob.size())) != static_cast<long>(blob.size()))
+                if (out.write(&blob[0], blob.size()) != blob.size())
                     throw Error(kerImageWriteFailed);
-                resLength += static_cast<long>(blob.size()) + 12;
+                resLength += blob.size() + 12;
                 if (blob.size() & 1)  // even padding
                 {
                     buf[0] = 0;
@@ -656,12 +663,12 @@ namespace Exiv2 {
         return resLength;
     }
 
-    uint32_t PsdImage::writeXmpData(const XmpData& xmpData, BasicIo& out) const
+    size_t PsdImage::writeXmpData(const XmpData& xmpData, BasicIo& out) const
     {
         std::string xmpPacket;
-        uint32_t resLength = 0;
+        size_t resLength = 0;
 
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
         std::cerr << "writeXmpFromPacket(): " << writeXmpFromPacket() << "\n";
 #endif
         //        writeXmpFromPacket(true);
@@ -674,7 +681,7 @@ namespace Exiv2 {
         }
 
         if (xmpPacket.size() > 0) {
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
             std::cerr << std::hex << "write: resourceId: " << kPhotoshopResourceID_XMPPacket << "\n";
             std::cerr << std::dec << "Writing XMPPacket: size: " << xmpPacket.size() << "\n";
 #endif
@@ -691,12 +698,11 @@ namespace Exiv2 {
             if (out.write(buf, 4) != 4)
                 throw Error(kerImageWriteFailed);
             // Write XMPPacket
-            if (out.write(reinterpret_cast<const byte*>(xmpPacket.data()), static_cast<long>(xmpPacket.size())) !=
-                static_cast<long>(xmpPacket.size()))
+            if (out.write(reinterpret_cast<const byte*>(xmpPacket.data()), xmpPacket.size()) != xmpPacket.size())
                 throw Error(kerImageWriteFailed);
             if (out.error())
                 throw Error(kerImageWriteFailed);
-            resLength += static_cast<uint32_t>(xmpPacket.size()) + 12;
+            resLength += xmpPacket.size() + 12;
             if (xmpPacket.size() & 1)  // even padding
             {
                 buf[0] = 0;

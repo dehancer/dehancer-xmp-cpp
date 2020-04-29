@@ -123,7 +123,7 @@ Website: (3)
 	0001302	Use sha256 Checksums on Downloads and Archive pages of the web site.
 	0001288	site defaults to http://, and https:// certificate is bogus
 
-MLutXmp: (3)
+Xmp: (3)
 	0001354	Inconsistency with long XMP namespaces (e.g. 'Iptc4xmpExt')
 	0001278	XMP SDK Split
 	0000941	Upgrade xmpsdk source to Adobe's current version
@@ -565,7 +565,7 @@ Changes from version 0.25 to 0.26
 	- 0000470:	Provide a means for apps to probe the library which tags can be written to for a given format
 			(Andreas Huggel)
 
-* MLutXmp: (18)
+* Xmp: (18)
 	- 0001284:	Possible exiv2 0.26-svn bug
 			(Wil Cowb)
 	- 0001281:	crash in Exiv2, XMP parser class and in Adobe XMP SDK
@@ -648,14 +648,14 @@ Changes from version 0.24 to 0.25
 * XMP related
 	- 0000774:	"exiv2 -eX" followed by "exiv2 -iX" produces invalid XMP metadata packet
 				(Alan Pater)
-	- 0000784:	Writing MLutXmp.lr.hierarchicalSubject writes wrong datatype
+	- 0000784:	Writing Xmp.lr.hierarchicalSubject writes wrong datatype
 				(Lucas Beeler, Alan Pater)
 	- 0000863:	Unicode issue writing to XMP sidecar
 	- 0000864:	Mapping of Exif DateTime fields to XMP changed in spec
 				(Marcel Wiesweg, Alan Pater)
 	- 0000937:	Support Darwin Core (DwC) XMP metadata
 				(Alan Pater)
-	- 0000946:	MLutXmp.MPReg.PersonLiveCID vs. PersonLiveIdCID
+	- 0000946:	Xmp.MPReg.PersonLiveCID vs. PersonLiveIdCID
 				(Phil Harvey, Alan Pater)
 	- 0001040:	MWG-KW schema
 				(Alan Pater)
@@ -1999,7 +1999,7 @@ Changes from version 0.6.1 to 0.6.2
 -----------------------------------
 
 * Exiv2 utility
-	         - [feature] New -M option to open modification commands directly
+	         - [feature] New -M option to run modification commands directly
 	            from the command line.
 	- 0000421: [tools] Command parser fails if no type is specified with a
 	           modify command.

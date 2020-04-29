@@ -25,8 +25,7 @@
   @date    15-Jan-04, ahu: created<BR>
            11-Feb-04, ahu: isolated as a component
  */
-#ifndef TAGS_INT_HPP_
-#define TAGS_INT_HPP_
+#pragma once
 
 // *****************************************************************************
 // included header files
@@ -99,7 +98,8 @@ namespace Exiv2 {
         nikonWtId,
         nikonIiId,
         nikonAfId,
-        nikonAf2Id,
+        nikonAf21Id,
+        nikonAf22Id,
         nikonAFTId,
         nikonFiId,
         nikonMeId,
@@ -153,6 +153,7 @@ namespace Exiv2 {
         sony1Cs2Id,
         sony2CsId,
         sony2Cs2Id,
+        sony2FpId,
         sony1MltCs7DId,
         sony1MltCsOldId,
         sony1MltCsNewId,
@@ -439,6 +440,8 @@ namespace Exiv2 {
     std::ostream& printXmpVersion(std::ostream& os, const Value& value, const ExifData*);
     //! Print a date following the format YYYY-MM-DDTHH:MM:SSZ
     std::ostream& printXmpDate(std::ostream& os, const Value& value, const ExifData*);
+    //! Print a bitmask as (none) | n | n,m... where: (none) = no bits set | n = bit n from left (0=left-most) | n,m.. = multiple bits "
+    std::ostream& printBitmask(std::ostream& os, const Value& value, const ExifData*);
     //@}
 
     //! Calculate F number from an APEX aperture value
@@ -448,5 +451,3 @@ namespace Exiv2 {
     URational exposureTime(float shutterSpeedValue);
 
 }}                                      // namespace Internal, Exiv2
-
-#endif                                  // #ifndef TAGS_INT_HPP_

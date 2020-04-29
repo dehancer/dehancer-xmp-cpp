@@ -24,8 +24,7 @@
            <a href="mailto:ahuggel@gmx.net">ahuggel@gmx.net</a>
   @date    22-Apr-06, ahu: created
  */
-#ifndef CR2IMAGE_HPP_
-#define CR2IMAGE_HPP_
+#pragma once
 
 // *****************************************************************************
 #include "exiv2lib_export.h"
@@ -39,11 +38,6 @@ namespace Exiv2 {
 
 // *****************************************************************************
 // class definitions
-
-    // Add CR2 to the supported image formats
-    namespace ImageType {
-        const int cr2 = 7;          //!< CR2 image type (see class Cr2Image)
-    }
 
     /*!
       @brief Class to access raw Canon CR2 images.  Exif metadata
@@ -96,15 +90,10 @@ namespace Exiv2 {
         int pixelHeight() const override;
         //@}
 
-    private:
-        //! @name NOT implemented
-        //@{
-        //! Copy constructor
-        Cr2Image(const Cr2Image& rhs);
-        //! Assignment operator
-        Cr2Image& operator=(const Cr2Image& rhs);
-        //@}
-
+        Cr2Image& operator=(const Cr2Image& rhs) = delete;
+        Cr2Image& operator=(const Cr2Image&& rhs) = delete;
+        Cr2Image(const Cr2Image& rhs) = delete;
+        Cr2Image(const Cr2Image&& rhs) = delete;
     }; // class Cr2Image
 
     /*!
@@ -158,5 +147,3 @@ namespace Exiv2 {
     EXIV2API bool isCr2Type(BasicIo& iIo, bool advance);
 
 }                                       // namespace Exiv2
-
-#endif                                  // #ifndef CR2IMAGE_HPP_

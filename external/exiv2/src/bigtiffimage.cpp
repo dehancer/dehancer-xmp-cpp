@@ -102,7 +102,7 @@ namespace Exiv2
             if (magic == 0x2A)
             {
                 byte buffer[4];
-                int read = io.read(buffer, 4);
+                const size_t read = io.read(buffer, 4);
 
                 if (read < 4)
                     throw Exiv2::Error(kerCorruptedMetadata);
@@ -113,7 +113,7 @@ namespace Exiv2
             else
             {
                 byte buffer[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-                int read = io.read(buffer, 2);
+                size_t read = io.read(buffer, 2);
                 if (read < 2)
                     throw Exiv2::Error(kerCorruptedMetadata);
 
@@ -192,6 +192,19 @@ namespace Exiv2
                 {
                     BasicIo& io = Image::io();
 
+                    // Fix for https://github.com/Exiv2/exiv2/issues/712
+                    // A malicious file can cause a very deep recursion, leading to
+                    // stack exhaustion.
+                    // Note: 200 is an arbitrarily chosen cut-off value. The value
+                    // of depth determines the amount of indentation inserted by the
+                    // pretty-printer. The output starts to become unreadable as
+                    // soon as the indentation exceeds 80 characters or so. That's
+                    // why 200 ought to be a reasonable cut-off.
+                    if (depth > 200) {
+                      out << Internal::indent(depth) << "Maximum indentation depth exceeded." << std::endl;
+                      return;
+                    }
+
                     depth++;
                     bool bFirst  = true;
 
@@ -201,7 +214,7 @@ namespace Exiv2
                     do
                     {
                         // Read top of directory
-                        io.seek(dir_offset, BasicIo::beg);
+                        io.seek(static_cast<int64>(dir_offset), BasicIo::beg);
 
                         const uint64_t entries = readData(header_.format() == Header::StandardTiff? 2: 8);
                         const bool tooBig = entries > 500;
@@ -279,7 +292,7 @@ namespace Exiv2
                             if ( usePointer )                          // read into buffer
                             {
                                 size_t   restore = io.tell();          // save
-                                io.seek(offset, BasicIo::beg);         // position
+                                io.seek(static_cast<int64>(offset), BasicIo::beg);         // position
                                 io.read(buf.pData_, (long) count * size);     // read
                                 io.seek(restore, BasicIo::beg);        // restore
                             }
@@ -358,10 +371,10 @@ namespace Exiv2
                                     }
 
                                     const size_t restore = io.tell();
-                                    io.seek(offset, BasicIo::beg);  // position
+                                    io.seek(static_cast<int64>(offset), BasicIo::beg);  // position
                                     std::vector<byte> bytes(static_cast<size_t>(count)) ;  // allocate memory
                                     // TODO: once we have C++11 use bytes.data()
-                                    const long read_bytes = io.read(&bytes[0], static_cast<long>(count));
+                                    const size_t read_bytes = io.read(&bytes[0], static_cast<long>(count));
                                     io.seek(restore, BasicIo::beg);
                                     // TODO: once we have C++11 use bytes.data()
                                     IptcData::printStructure(out, makeSliceUntil(&bytes[0], read_bytes), depth);
@@ -374,7 +387,7 @@ namespace Exiv2
                                     long jump= 10           ;
                                     byte     bytes[20]          ;
                                     const char* chars = (const char*) &bytes[0] ;
-                                    io.seek(dir_offset, BasicIo::beg);  // position
+                                    io.seek(static_cast<int64>(dir_offset), BasicIo::beg);  // position
                                     io.read(bytes,jump    )     ;  // read
                                     bytes[jump]=0               ;
                                     if ( ::strcmp("Nikon",chars) == 0 )
@@ -443,7 +456,7 @@ namespace Exiv2
 
     bool isBigTiffType(BasicIo& io, bool advance)
     {
-        const long pos = io.tell();
+        const int64 pos = io.tell();
         const Header header = readHeader(io);
         const bool valid = header.isValid();
 

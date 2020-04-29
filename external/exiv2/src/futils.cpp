@@ -17,12 +17,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301 USA.
  */
-/*
-  File:      futils.cpp
-  Author(s): Andreas Huggel (ahu) <ahuggel@gmx.net>
-  History:   08-Dec-03, ahu: created
-             02-Apr-05, ahu: moved to Exiv2 namespace
- */
 // *****************************************************************************
 // included header files
 #include "config.h"
@@ -33,25 +27,46 @@
 // + standard includes
 #include <sys/types.h>
 #include <sys/stat.h>
-
-#ifdef _MSC_VER
-    #include <Windows.h>
-    # define S_ISREG(m)      (((m) & S_IFMT) == S_IFREG)
-    #include <psapi.h>  // For access to GetModuleFileNameEx
-#elif defined(__APPLE__)
-    #include <libproc.h>
-#endif
-
-#ifdef EXV_HAVE_UNISTD_H
-  # include <unistd.h>                     // for stat()
-#endif
-
 #include <cstdio>
 #include <cerrno>
 #include <sstream>
 #include <cstring>
 #include <algorithm>
 #include <stdexcept>
+#include <set>
+#include <fstream>
+#ifdef   EXV_HAVE_UNISTD_H
+#include <unistd.h>                     // for stat()
+#endif
+
+#ifndef lengthof
+#define lengthof(x) (sizeof(x) / sizeof((x)[0]))
+#endif
+
+#if defined(_MSC_VER)
+#define S_ISREG(m)      (((m) & S_IFMT) == S_IFREG)
+#endif
+
+// platform specific support for getLoadedLibraries
+#if defined(__CYGWIN__) || defined(__MINGW__) || defined(WIN32)
+# include <windows.h>
+# include <psapi.h>   // For access to GetModuleFileNameEx
+# if __LP64__
+#  ifdef  _WIN64
+#   undef _WIN64
+#  endif
+#  define _WIN64 1
+# endif
+#elif defined(__APPLE__)
+# include <mach-o/dyld.h>
+# include <libproc.h>
+#elif defined(__FreeBSD__)
+# include <sys/param.h>
+# include <sys/queue.h>
+# include <sys/socket.h>
+# include <sys/sysctl.h>
+# include <libprocstat.h>
+#endif
 
 namespace Exiv2 {
     const char* ENVARDEF[] = {"/exiv2.php", "40"}; //!< @brief default URL for http exiv2 handler and time-out
@@ -247,41 +262,48 @@ namespace Exiv2 {
         struct {
             std::string name ;
             Protocol    prot ;
+            bool        isUrl; // path.size() > name.size()
         } prots[] =
-        { { "http://"   ,pHttp     }
-        , { "https://"  ,pHttps    }
-        , { "ftp://"    ,pFtp      }
-        , { "sftp://"   ,pSftp     }
-        , { "ssh://"    ,pSsh      }
-        , { "file://"   ,pFileUri  }
-        , { "data://"   ,pDataUri  }
-        , { "-"         ,pStdin    }
+        { { "http://"   ,pHttp     , true  }
+        , { "https://"  ,pHttps    , true  }
+        , { "ftp://"    ,pFtp      , true  }
+        , { "sftp://"   ,pSftp     , true  }
+        , { "ssh://"    ,pSsh      , true  }
+        , { "file://"   ,pFileUri  , true  }
+        , { "data://"   ,pDataUri  , true  }
+        , { "-"         ,pStdin    , false }
         };
         for ( size_t i = 0 ; result == pFile && i < sizeof(prots)/sizeof(prots[0]) ; i ++ )
             if ( path.find(prots[i].name) == 0 )
-                result = prots[i].prot;
+                // URL's require data.  Stdin == "-" and no further data
+                if ( prots[i].isUrl ? path.size() > prots[i].name.size() : path.size() == prots[i].name.size() )
+                    result = prots[i].prot;
 
         return result;
     } // fileProtocol
+    /// \todo Remove code duplication
 #ifdef EXV_UNICODE_PATH
-    Protocol fileProtocol(const std::wstring& wpath) {
+    Protocol fileProtocol(const std::wstring& path) {
         Protocol result = pFile ;
         struct {
-            std::wstring wname ;
+            std::wstring  name ;
             Protocol      prot ;
+            bool          isUrl; // path.size() > name.size()
         } prots[] =
-        { { L"http://"   ,pHttp     }
-        , { L"https://"  ,pHttps    }
-        , { L"ftp://"    ,pFtp      }
-        , { L"sftp://"   ,pSftp     }
-        , { L"ssh://"    ,pSsh      }
-        , { L"file://"   ,pFileUri  }
-        , { L"data://"   ,pDataUri  }
-        , { L"-"         ,pStdin    }
+        { { L"http://"   ,pHttp     , true  }
+        , { L"https://"  ,pHttps    , true  }
+        , { L"ftp://"    ,pFtp      , true  }
+        , { L"sftp://"   ,pSftp     , true  }
+        , { L"ssh://"    ,pSsh      , true  }
+        , { L"file://"   ,pFileUri  , true  }
+        , { L"data://"   ,pDataUri  , true  }
+        , { L"-"         ,pStdin    , false }
         };
         for ( size_t i = 0 ; result == pFile && i < sizeof(prots)/sizeof(prots[0]) ; i ++ )
-            if ( wpath.find(prots[i].wname) == 0 )
-                result = prots[i].prot;
+            if ( path.find(prots[i].name) == 0 )
+                // URL's require data.  Stdin == "-" and no further data
+                if ( prots[i].isUrl ? path.size() > prots[i].name.size() : path.size() == prots[i].name.size() )
+                    result = prots[i].prot;
 
         return result;
     } // fileProtocol
@@ -380,9 +402,6 @@ namespace Exiv2 {
 
         iterator_t uriEnd = uri.end();
 
-        // get query start
-        iterator_t queryStart = std::find(uri.begin(), uriEnd, '?');
-
         // protocol
         iterator_t protocolStart = uri.begin();
         iterator_t protocolEnd   = std::find(protocolStart, uriEnd, ':');            //"://");
@@ -422,6 +441,9 @@ namespace Exiv2 {
         // host
         iterator_t hostStart = authEnd;
         iterator_t pathStart = std::find(hostStart, uriEnd, '/');  // get pathStart
+
+        // get query start
+        iterator_t queryStart = std::find(pathStart, uriEnd, '?');
 
         iterator_t hostEnd = std::find(authEnd,
             (pathStart != uriEnd) ? pathStart : queryStart,
@@ -468,7 +490,7 @@ namespace Exiv2 {
         if (proc_pidpath (pid, pathbuf, sizeof(pathbuf)) > 0) {
             ret = pathbuf;
         }
-    #elif defined(__linux__) || defined(__CYGWIN__) || defined(__MINGW__)
+    #elif defined(__linux__) || defined(__CYGWIN__) || defined(__MSYS__)
         // http://stackoverflow.com/questions/606041/how-do-i-get-the-path-of-a-process-in-unix-linux
         char proc[100];
         char path[500];
@@ -479,11 +501,75 @@ namespace Exiv2 {
             ret = path;
         }
     #endif
-    #if defined(WIN32)
-        const size_t idxLastSeparator = ret.find_last_of('\\');
-    #else
-        const size_t idxLastSeparator = ret.find_last_of('/');
-    #endif
+
+        const size_t idxLastSeparator = ret.find_last_of(EXV_SEPARATOR_STR);
         return ret.substr(0, idxLastSeparator);
+    }
+
+    static bool pushPath(std::string& path,std::vector<std::string>& libs,std::set<std::string> & paths)
+    {
+        bool result = Exiv2::fileExists(path,true) && paths.find(path) == paths.end() && path != "/" ;
+        if ( result ) {
+            paths.insert(path);
+            libs.push_back(path);
+        }
+        return result ;
+    }
+
+    std::vector<std::string> getLoadedLibraries()
+    {
+        std::vector<std::string>  libs ;
+        std::set<std::string>     paths;
+        std::string               path ;
+
+    #if defined(WIN32) || defined(__CYGWIN__) || defined(__MINGW__)
+        // enumerate loaded libraries and determine path to executable
+        HMODULE handles[200];
+        DWORD   cbNeeded;
+        if ( EnumProcessModules(GetCurrentProcess(),handles,lengthof(handles),&cbNeeded)) {
+            char szFilename[_MAX_PATH];
+            for ( DWORD h = 0 ; h < cbNeeded/sizeof(handles[0]) ; h++ ) {
+                GetModuleFileNameA(handles[h],szFilename,lengthof(szFilename)) ;
+                std::string path(szFilename);
+                pushPath(path,libs,paths);
+            }
+        }
+    #elif defined(__APPLE__)
+        // man 3 dyld
+        uint32_t count = _dyld_image_count();
+        for (uint32_t image = 0 ; image < count ; image++ ) {
+            std::string path(_dyld_get_image_name(image));
+            pushPath(path,libs,paths);
+        }
+    #elif defined(__FreeBSD__)
+        unsigned int n;
+        struct procstat*      procstat = procstat_open_sysctl();
+        struct kinfo_proc*    procs    = procstat ? procstat_getprocs(procstat, KERN_PROC_PID, getpid(), &n) : NULL;
+        struct filestat_list* files    = procs    ? procstat_getfiles(procstat, procs, true)                 : NULL;
+        if ( files ) {
+            filestat* entry;
+            STAILQ_FOREACH(entry, files, next) {
+                std::string path(entry->fs_path);
+                pushPath(path,libs,paths);
+            }
+        }
+        // free resources
+        if ( files    ) procstat_freefiles(procstat, files);
+        if ( procs    ) procstat_freeprocs(procstat, procs);
+        if ( procstat ) procstat_close    (procstat);
+
+    #elif defined(__unix__)
+        // read file /proc/self/maps which has a list of files in memory
+        std::ifstream maps("/proc/self/maps",std::ifstream::in);
+        std::string   string ;
+        while ( std::getline(maps,string) ) {
+            std::size_t pos = string.find_last_of(' ');
+            if ( pos != std::string::npos ) {
+                std::string path = string.substr(pos+1);
+                pushPath(path,libs,paths);
+            }
+        }
+    #endif
+        return libs;
     }
 }                                       // namespace Exiv2

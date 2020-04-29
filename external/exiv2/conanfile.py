@@ -5,18 +5,18 @@ class Exiv2Conan(ConanFile):
     settings = 'os', 'compiler', 'build_type', 'arch'
     generators = 'cmake'
     options = {'unitTests': [True, False],
-               'mlut_xmp': [True, False],
+               'xmp': [True, False],
                'iconv': [True, False],
                'webready': [True, False],
               }
     default_options = ('unitTests=True',
-                       'mlut_xmp=False',
+                       'xmp=False',
                        'iconv=False',
                        'webready=False',
                       )
 
     def configure(self):
-        self.options['libcurl'].shared = True
+        self.options['libcurl'].shared = False
         self.options['libcurl'].with_openssl = True
         self.options['gtest'].shared = False
 
@@ -30,7 +30,7 @@ class Exiv2Conan(ConanFile):
             self.requires('gtest/1.8.1@bincrafters/stable')
 
         if self.options.webready and not os_info.is_macos:
-            self.requires('libcurl/7.61.1@bincrafters/stable')
+            self.requires('libcurl/7.64.1@bincrafters/stable')
 
         if self.options.xmp:
             self.requires('XmpSdk/2016.7@piponazo/stable') # from conan-piponazo

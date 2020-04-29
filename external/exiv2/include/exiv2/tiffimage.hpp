@@ -17,12 +17,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301 USA.
  */
-/*
-  File:      tiffimage.hpp
- */
 
-#ifndef TIFFIMAGE_HPP_
-#define TIFFIMAGE_HPP_
+#pragma once
 
 // *****************************************************************************
 #include "exiv2lib_export.h"
@@ -36,17 +32,6 @@ namespace Exiv2 {
 
 // *****************************************************************************
 // class definitions
-
-    // Add TIFF to the supported image formats
-    namespace ImageType {
-        const int tiff = 4;          //!< TIFF image type (see class TiffImage)
-        const int dng = 4;           //!< DNG image type (see class TiffImage)
-        const int nef = 4;           //!< NEF image type (see class TiffImage)
-        const int pef = 4;           //!< PEF image type (see class TiffImage)
-        const int arw = 4;           //!< ARW image type (see class TiffImage)
-        const int sr2 = 4;           //!< SR2 image type (see class TiffImage)
-        const int srw = 4;           //!< SRW image type (see class TiffImage)
-    }
 
     /*!
       @brief Class to access TIFF images. Exif metadata is
@@ -101,15 +86,12 @@ namespace Exiv2 {
         int pixelHeight() const override;
         //@}
 
-    private:
-        //! @name NOT Implemented
-        //@{
-        //! Copy constructor
-        TiffImage(const TiffImage& rhs);
-        //! Assignment operator
-        TiffImage& operator=(const TiffImage& rhs);
-        //@}
+        TiffImage& operator=(const TiffImage& rhs) = delete;
+        TiffImage& operator=(const TiffImage&& rhs) = delete;
+        TiffImage(const TiffImage& rhs) = delete;
+        TiffImage(const TiffImage&& rhs) = delete;
 
+    private:
         //! @name Accessors
         //@{
         //! Return the group name of the group with the primary image.
@@ -147,13 +129,8 @@ namespace Exiv2 {
 
           @return Byte order in which the data is encoded.
         */
-        static ByteOrder decode(
-                  ExifData& exifData,
-                  IptcData& iptcData,
-                  XmpData&  xmpData,
-            const byte*     pData,
-                  uint32_t  size
-        );
+        static ByteOrder decode(ExifData& exifData, IptcData& iptcData, XmpData& xmpData, const byte* pData,
+                                size_t size);
         /*!
           @brief Encode metadata from the provided metadata to TIFF format.
 
@@ -187,15 +164,8 @@ namespace Exiv2 {
 
           @return Write method used.
         */
-        static WriteMethod encode(
-                  BasicIo&  io,
-            const byte*     pData,
-                  uint32_t  size,
-                  ByteOrder byteOrder,
-            const ExifData& exifData,
-            const IptcData& iptcData,
-            const XmpData&  xmpData
-        );
+        static WriteMethod encode(BasicIo& io, const byte* pData, size_t size, ByteOrder byteOrder,
+                                  const ExifData& exifData, const IptcData& iptcData, const XmpData& xmpData);
 
     }; // class TiffParser
 
@@ -215,5 +185,3 @@ namespace Exiv2 {
     EXIV2API bool isTiffType(BasicIo& iIo, bool advance);
 
 }                                       // namespace Exiv2
-
-#endif                                  // #ifndef TIFFIMAGE_HPP_

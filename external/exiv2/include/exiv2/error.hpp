@@ -25,8 +25,7 @@
   @date    15-Jan-04, ahu: created<BR>
            11-Feb-04, ahu: isolated as a component
  */
-#ifndef ERROR_HPP_
-#define ERROR_HPP_
+#pragma once
 
 // *****************************************************************************
 #include "exiv2lib_export.h"
@@ -73,11 +72,12 @@ namespace Exiv2 {
              make that call any logic that always needs to be executed.
      */
     class EXIV2API LogMsg {
-        //! Prevent copy-construction: not implemented.
-        LogMsg(const LogMsg&);
-        //! Prevent assignment: not implemented.
-        LogMsg& operator=(const LogMsg&);
     public:
+        LogMsg& operator=(const LogMsg& rhs) = delete;
+        LogMsg& operator=(const LogMsg&& rhs) = delete;
+        LogMsg(const LogMsg& rhs) = delete;
+        LogMsg(const LogMsg&& rhs) = delete;
+
         /*!
           @brief Defined log levels. To suppress all log messages, either set the
                  log level to \c mute or set the log message handler to 0.
@@ -395,4 +395,3 @@ namespace Exiv2 {
 #endif
 
 }                                       // namespace Exiv2
-#endif                                  // #ifndef ERROR_HPP_

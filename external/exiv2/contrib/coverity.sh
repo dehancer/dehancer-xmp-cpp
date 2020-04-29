@@ -5,7 +5,7 @@
 # Redistribution and use is allowed according to the terms of the BSD license.
 # For details see the accompanying COPYING-CMAKE-SCRIPTS file.
 #
-# Before to open this script you must set these shell variable :
+# Before to run this script you must set these shell variable :
 # $EXIVCoverityToken with token of Exiv2 project given by Coverity SCAN
 # $EXIVCoverityEmail with email adress to send SCAN result.
 #

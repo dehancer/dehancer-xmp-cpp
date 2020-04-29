@@ -332,7 +332,7 @@ msgid "   -u      Show unknown tags.\n"
 msgstr ""
 
 #: src/exiv2.cpp:283
-msgid "   -v      Be verbose during the program open.\n"
+msgid "   -v      Be verbose during the program run.\n"
 msgstr ""
 
 #: src/exiv2.cpp:263
@@ -7257,7 +7257,7 @@ msgstr ""
 
 #: src/properties.cpp:1939
 msgid ""
-"Deprecated. (Child of MLutXmp.dwc.Event) The date-time or interval during which "
+"Deprecated. (Child of Xmp.dwc.Event) The date-time or interval during which "
 "an Event ended. For occurrences, this is the date-time when the event was "
 "recorded. Not suitable for a time in a geological context. Recommended best "
 "practice is to use an encoding scheme, such as ISO 8601:2004(E)."
@@ -7265,7 +7265,7 @@ msgstr ""
 
 #: src/properties.cpp:1936
 msgid ""
-"Deprecated. (Child of MLutXmp.dwc.Event) The date-time or interval during which "
+"Deprecated. (Child of Xmp.dwc.Event) The date-time or interval during which "
 "an Event started. For occurrences, this is the date-time when the event was "
 "recorded. Not suitable for a time in a geological context. Recommended best "
 "practice is to use an encoding scheme, such as ISO 8601:2004(E)."
@@ -7301,7 +7301,7 @@ msgstr ""
 
 #: src/properties.cpp:1989
 msgid ""
-"Deprecated. Use MLutXmp.dcterms.Location instead. *Main structure* containing "
+"Deprecated. Use Xmp.dcterms.Location instead. *Main structure* containing "
 "location based information."
 msgstr ""
 
@@ -7983,7 +7983,7 @@ msgid "EXIF tag 37379, 0x9203. Brightness, unit is APEX."
 msgstr ""
 
 #: src/properties.cpp:835
-msgid "EXIF tag 37380, 0x9204. Exposure impact, unit is APEX."
+msgid "EXIF tag 37380, 0x9204. Exposure bias, unit is APEX."
 msgstr ""
 
 #: src/properties.cpp:836
@@ -8808,11 +8808,11 @@ msgid "Exposure Warning"
 msgstr "نۇرلاندۇرۇش ئاگاھلاندۇرۇشى"
 
 #: src/actions.cpp:357
-msgid "Exposure impact"
+msgid "Exposure bias"
 msgstr "نۇرلاندۇرۇش پەرقى"
 
 #: src/olympusmn.cpp:828 src/olympusmn.cpp:898
-msgid "Exposure impact value"
+msgid "Exposure bias value"
 msgstr "يورۇتۇش تولۇقلاش قىممىتى"
 
 #: src/nikonmn.cpp:168
@@ -8855,7 +8855,7 @@ msgid "Exposure indicator"
 msgstr "نۇرلاندۇرۇش كۆرسەتكۈچى"
 
 #: src/minoltamn.cpp:1070
-msgid "Exposure manual impact"
+msgid "Exposure manual bias"
 msgstr "نۇر ئۆتۈش ئېغىشى قوللانچىسى"
 
 #: src/actions.cpp:402 src/minoltamn.cpp:497 src/minoltamn.cpp:748
@@ -9837,7 +9837,7 @@ msgid "Flash activity"
 msgstr "چاقناش پائالىيىتى"
 
 #: src/actions.cpp:363 src/canonmn.cpp:1330 src/panasonicmn.cpp:454
-msgid "Flash impact"
+msgid "Flash bias"
 msgstr "چاقناش پەرقى"
 
 #: src/nikonmn.cpp:578
@@ -23141,12 +23141,12 @@ msgstr "ئىنژېنېر ئاتى"
 
 #: src/tags.cpp:832
 #, fuzzy
-msgid "The exposure impact."
+msgid "The exposure bias."
 msgstr "نۇرلاندۇرۇش پەرقى"
 
 #: src/tags.cpp:1688
 msgid ""
-"The exposure impact. The units is the APEX value. Ordinarily it is given in "
+"The exposure bias. The units is the APEX value. Ordinarily it is given in "
 "the range of -99.99 to 99.99."
 msgstr ""
 
@@ -27761,7 +27761,7 @@ msgid "White balance adjustment"
 msgstr "ئاق تەڭپۇڭلۇقنى تەڭشەش"
 
 #: src/nikonmn.cpp:567 src/olympusmn.cpp:251
-msgid "White balance impact"
+msgid "White balance bias"
 msgstr "ئاق تەڭپۇڭلۇق ئېغىشى"
 
 #: src/canonmn.cpp:1583

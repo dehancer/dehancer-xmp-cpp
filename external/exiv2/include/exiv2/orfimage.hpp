@@ -24,8 +24,7 @@
            <a href="mailto:costlow@gmail.com">costlow@gmail.com</a>
   @date    31-Jul-07, costlow: created
  */
-#ifndef ORFIMAGE_HPP_
-#define ORFIMAGE_HPP_
+#pragma once
 
 // *****************************************************************************
 #include "exiv2lib_export.h"
@@ -39,11 +38,6 @@ namespace Exiv2 {
 
 // *****************************************************************************
 // class definitions
-
-    // Add ORF to the supported image formats
-    namespace ImageType {
-        const int orf = 9;          //!< ORF image type (see class OrfImage)
-    }
 
     /*!
       @brief Class to access raw Olympus ORF images. Exif metadata is supported
@@ -90,16 +84,11 @@ namespace Exiv2 {
         int pixelHeight() const override;
         //@}
 
-    private:
-        //! @name NOT Implemented
-        //@{
-        //! Copy constructor
-        OrfImage(const OrfImage& rhs);
-        //! Assignment operator
-        OrfImage& operator=(const OrfImage& rhs);
-        //@}
-
-    }; // class OrfImage
+        OrfImage& operator=(const OrfImage& rhs) = delete;
+        OrfImage& operator=(const OrfImage&& rhs) = delete;
+        OrfImage(const OrfImage& rhs) = delete;
+        OrfImage(const OrfImage&& rhs) = delete;
+    };  // class OrfImage
 
     /*!
       @brief Stateless parser class for data in ORF format. Images use this
@@ -151,5 +140,3 @@ namespace Exiv2 {
     EXIV2API bool isOrfType(BasicIo& iIo, bool advance);
 
 }                                       // namespace Exiv2
-
-#endif                                  // #ifndef ORFIMAGE_HPP_

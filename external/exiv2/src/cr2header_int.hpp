@@ -24,8 +24,7 @@
            <a href="mailto:ahuggel@gmx.net">ahuggel@gmx.net</a>
   @date    23-Apr-08, ahu: created
  */
-#ifndef CR2IMAGE_INT_HPP_
-#define CR2IMAGE_INT_HPP_
+#pragma once
 
 // *****************************************************************************
 // included header files
@@ -52,7 +51,7 @@ namespace Exiv2 {
 
         //! @name Manipulators
         //@{
-        bool read(const byte* pData, uint32_t size) override;
+        bool read(const byte* pData, size_t size) override;
         //@}
 
         //! @name Accessors
@@ -71,5 +70,3 @@ namespace Exiv2 {
     }; // class Cr2Header
 
 }}                                      // namespace Internal, Exiv2
-
-#endif                                  // #ifndef CR2IMAGE_INT_HPP_

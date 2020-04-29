@@ -24,8 +24,7 @@
            <a href="mailto:ahuggel@gmx.net">ahuggel@gmx.net</a>
   @date    13-Jul-07, ahu: created
  */
-#ifndef XMP_HPP_
-#define XMP_HPP_
+#pragma once
 
 // *****************************************************************************
 #include "exiv2lib_export.h"
@@ -138,9 +137,9 @@ namespace Exiv2 {
         const char* typeName() const override;
         // Todo: Remove this method from the baseclass
         //! The Exif typeSize doesn't make sense here. Return 0.
-        long typeSize() const override;
-        long count() const override;
-        long size() const override;
+        size_t typeSize() const override;
+        size_t count() const override;
+        size_t size() const override;
         std::string toString() const override;
         std::string toString(long n) const override;
         long toLong(long n =0) const override;
@@ -443,5 +442,3 @@ namespace Exiv2 {
     }
 
 }                                       // namespace Exiv2
-
-#endif                                  // #ifndef XMP_HPP_

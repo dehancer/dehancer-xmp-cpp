@@ -169,14 +169,14 @@ Modified: 2017-09-24
 5.3 How is metadata organized in Exiv2
     section.group.tag
 
-    section: Exif | IPTC | MLutXmp
+    section: Exif | IPTC | Xmp
     group:   Photo | Image | MakerNote | Nikon3 ....
     tag: YResolution etc ...
 
     820 rmills@rmillsmbp:~/gnu/github/exiv2/exiv2/src $ exiv2 -pa ~/Stonehenge.jpg | cut -d' ' -f 1 | cut -d. -f 1 | sort | uniq
     Exif
     Iptc
-    MLutXmp
+    Xmp
 
     821 rmills@rmillsmbp:~/gnu/github/exiv2/exiv2/src $ exiv2 -pa --grep Exif ~/Stonehenge.jpg  | cut -d'.' -f 2 | sort | uniq
     GPSInfo
@@ -294,7 +294,7 @@ Modified: 2017-09-24
 #5	0x000000010044d956 in Exiv2::ExifParser::decode(Exiv2::ExifData&, unsigned char const*, unsigned int) at /Users/rmills/gnu/github/exiv2/exiv2/src/exif.cpp:625
 #6	0x0000000100498fd7 in Exiv2::JpegBase::readMetadata() at /Users/rmills/gnu/github/exiv2/exiv2/src/jpgimage.cpp:386
 #7	0x000000010000bc59 in Action::Print::printList() at /Users/rmills/gnu/github/exiv2/exiv2/src/actions.cpp:530
-#8	0x0000000100005835 in Action::Print::open(std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > const&) at /Users/rmills/gnu/github/exiv2/exiv2/src/actions.cpp:245
+#8	0x0000000100005835 in Action::Print::run(std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > const&) at /Users/rmills/gnu/github/exiv2/exiv2/src/actions.cpp:245
 
 
 5.6 How do the encoders work?

@@ -24,8 +24,7 @@
            <a href="mailto:draekko.software+exiv2@gmail.com">draekko.software+exiv2@gmail.com</a>
   @date    29-Jul-16
  */
-#ifndef WEBPIMAGE_HPP
-#define WEBPIMAGE_HPP
+#pragma once
 
 // *****************************************************************************
 #include "exiv2lib_export.h"
@@ -39,11 +38,6 @@ namespace Exiv2 {
 
 // *****************************************************************************
 // class definitions
-
-    // Add WEBP to the supported image formats
-    namespace ImageType {
-        const int webp = 23; //!< Treating webp as an image type>
-    }
 
     /*!
       @brief Class to access WEBP video files.
@@ -85,23 +79,22 @@ namespace Exiv2 {
         std::string mimeType() const override;
         //@}
 
+        WebPImage& operator=(const WebPImage& rhs) = delete;
+        WebPImage& operator=(const WebPImage&& rhs) = delete;
+        WebPImage(const WebPImage& rhs) = delete;
+        WebPImage(const WebPImage&& rhs) = delete;
+
     private:
         void doWriteMetadata(BasicIo& outIo);
         //! @name NOT Implemented
         //@{
-        long getHeaderOffset(byte *data, long data_size,
-                             byte *header, long header_size);
-        bool equalsWebPTag(Exiv2::DataBuf& buf ,const char* str);
+        long getHeaderOffset(byte* data, size_t data_size, byte* header, size_t header_size);
+        bool equalsWebPTag(Exiv2::DataBuf& buf, const char* str);
         void debugPrintHex(byte *data, long size);
-        void decodeChunks(uint64_t filesize);
+        void decodeChunks(long filesize);
         void inject_VP8X(BasicIo& iIo, bool has_xmp, bool has_exif,
                          bool has_alpha, bool has_icc, int width,
                          int height);
-
-        //! Copy constructor
-        WebPImage(const WebPImage& rhs);
-        //! Assignment operator
-        WebPImage& operator=(const WebPImage& rhs);
         //@}
 
     private:
@@ -139,5 +132,3 @@ namespace Exiv2 {
     EXIV2API bool isWebPType(BasicIo& iIo, bool advance);
 
 }                                       // namespace Exiv2
-
-#endif                                  // WEBPIMAGE_HPP

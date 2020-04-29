@@ -62,7 +62,7 @@ All XMP value types are supported: Simple types, structures,
 arrays, property qualifiers and language alternatives.
 <br>
 XMP properties are accessed through keys of the form
-"MLutXmp.&lt;Prefix&gt;.&lt;PropertyPath&gt;", where &lt;Prefix&gt; is the preferred
+"Xmp.&lt;Prefix&gt;.&lt;PropertyPath&gt;", where &lt;Prefix&gt; is the preferred 
 (or rather, registered) prefix for a schema namespace and 
 &lt;PropertyPath&gt; is the path of the XMP node. In its most basic
 form, to address simple properties, &lt;PropertyPath&gt; is the name

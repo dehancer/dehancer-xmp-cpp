@@ -1,5 +1,5 @@
 set(CPACK_PACKAGE_NAME "${PROJECT_NAME}")
-set(CPACK_PACKAGE_CONTACT "Luis DÃ­az MÃ¡s <piponazo@gmail.com>")
+set(CPACK_PACKAGE_CONTACT "Luis Díaz Más <piponazo@gmail.com>")
 set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
 
 set(CPACK_SOURCE_GENERATOR TGZ)
@@ -9,7 +9,7 @@ set(CPACK_SOURCE_IGNORE_FILES $(CPACK_SOURCE_IGNORE_FILES) "/.git/" "/build/" "\
 if ( MSVC )
     set(CPACK_GENERATOR ZIP)  # use .zip - less likely to damage bin/exiv2.dll permissions
 else()
-    set(CPACK_GENERATOR TGZ)  # MinGW/Cygwin/Linux/MacOS-X etc use .tar.gz
+    set(CPACK_GENERATOR TGZ)  # MinGW/Cygwin/Linux/macOS etc. use .tar.gz
 endif()
 
 set (BS "") # Bit Size
@@ -41,20 +41,22 @@ elseif ( APPLE )
     set (PACKDIR Darwin)
 elseif ( LINUX )
     set (PACKDIR Linux)
+elseif ( CMAKE_SYSTEM_NAME STREQUAL "NetBSD" OR CMAKE_SYSTEM_NAME STREQUAL "FreeBSD" )
+    set (PACKDIR Unix)
 else()
-    set (PACKDIR Linux) # unsupported systems such as FreeBSD
+    set (PACKDIR Linux) # Linux and unsupported systems
+endif()
+
+set (BUNDLE_NAME ${PACKDIR})
+if ( CMAKE_SYSTEM_NAME STREQUAL "NetBSD" OR CMAKE_SYSTEM_NAME STREQUAL "FreeBSD" )
+    set (BUNDLE_NAME ${CMAKE_SYSTEM_NAME})
 endif()
 
 set (CC "") # Compiler
-if ( NOT APPLE )
+if ( NOT APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL "FreeBSD" )
   if (${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
     set (CC Clang)
   endif()
-endif()
-
-set (VI "") # Video
-if ( EXIV2_ENABLE_VIDEO )
-    set (VI Video)
 endif()
 
 set (WR "") # WebReady
@@ -64,7 +66,12 @@ endif()
 
 set (VS "") # VisualStudio
 if ( MSVC )
-    if     ( MSVC_VERSION STREQUAL 1900 )
+    # VS2015 >= 1900, VS2017 >= 1910, VS2019 >= 1920
+    if     ( MSVC_VERSION GREATER  1919 )
+       set(VS 2019)
+    elseif ( MSVC_VERSION GREATER  1909 )
+       set(VS 2017)
+    elseif ( MSVC_VERSION GREATER  1899 )
        set(VS 2015)
     elseif ( MSVC_VERSION STREQUAL 1800 )
        set(VS 2013)
@@ -77,7 +84,7 @@ if ( MSVC )
     endif()
 endif()
 
-set(CPACK_PACKAGE_FILE_NAME ${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${VS}${PACKDIR}${BS}${CC}${LT}${BT}${VI}${WR})
+set(CPACK_PACKAGE_FILE_NAME ${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${VS}${BUNDLE_NAME}${BS}${CC}${LT}${BT}${VI}${WR})
 
 # https://stackoverflow.com/questions/17495906/copying-files-and-including-them-in-a-cpack-archive
 install(FILES     "${PROJECT_SOURCE_DIR}/samples/exifprint.cpp" DESTINATION "samples")
@@ -88,14 +95,20 @@ install(DIRECTORY "${PROJECT_SOURCE_DIR}/contrib/"              DESTINATION "con
 set( DOCS
      README.md
      README-CONAN.md
-     license.txt
+     COPYING
      exiv2.png
 )
 foreach(doc ${DOCS})
     install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/${doc} DESTINATION .)
 endforeach()
-install(FILES ${PROJECT_SOURCE_DIR}/build/logs/build.txt DESTINATION "logs")
-install(FILES ${PROJECT_SOURCE_DIR}/build/logs/test.txt  DESTINATION "logs")
+
+# copy build/test logs which are only present on Jenkins builds
+if(EXISTS ${PROJECT_SOURCE_DIR}/build/logs/build.txt)
+    install(FILES ${PROJECT_SOURCE_DIR}/build/logs/build.txt DESTINATION "logs")
+endif()
+if(EXISTS ${PROJECT_SOURCE_DIR}/build/logs/test.txt)
+    install(FILES ${PROJECT_SOURCE_DIR}/build/logs/test.txt  DESTINATION "logs")
+endif()
 
 # Copy releasenotes.txt and appropriate ReadMe.txt (eg releasenotes/${PACKDIR}/ReadMe.txt)
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/releasenotes/${PACKDIR}/ReadMe.txt DESTINATION .)

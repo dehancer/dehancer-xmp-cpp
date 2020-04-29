@@ -12,8 +12,8 @@
 
 namespace dehancer {
 
-    static const std::string xmp_meta_prefix = "MLutXmp.Dehancer.mlutAttributes.undo[1]/rdf:";
-    static const std::string xmp_clut_prefix = "MLutXmp.Dehancer.mlutClutList.undo[1]/rdf:";
+    static const std::string xmp_meta_prefix = "Xmp.Dehancer.mlutAttributes.undo[1]/rdf:";
+    static const std::string xmp_clut_prefix = "Xmp.Dehancer.mlutClutList.undo[1]/rdf:";
 
     inline bool  has_prefix(const std::string& str, const std::string& prefix) {
       auto res = std::mismatch(prefix.begin(), prefix.end(), str.begin());
@@ -96,6 +96,8 @@ namespace dehancer {
 
       for (auto md = xmpData.begin(); md != xmpData.end(); ++md) {
 
+        std::cerr << "md: " << md->key() << " / " << md->tag() << " / " << md->value() << std::endl;
+
         bool is_clut = false;
 
         std::stringstream lic_matrix_prefix;
@@ -106,7 +108,6 @@ namespace dehancer {
         }
 
         if (!key.empty()) {
-
 
           for (int i = 0; i < 3; ++i) {
 

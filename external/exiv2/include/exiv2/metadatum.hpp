@@ -28,8 +28,7 @@
            31-Jul-04, brad: isolated as a component<BR>
            23-Aug-04, ahu: added Key
  */
-#ifndef METADATUM_HPP_
-#define METADATUM_HPP_
+#pragma once
 
 // *****************************************************************************
 #include "exiv2lib_export.h"
@@ -218,11 +217,11 @@ namespace Exiv2 {
         //! Return the name of the type
         virtual const char* typeName() const =0;
         //! Return the size in bytes of one component of this type
-        virtual long typeSize() const =0;
+        virtual size_t typeSize() const =0;
         //! Return the number of components in the value
-        virtual long count() const =0;
+        virtual size_t count() const =0;
         //! Return the size of the value in bytes
-        virtual long size() const =0;
+        virtual size_t size() const =0;
         //! Return the value as a string.
         virtual std::string toString() const =0;
         /*!
@@ -312,5 +311,3 @@ namespace Exiv2 {
     EXIV2API bool cmpMetadataByKey(const Metadatum& lhs, const Metadatum& rhs);
 
 }                                       // namespace Exiv2
-
-#endif                                  // #ifndef METADATUM_HPP_
