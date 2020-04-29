@@ -96,8 +96,6 @@ namespace dehancer {
 
       for (auto md = xmpData.begin(); md != xmpData.end(); ++md) {
 
-        std::cerr << "md: " << md->key() << " / " << md->tag() << " / " << md->value() << std::endl;
-
         bool is_clut = false;
 
         std::stringstream lic_matrix_prefix;
