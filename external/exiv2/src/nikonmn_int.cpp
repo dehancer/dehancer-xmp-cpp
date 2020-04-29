@@ -370,8 +370,12 @@ namespace Exiv2 {
                                                const ExifData*)
     {
         if (value.count() >= 1) {
-            unsigned long focusArea = value.toLong(0);
-            os << nikonFocusarea[focusArea] ;
+            const unsigned long focusArea = value.toLong(0);
+            if (focusArea >= EXV_COUNTOF(nikonFocusarea)) {
+                os << "Invalid value";
+            } else {
+                os << nikonFocusarea[focusArea];
+            }
         }
         if (value.count() >= 2) {
             os << "; ";
@@ -560,7 +564,7 @@ namespace Exiv2 {
         TagInfo(0x0008, "FlashSetting", N_("Flash Setting"), N_("Flash setting"), nikon3Id, makerTags, asciiString, -1, printValue),
         TagInfo(0x0009, "FlashDevice", N_("Flash Device"), N_("Flash device"), nikon3Id, makerTags, asciiString, -1, printValue),
         TagInfo(0x000a, "0x000a", "0x000a", N_("Unknown"), nikon3Id, makerTags, unsignedRational, -1, printValue),
-        TagInfo(0x000b, "WhiteBalanceBias", N_("White Balance Bias"), N_("White balance impact"), nikon3Id, makerTags, signedShort, -1, printValue),
+        TagInfo(0x000b, "WhiteBalanceBias", N_("White Balance Bias"), N_("White balance bias"), nikon3Id, makerTags, signedShort, -1, printValue),
         TagInfo(0x000c, "WB_RBLevels", N_("WB RB Levels"), N_("WB RB levels"), nikon3Id, makerTags, unsignedRational, -1, printValue),
         TagInfo(0x000d, "ProgramShift", N_("Program Shift"), N_("Program shift"), nikon3Id, makerTags, undefined, -1, EXV_PRINT_TAG(nikonFlashComp)),
         TagInfo(0x000e, "ExposureDiff", N_("Exposure Difference"), N_("Exposure difference"), nikon3Id, makerTags, undefined, -1, EXV_PRINT_TAG(nikonFlashComp)),
@@ -885,28 +889,53 @@ namespace Exiv2 {
     };
 
     // Nikon3 Auto Focus Tag Info
-    const TagInfo Nikon3MakerNote::tagInfoAf2_[] = {
-        TagInfo(  0, "Version", N_("Version"), N_("Version"), nikonAf2Id, makerTags, undefined, 4, printExifVersion),
-        TagInfo(  4, "ContrastDetectAF", N_("Contrast Detect AF"), N_("Contrast detect AF"), nikonAf2Id, makerTags, unsignedByte, 1, EXV_PRINT_TAG(nikonOffOn)),
-        TagInfo(  5, "AFAreaMode", N_("AF Area Mode"), N_("AF area mode"), nikonAf2Id, makerTags, unsignedByte, 1, printValue),
-        TagInfo(  6, "PhaseDetectAF", N_("Phase Detect AF"), N_("Phase detect AF"), nikonAf2Id, makerTags, unsignedByte, 1, EXV_PRINT_TAG(nikonPhaseDetectAF)),
-        TagInfo(  7, "PrimaryAFPoint", N_("Primary AF Point"), N_("Primary AF point"), nikonAf2Id, makerTags, unsignedByte, 1, printValue),
-        TagInfo(  8, "AFPointsUsed", N_("AF Points Used"), N_("AF points used"), nikonAf2Id, makerTags, unsignedByte, 7, printValue),
-        TagInfo( 16, "AFImageWidth", N_("AF Image Width"), N_("AF image width"), nikonAf2Id, makerTags, unsignedShort, 1, printValue),
-        TagInfo( 18, "AFImageHeight", N_("AF Image Height"), N_("AF image height"), nikonAf2Id, makerTags, unsignedShort, 1, printValue),
-        TagInfo( 20, "AFAreaXPosition", N_("AF Area X Position"), N_("AF area x position"), nikonAf2Id, makerTags, unsignedShort, 1, printValue),
-        TagInfo( 22, "AFAreaYPosition", N_("AF Area Y Position"), N_("AF area y position"), nikonAf2Id, makerTags, unsignedShort, 1, printValue),
-        TagInfo( 24, "AFAreaWidth", N_("AF Area Width"), N_("AF area width"), nikonAf2Id, makerTags, unsignedShort, 1, printValue),
-        TagInfo( 26, "AFAreaHeight", N_("AF Area Height"), N_("AF area height"), nikonAf2Id, makerTags, unsignedShort, 1, printValue),
-        TagInfo( 28, "ContrastDetectAFInFocus", N_("Contrast Detect AF In Focus"), N_("Contrast detect AF in focus"), nikonAf2Id, makerTags, unsignedShort, 1, printValue),
+    const TagInfo Nikon3MakerNote::tagInfoAf21_[] = {
+        TagInfo(  0, "Version", N_("Version"), N_("Version"), nikonAf21Id, makerTags, undefined, 4, printExifVersion),
+        TagInfo(  4, "ContrastDetectAF", N_("Contrast Detect AF"), N_("Contrast detect AF"), nikonAf21Id, makerTags, unsignedByte, 1, EXV_PRINT_TAG(nikonOffOn)),
+        TagInfo(  5, "AFAreaMode", N_("AF Area Mode"), N_("AF area mode"), nikonAf21Id, makerTags, unsignedByte, 1, printValue),
+        TagInfo(  6, "PhaseDetectAF", N_("Phase Detect AF"), N_("Phase detect AF"), nikonAf21Id, makerTags, unsignedByte, 1, EXV_PRINT_TAG(nikonPhaseDetectAF)),
+        TagInfo(  7, "PrimaryAFPoint", N_("Primary AF Point"), N_("Primary AF point"), nikonAf21Id, makerTags, unsignedByte, 1, printValue),
+        TagInfo(  8, "AFPointsUsed", N_("AF Points Used"), N_("AF points used"), nikonAf21Id, makerTags, unsignedByte, 7, printValue),
+        TagInfo( 16, "AFImageWidth", N_("AF Image Width"), N_("AF image width"), nikonAf21Id, makerTags, unsignedShort, 1, printValue),
+        TagInfo( 18, "AFImageHeight", N_("AF Image Height"), N_("AF image height"), nikonAf21Id, makerTags, unsignedShort, 1, printValue),
+        TagInfo( 20, "AFAreaXPosition", N_("AF Area X Position"), N_("AF area x position"), nikonAf21Id, makerTags, unsignedShort, 1, printValue),
+        TagInfo( 22, "AFAreaYPosition", N_("AF Area Y Position"), N_("AF area y position"), nikonAf21Id, makerTags, unsignedShort, 1, printValue),
+        TagInfo( 24, "AFAreaWidth", N_("AF Area Width"), N_("AF area width"), nikonAf21Id, makerTags, unsignedShort, 1, printValue),
+        TagInfo( 26, "AFAreaHeight", N_("AF Area Height"), N_("AF area height"), nikonAf21Id, makerTags, unsignedShort, 1, printValue),
+        TagInfo( 28, "ContrastDetectAFInFocus", N_("Contrast Detect AF In Focus"), N_("Contrast detect AF in focus"), nikonAf21Id, makerTags, unsignedShort, 1, printValue),
         // End of list marker
-        TagInfo(0xffff, "(UnknownNikonAf2Tag)", "(UnknownNikonAf2Tag)", N_("Unknown Nikon Auto Focus 2 Tag"), nikonAf2Id, makerTags, unsignedByte, 1, printValue)
+        TagInfo(0xffff, "(UnknownNikonAf2Tag)", "(UnknownNikonAf2Tag)", N_("Unknown Nikon Auto Focus 2 Tag"), nikonAf21Id, makerTags, unsignedByte, 1, printValue)
     };
 
-    const TagInfo* Nikon3MakerNote::tagListAf2()
+    const TagInfo* Nikon3MakerNote::tagListAf21()
     {
-        return tagInfoAf2_;
+        return tagInfoAf21_;
     }
+
+    // Nikon3 Auto Focus Tag Info Version 1.01 https://github.com/Exiv2/exiv2/pull/900
+    const TagInfo Nikon3MakerNote::tagInfoAf22_[] = {
+        TagInfo(  0, "Version", N_("Version"), N_("Version"), nikonAf22Id, makerTags, undefined, 4, printExifVersion),
+        TagInfo(  4, "ContrastDetectAF", N_("Contrast Detect AF"), N_("Contrast detect AF"), nikonAf22Id, makerTags, unsignedByte, 1, EXV_PRINT_TAG(nikonOffOn)),
+        TagInfo(  5, "AFAreaMode", N_("AF Area Mode"), N_("AF area mode"), nikonAf22Id, makerTags, unsignedByte, 1, printValue),
+        TagInfo(  6, "PhaseDetectAF", N_("Phase Detect AF"), N_("Phase detect AF"), nikonAf22Id, makerTags, unsignedByte, 1, EXV_PRINT_TAG(nikonPhaseDetectAF)),
+        TagInfo(  7, "PrimaryAFPoint", N_("Primary AF Point"), N_("Primary AF point"), nikonAf22Id, makerTags, unsignedByte, 1, printValue),
+        TagInfo(  8, "AFPointsUsed", N_("AF Points Used"), N_("AF points used"), nikonAf22Id, makerTags, unsignedByte, 7, printValue),
+        TagInfo( 70, "AFImageWidth", N_("AF Image Width"), N_("AF image width"), nikonAf22Id, makerTags, unsignedShort, 1, printValue),
+        TagInfo( 72, "AFImageHeight", N_("AF Image Height"), N_("AF image height"), nikonAf22Id, makerTags, unsignedShort, 1, printValue),
+        TagInfo( 74, "AFAreaXPosition", N_("AF Area X Position"), N_("AF area x position"), nikonAf22Id, makerTags, unsignedShort, 1, printValue),
+        TagInfo( 76, "AFAreaYPosition", N_("AF Area Y Position"), N_("AF area y position"), nikonAf22Id, makerTags, unsignedShort, 1, printValue),
+        TagInfo( 78, "AFAreaWidth", N_("AF Area Width"), N_("AF area width"), nikonAf22Id, makerTags, unsignedShort, 1, printValue),
+        TagInfo( 80, "AFAreaHeight", N_("AF Area Height"), N_("AF area height"), nikonAf22Id, makerTags, unsignedShort, 1, printValue),
+        TagInfo( 82, "ContrastDetectAFInFocus", N_("Contrast Detect AF In Focus"), N_("Contrast detect AF in focus"), nikonAf22Id, makerTags, unsignedShort, 1, printValue),
+        // End of list marker
+        TagInfo(0xffff, "(UnknownNikonAf2Tag)", "(UnknownNikonAf2Tag)", N_("Unknown Nikon Auto Focus 2 Tag"), nikonAf22Id, makerTags, unsignedByte, 1, printValue)
+    };
+
+    const TagInfo* Nikon3MakerNote::tagListAf22()
+    {
+        return tagInfoAf22_;
+    }
+
 
     // Nikon3 File Info Tag Info
     const TagInfo Nikon3MakerNote::tagInfoFi_[] = {
@@ -2336,7 +2365,7 @@ fmountlens[] = {
 {0xF7,0x53,0x5C,0x80,0x24,0x24,0x84,0x06,0x01,0x00,0x00, "Tamron", "A001", "SP AF 70-200mm F/2.8 Di LD (IF) Macro"},
 {0xFE,0x53,0x5C,0x80,0x24,0x24,0x84,0x06,0x01,0x00,0x00, "Tamron", "A001", "SP AF 70-200mm F/2.8 Di LD (IF) Macro"},
 {0xF7,0x53,0x5C,0x80,0x24,0x24,0x40,0x06,0x01,0x00,0x00, "Tamron", "A001", "SP AF 70-200mm F/2.8 Di LD (IF) Macro"},
-{0xFE,0x54,0x5C,0x80,0x24,0x24,0xDF,0x0E,0x01,0x00,0x00, "Tamron", "A009", "SP AF 70-200mm F/2.8 Di VC USD"},
+{0xFE,0x54,0x5C,0x80,0x24,0x24,0xDF,0x0E,0x01,0x00,0x00, "Tamron", "A009", "SP 70-200mm F/2.8 Di VC USD"},
 //M                                         "Tamron" "67D"    "SP AF 70-210mm f/2.8 LD";
 //M                                         "Tamron" ""       "AF 70-210mm F/3.5-4.5";
 //M                                         "Tamron" "158D"   "AF 70-210mm F/4-5.6";
@@ -2501,6 +2530,23 @@ fmountlens[] = {
 {0x00,0x48,0x80,0x80,0x30,0x30,0x00,0x00,0x00,0x00,0x00, "Nikon", "JAA313AA", "Nikkor 200mm f/4 AiS"},
 {0x00,0x40,0x11,0x11,0x2C,0x2C,0x00,0x00,0x00,0x00,0x00, "Samyang", "", "8mm f/3.5 Fish-Eye"},
 {0x00,0x58,0x64,0x64,0x20,0x20,0x00,0x00,0x00,0x00,0x00, "Soligor", "", "C/D Macro MC 90mm f/2.5"},
+//
+// https://github.com/Exiv2/exiv2/issues/743
+{0xc9,0x48,0x37,0x5c,0x24,0x24,0x4b,0x4e,0x01,0x00,0x00, "Sigma", "", "24-70mm F2.8 DG OS HSM Art"},
+//
+//  https://github.com/Exiv2/exiv2/issues/598 , https://github.com/Exiv2/exiv2/pull/891
+{0xCF,0x47,0x5C,0x8E,0x31,0x3D,0xDF,0x0E,0x00,0x00,0x00, "Tamron", "A030", "SP 70-300mm F/4-5.6 Di VC USD"},
+//
+// https://github.com/Exiv2/exiv2/issues/811
+{0xC1,0x48,0x24,0x37,0x24,0x24,0x4b,0x46,0x00,0x00,0x00, "Sigma", "", "14-24mm F2.8 DG HSM Art"},
+//
+{0xf4,0x4c,0x7c,0x7c,0x2c,0x2c,0x4b,0x02,0x00,0x00,0x00, "Sigma", "", "APO Macro 180mm F3.5 EX DG HSM"},
+//
+// https://github.com/Exiv2/exiv2/issues/1069
+{0xc8,0x54,0x44,0x44,0x0d,0x0d,0xdf,0x46,0x00,0x00,0x00, "Tamron", "F045", "SP 35mm f/1.4 Di USD"},
+//
+// https://github.com/Exiv2/exiv2/issues/1078
+{0x80,0x48,0x1C,0x29,0x24,0x24,0x7A,0x06,0x00,0x00,0x00, "Tokina", "", "atx-i 11-16mm F2.8 CF"},
 //
 {0,0,0,0,0,0,0,0,0,0,0, nullptr, nullptr, nullptr}
 };

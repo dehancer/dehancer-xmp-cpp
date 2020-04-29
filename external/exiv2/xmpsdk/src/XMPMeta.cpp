@@ -648,7 +648,7 @@ XMPMeta::Initialize()
 	if ( sXMP_InitCount > 1 ) return true;
 	
 	#if TraceXMPCalls
-		// xmpOut = fopen ( "mlut_xmp.out", "w" );	// Coordinate with client glue in WXMP_Common.hpp
+		// xmpOut = fopen ( "xmp.out", "w" );	// Coordinate with client glue in WXMP_Common.hpp
 		fprintf ( xmpOut, "XMP initializing\n" ); fflush ( xmpOut );
 	#endif
 	
@@ -670,7 +670,7 @@ XMPMeta::Initialize()
 	RegisterNamespace ( kXMP_NS_RDF, "rdf" );
 	RegisterNamespace ( kXMP_NS_DC, "dc" );
 
-	RegisterNamespace ( kXMP_NS_XMP, "mlut_xmp" );
+	RegisterNamespace ( kXMP_NS_XMP, "xmp" );
 	RegisterNamespace ( kXMP_NS_PDF, "pdf" );
 	RegisterNamespace ( kXMP_NS_Photoshop, "photoshop" );
 	RegisterNamespace ( kXMP_NS_PSAlbum, "album" );
@@ -1128,7 +1128,7 @@ XMPMeta::DeleteNamespace ( XMP_StringPtr namespaceURI )
 	if ( uriPos == sNamespaceURIToPrefixMap->end() ) return;
 
 	XMP_StringMapPos prefixPos = sNamespacePrefixToURIMap->find ( uriPos->second );
-	XMP_Assert ( prefixPos != sNamespacePrefixToURIMap->end() );
+	if ( prefixPos == sNamespacePrefixToURIMap->end() ) return;
 	
 	sNamespaceURIToPrefixMap->erase ( uriPos );
 	sNamespacePrefixToURIMap->erase ( prefixPos );

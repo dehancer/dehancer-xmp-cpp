@@ -25,8 +25,7 @@
            <a href="mailto:marco.piovanelli@pobox.com">marco.piovanelli@pobox.com</a>
   @date    26-Feb-2007, marco: created
  */
-#ifndef GIFIMAGE_HPP_
-#define GIFIMAGE_HPP_
+#pragma once
 
 // *****************************************************************************
 #include "exiv2lib_export.h"
@@ -41,25 +40,17 @@ namespace Exiv2 {
 // *****************************************************************************
 // class definitions
 
-    // Add GIF to the supported image formats
-    namespace ImageType {
-        const int gif = 11;          //!< GIF image type (see class GifImage)
-    }
-
     /*!
       @brief Class to access raw GIF images. Exif/IPTC metadata are supported
              directly.
      */
     class EXIV2API GifImage : public Image {
-        //! @name NOT Implemented
-        //@{
-        //! Copy constructor
-        GifImage(const GifImage& rhs);
-        //! Assignment operator
-        GifImage& operator=(const GifImage& rhs);
-        //@}
-
     public:
+        GifImage& operator=(const GifImage& rhs) = delete;
+        GifImage& operator=(const GifImage&& rhs) = delete;
+        GifImage(const GifImage& rhs) = delete;
+        GifImage(const GifImage&& rhs) = delete;
+
         //! @name Creators
         //@{
         /*!
@@ -125,5 +116,3 @@ namespace Exiv2 {
     EXIV2API bool isGifType(BasicIo& iIo, bool advance);
 
 }                                       // namespace Exiv2
-
-#endif                                  // #ifndef GIFIMAGE_HPP_

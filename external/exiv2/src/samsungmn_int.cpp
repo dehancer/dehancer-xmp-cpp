@@ -120,7 +120,7 @@ namespace Exiv2 {
         TagInfo(0xa010, "SensorAreas", N_("Sensor Areas"), N_("Sensor areas"), samsung2Id, makerTags, unsignedLong, -1, printValue),
         TagInfo(0xa011, "ColorSpace", N_("Color Space"), N_("Color space"), samsung2Id, makerTags, unsignedShort, -1, EXV_PRINT_TAG(samsung2ColorSpace)),
         TagInfo(0xa012, "SmartRange", N_("Smart Range"), N_("Smart range"), samsung2Id, makerTags, unsignedShort, -1, EXV_PRINT_TAG(samsung2SmartRange)),
-        TagInfo(0xa013, "ExposureBiasValue", N_("Exposure Bias Value"), N_("Exposure impact value"), samsung2Id, makerTags, signedRational, -1, print0x9204),
+        TagInfo(0xa013, "ExposureBiasValue", N_("Exposure Bias Value"), N_("Exposure bias value"), samsung2Id, makerTags, signedRational, -1, print0x9204),
         TagInfo(0xa014, "ISO", N_("ISO"), N_("ISO"), samsung2Id, makerTags, unsignedLong, -1, printValue),
         TagInfo(0xa018, "ExposureTime", N_("Exposure Time"), N_("Exposure time"), samsung2Id, makerTags, unsignedRational, -1, print0x829a),
         TagInfo(0xa019, "FNumber", N_("FNumber"), N_("The F number."), samsung2Id, makerTags, unsignedRational, -1, print0x829d),

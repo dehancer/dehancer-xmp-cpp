@@ -24,8 +24,7 @@
            <a href="mailto:ahuggel@gmx.net">ahuggel@gmx.net</a>
   @date    07-Mar-08, ahu: created
  */
-#ifndef XMPSIDECAR_HPP_
-#define XMPSIDECAR_HPP_
+#pragma once
 
 // *****************************************************************************
 #include "exiv2lib_export.h"
@@ -39,11 +38,6 @@ namespace Exiv2 {
 
 // *****************************************************************************
 // class definitions
-
-    // Add XMP to the supported image formats
-    namespace ImageType {
-        const int xmp = 10;          //!< XMP sidecar files (see class XmpSidecar)
-    }
 
     /*!
       @brief Class to access XMP sidecar files. They contain only XMP metadata.
@@ -84,15 +78,12 @@ namespace Exiv2 {
         std::string mimeType() const override;
         //@}
 
-    private:
-        //! @name NOT Implemented
-        //@{
-        //! Copy constructor
-        XmpSidecar(const XmpSidecar& rhs);
-        //! Assignment operator
-        XmpSidecar& operator=(const XmpSidecar& rhs);
-        //@}
+        XmpSidecar& operator=(const XmpSidecar& rhs) = delete;
+        XmpSidecar& operator=(const XmpSidecar&& rhs) = delete;
+        XmpSidecar(const XmpSidecar& rhs) = delete;
+        XmpSidecar(const XmpSidecar&& rhs) = delete;
 
+    private:
         Exiv2::Dictionary dates_;
 
     }; // class XmpSidecar
@@ -113,5 +104,3 @@ namespace Exiv2 {
     EXIV2API bool isXmpType(BasicIo& iIo, bool advance);
 
 }                                       // namespace Exiv2
-
-#endif                                  // #ifndef XMPSIDECAR_HPP_

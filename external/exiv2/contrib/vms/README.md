@@ -29,9 +29,8 @@ For further details, consult the shell scripts `setup.sh` and
 `ci/install_dependencies.sh`.
 
 
-All boxes come with `conan` installed via pip in the `vagrant` user's home
+All boxes come with `conan` installed via pip in the `vagrant` user's home	
 directory and the `exiv2` git repository cloned.
-
 
 Please note that these VMs are not continuously tested and the provisioning can
 break. Please open an issue on GitHub if you happen to encounter a problem.
@@ -42,7 +41,7 @@ break. Please open an issue on GitHub if you happen to encounter a problem.
 Please install [Vagrant](https://www.vagrantup.com/) and a supported provider
 (e.g. libvirt, VirtualBox).
 
-Choose a box from the above list and open in the directory where the
+Choose a box from the above list and run in the directory where the
 `Vagrantfile` resides:
 ``` shell
 vagrant up $name

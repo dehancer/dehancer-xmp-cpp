@@ -24,8 +24,8 @@
            <a href="mailto:marco.piovanelli@pobox.com">marco.piovanelli@pobox.com</a>
   @date    05-Mar-2007, marco: created
  */
-#ifndef BMPIMAGE_HPP_
-#define BMPIMAGE_HPP_
+
+#pragma once
 
 // *****************************************************************************
 #include "exiv2lib_export.h"
@@ -40,25 +40,17 @@ namespace Exiv2 {
 // *****************************************************************************
 // class definitions
 
-    // Add Windows Bitmap (BMP) to the supported image formats
-    namespace ImageType {
-        const int bmp = 14; //!< Windows bitmap (bmp) image type (see class BmpImage)
-    }
-
     /*!
       @brief Class to access Windows bitmaps. This is just a stub - we only
           read width and height.
      */
     class EXIV2API BmpImage : public Image {
-        //! @name NOT Implemented
-        //@{
-        //! Copy constructor
-        BmpImage(const BmpImage& rhs);
-        //! Assignment operator
-        BmpImage& operator=(const BmpImage& rhs);
-        //@}
-
     public:
+        BmpImage& operator=(const BmpImage& rhs) = delete;
+        BmpImage& operator=(const BmpImage&& rhs) = delete;
+        BmpImage(const BmpImage& rhs) = delete;
+        BmpImage(const BmpImage&& rhs) = delete;
+
         //! @name Creators
         //@{
         /*!
@@ -124,5 +116,3 @@ namespace Exiv2 {
     EXIV2API bool isBmpType(BasicIo& iIo, bool advance);
 
 }                                       // namespace Exiv2
-
-#endif                                  // #ifndef BMPIMAGE_HPP_

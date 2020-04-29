@@ -88,7 +88,7 @@ namespace Exiv2 {
 
     void CrwImage::readMetadata()
     {
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
         std::cerr << "Reading CRW file " << io_->path() << "\n";
 #endif
         if (io_->open() != 0) {
@@ -110,7 +110,7 @@ namespace Exiv2 {
 
     void CrwImage::writeMetadata()
     {
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
         std::cerr << "Writing CRW file " << io_->path() << "\n";
 #endif
         // Read existing image
@@ -129,7 +129,7 @@ namespace Exiv2 {
         }
 
         Blob blob;
-        CrwParser::encode(blob, buf.pData_, buf.size_, this);
+        CrwParser::encode(blob, buf.pData_, (uint32_t)buf.size_, this);
 
         // Write new buffer to file
         MemIo::UniquePtr tempIo(new MemIo);
@@ -148,7 +148,7 @@ namespace Exiv2 {
         // Parse the image, starting with a CIFF header component
         CiffHeader::UniquePtr head(new CiffHeader);
         head->read(pData, size);
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
         head->print(std::cerr);
 #endif
         head->decode(*pCrwImage);

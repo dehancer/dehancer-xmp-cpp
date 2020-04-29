@@ -33,7 +33,6 @@
 #include "metadatum.hpp"
 #include "i18n.h"                // NLS support.
 #include "xmp_exiv2.hpp"
-#include "rwlock.hpp"
 
 #include <iostream>
 #include <iomanip>
@@ -107,12 +106,12 @@ namespace Exiv2 {
         { "http://purl.org/dc/elements/1.1/",             "dc",             xmpDcInfo,        N_("Dublin Core schema")                        },
         { "http://www.digikam.org/ns/1.0/",               "digiKam",        xmpDigikamInfo,   N_("digiKam Photo Management schema")           },
         { "http://www.digikam.org/ns/kipi/1.0/",          "kipi",           xmpKipiInfo,      N_("KDE Image Program Interface schema")        },
-        { "http://ns.adobe.com/xap/1.0/",                 "mlut_xmp",            xmpXmpInfo,       N_("XMP Basic schema")                          },
+        { "http://ns.adobe.com/xap/1.0/",                 "xmp",            xmpXmpInfo,       N_("XMP Basic schema")                          },
         { "http://ns.adobe.com/xap/1.0/rights/",          "xmpRights",      xmpXmpRightsInfo, N_("XMP Rights Management schema")              },
         { "http://ns.adobe.com/xap/1.0/mm/",              "xmpMM",          xmpXmpMMInfo,     N_("XMP Media Management schema")               },
         { "http://ns.adobe.com/xap/1.0/bj/",              "xmpBJ",          xmpXmpBJInfo,     N_("XMP Basic Job Ticket schema")               },
         { "http://ns.adobe.com/xap/1.0/t/pg/",            "xmpTPg",         xmpXmpTPgInfo,    N_("XMP Paged-Text schema")                     },
-        { "http://ns.adobe.com/mlut_xmp/1.0/DynamicMedia/",    "xmpDM",          xmpXmpDMInfo,     N_("XMP Dynamic Media schema")                  },
+        { "http://ns.adobe.com/xmp/1.0/DynamicMedia/",    "xmpDM",          xmpXmpDMInfo,     N_("XMP Dynamic Media schema")                  },
         { "http://ns.microsoft.com/photo/1.0/",           "MicrosoftPhoto", xmpMicrosoftInfo, N_("Microsoft Photo schema")                    },
         { "http://ns.adobe.com/lightroom/1.0/",           "lr",             xmpLrInfo,        N_("Adobe Lightroom schema")                    },
         { "http://ns.adobe.com/pdf/1.3/",                 "pdf",            xmpPdfInfo,       N_("Adobe PDF schema")                          },
@@ -127,7 +126,7 @@ namespace Exiv2 {
         { "http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/",  "Iptc4xmpCore",   xmpIptcInfo,      N_("IPTC Core schema")                          }, // the default prefix. But provide the official one too.
         { "http://iptc.org/std/Iptc4xmpExt/2008-02-29/",  "iptcExt",        xmpIptcExtInfo,   N_("IPTC Extension schema")                     }, // NOTE: It really should be 'Iptc4xmpExt' but following
         { "http://iptc.org/std/Iptc4xmpExt/2008-02-29/",  "Iptc4xmpExt",    xmpIptcExtInfo,   N_("IPTC Extension schema")                     }, // example above, 'iptcExt' is the default, Iptc4xmpExt works too.
-        { "http://ns.useplus.org/ldf/mlut_xmp/1.0/",           "plus",           xmpPlusInfo,      N_("PLUS License Data Format schema")           },
+        { "http://ns.useplus.org/ldf/xmp/1.0/",           "plus",           xmpPlusInfo,      N_("PLUS License Data Format schema")           },
         { "http://ns.iview-multimedia.com/mediapro/1.0/", "mediapro",       xmpMediaProInfo,  N_("iView Media Pro schema")                    },
         { "http://ns.microsoft.com/expressionmedia/1.0/", "expressionmedia", xmpExpressionMediaInfo, N_("Expression Media schema")            },
         { "http://ns.microsoft.com/photo/1.2/",           "MP",             xmpMicrosoftPhotoInfo,           N_("Microsoft Photo 1.2 schema")        },
@@ -152,10 +151,10 @@ namespace Exiv2 {
         { "http://ns.adobe.com/xap/1.0/sType/ResourceRef#",   "stRef",   0, N_("ResourceRef structure")        },
         { "http://ns.adobe.com/xap/1.0/sType/Version#",       "stVer",   0, N_("Version structure")            },
         { "http://ns.adobe.com/xap/1.0/sType/Job#",           "stJob",   0, N_("Basic Job/Workflow structure") },
-        { "http://ns.adobe.com/mlut_xmp/sType/Area#",              "stArea",  0, N_("Area structure")               },
+        { "http://ns.adobe.com/xmp/sType/Area#",              "stArea",  0, N_("Area structure")               },
 
         // Qualifiers
-        { "http://ns.adobe.com/mlut_xmp/Identifier/qual/1.0/", "xmpidq", 0, N_("Qualifier for mlut_xmp:Identifier") }
+        { "http://ns.adobe.com/xmp/Identifier/qual/1.0/", "xmpidq", 0, N_("Qualifier for xmp:Identifier") }
     };
 
     extern const XmpPropertyInfo xmpDcInfo[] = {
@@ -197,6 +196,7 @@ namespace Exiv2 {
         { "LensCorrectionSettings", N_("Lens Correction Settings"),  "Text",     xmpText, xmpExternal, N_("The list of Lens Correction tools settings used to fix lens distortion. This include Batch Queue Manager and Image editor tools based on LensFun library.") },
         { "ColorLabel",             N_("Color Label"),               "Text",     xmpText, xmpExternal, N_("The color label assigned to this item. Possible values are \"0\": no label; \"1\": Red; \"2\": Orange; \"3\": Yellow; \"4\": Green; \"5\": Blue; \"6\": Magenta; \"7\": Gray; \"8\": Black; \"9\": White.") },
         { "PickLabel",              N_("Pick Label"),                "Text",     xmpText, xmpExternal, N_("The pick label assigned to this item. Possible values are \"0\": no label; \"1\": item rejected; \"2\": item in pending validation; \"3\": item accepted.") },
+        { "Preview",                N_("JPEG preview"),              "Text",     xmpText, xmpExternal, N_("Reduced size JPEG preview image encoded as base64 for a fast screen rendering.") },
         // End of list marker
         { 0, 0, 0, invalidTypeId, xmpInternal, 0 }
     };
@@ -232,7 +232,7 @@ namespace Exiv2 {
         { "Label",            N_("Label"),            "Text",                     xmpText,   xmpExternal, N_("A word or short phrase that identifies a document as a member of a user-defined "
                                                                                                              "collection. Used to organize documents in a file browser.") },
         { "MetadataDate",     N_("Metadata Date"),    "Date",                     xmpText,   xmpInternal, N_("The date and time that any metadata for this resource was last changed. It should "
-                                                                                                             "be the same as or more recent than mlut_xmp:ModifyDate.") },
+                                                                                                             "be the same as or more recent than xmp:ModifyDate.") },
         { "ModifyDate",       N_("Modify Date"),      "Date",                     xmpText,   xmpInternal, N_("The date and time the resource was last modified. Note: The value of this property "
                                                                                                              "is not necessarily the same as the file's system modification date because it is "
                                                                                                              "set before the file is saved.") },
@@ -783,12 +783,12 @@ namespace Exiv2 {
                                                                                                                                   "(no time zone in EXIF), stored in ISO 8601 format, not "
                                                                                                                                   "the original EXIF format. This property includes the "
                                                                                                                                   "value for the EXIF SubSecTime attribute. "
-                                                                                                                                  "NOTE: This property is stored in XMP as mlut_xmp:ModifyDate.") },
+                                                                                                                                  "NOTE: This property is stored in XMP as xmp:ModifyDate.") },
         { "ImageDescription",          N_("Image Description"),          "Lang Alt",                     langAlt, xmpExternal, N_("TIFF tag 270, 0x10E. Description of the image. Note: This property is stored in XMP as dc:description.") },
         { "Make",                      N_("Make"),                       "ProperName",                   xmpText, xmpInternal, N_("TIFF tag 271, 0x10F. Manufacturer of recording equipment.") },
         { "Model",                     N_("Model"),                      "ProperName",                   xmpText, xmpInternal, N_("TIFF tag 272, 0x110. Model name or number of equipment.") },
         { "Software",                  N_("Software"),                   "AgentName",                    xmpText, xmpInternal, N_("TIFF tag 305, 0x131. Software or firmware used to generate image. "
-                                                                                                                                  "Note: This property is stored in XMP as mlut_xmp:CreatorTool.") },
+                                                                                                                                  "Note: This property is stored in XMP as xmp:CreatorTool.") },
         { "Artist",                    N_("Artist"),                     "ProperName",                   xmpText, xmpExternal, N_("TIFF tag 315, 0x13B. Camera owner, photographer or image creator. "
                                                                                                                                   "Note: This property is stored in XMP as the first item in the dc:creator array.") },
         { "Copyright",                 N_("Copyright"),                  "Lang Alt",                     langAlt, xmpExternal, N_("TIFF tag 33432, 0x8298. Copyright information. "
@@ -826,7 +826,7 @@ namespace Exiv2 {
         { "ShutterSpeedValue",        N_("Shutter Speed Value"),                 "Rational",                     xmpText, xmpInternal, N_("EXIF tag 37377, 0x9201. Shutter speed, unit is APEX. See Annex C of the EXIF specification.") },
         { "ApertureValue",            N_("Aperture Value"),                      "Rational",                     xmpText, xmpInternal, N_("EXIF tag 37378, 0x9202. Lens aperture, unit is APEX.") },
         { "BrightnessValue",          N_("Brightness Value"),                    "Rational",                     xmpText, xmpInternal, N_("EXIF tag 37379, 0x9203. Brightness, unit is APEX.") },
-        { "ExposureBiasValue",        N_("Exposure Bias Value"),                 "Rational",                     xmpText, xmpInternal, N_("EXIF tag 37380, 0x9204. Exposure impact, unit is APEX.") },
+        { "ExposureBiasValue",        N_("Exposure Bias Value"),                 "Rational",                     xmpText, xmpInternal, N_("EXIF tag 37380, 0x9204. Exposure bias, unit is APEX.") },
         { "MaxApertureValue",         N_("Maximum Aperture Value"),              "Rational",                     xmpText, xmpInternal, N_("EXIF tag 37381, 0x9205. Smallest F number of lens, in APEX.") },
         { "SubjectDistance",          N_("Subject Distance"),                    "Rational",                     xmpText, xmpInternal, N_("EXIF tag 37382, 0x9206. Distance to subject, in meters.") },
         { "MeteringMode",             N_("Metering Mode"),                       "Closed Choice of Integer",     xmpText, xmpInternal, N_("EXIF tag 37383, 0x9207. Metering mode.") },
@@ -1927,10 +1927,10 @@ namespace Exiv2 {
                                                 N_("The date-time or interval during which an Event occurred. For occurrences, this is the date-time when the event was recorded. Not suitable for a time in a geological context. Recommended best practice is to use an encoding scheme, such as ISO 8601:2004(E).")
             },
             { "earliestDate",                   N_("Event Earliest Date"),                  "Date",      xmpText,    xmpExternal,
-                                                N_("Deprecated. (Child of MLutXmp.dwc.Event) The date-time or interval during which an Event started. For occurrences, this is the date-time when the event was recorded. Not suitable for a time in a geological context. Recommended best practice is to use an encoding scheme, such as ISO 8601:2004(E).")
+                                                N_("Deprecated. (Child of Xmp.dwc.Event) The date-time or interval during which an Event started. For occurrences, this is the date-time when the event was recorded. Not suitable for a time in a geological context. Recommended best practice is to use an encoding scheme, such as ISO 8601:2004(E).")
             },
             { "latestDate",                     N_("Event Latest Date"),                    "Date",      xmpText,    xmpExternal,
-                                                N_("Deprecated. (Child of MLutXmp.dwc.Event) The date-time or interval during which an Event ended. For occurrences, this is the date-time when the event was recorded. Not suitable for a time in a geological context. Recommended best practice is to use an encoding scheme, such as ISO 8601:2004(E).")
+                                                N_("Deprecated. (Child of Xmp.dwc.Event) The date-time or interval during which an Event ended. For occurrences, this is the date-time when the event was recorded. Not suitable for a time in a geological context. Recommended best practice is to use an encoding scheme, such as ISO 8601:2004(E).")
             },
             { "eventTime",                      N_("Event Time"),                           "Date",      xmpText,    xmpExternal,
                                                 N_("The time or interval during which an Event occurred. Recommended best practice is to use an encoding scheme, such as ISO 8601:2004(E).")
@@ -1980,7 +1980,7 @@ namespace Exiv2 {
 
         //Location Level Class
         { "dctermsLocation",                N_("Location Class"),                       "Location",    xmpText,   xmpInternal,
-                                            N_("Deprecated. Use MLutXmp.dcterms.Location instead. *Main structure* containing location based information."),
+                                            N_("Deprecated. Use Xmp.dcterms.Location instead. *Main structure* containing location based information."),
         },
             //Location Level Terms
             { "locationID",                     N_("Location ID"),                          "Text",      xmpText,   xmpExternal,
@@ -2388,69 +2388,69 @@ namespace Exiv2 {
     };
 
     extern const XmpPrintInfo xmpPrintInfo[] = {
-        {"MLutXmp.crs.CropUnits",                 EXV_PRINT_TAG(crsCropUnits)   },
-        {"MLutXmp.exif.ApertureValue",            print0x9202                   },
-        {"MLutXmp.exif.BrightnessValue",          printFloat                    },
-        {"MLutXmp.exif.ColorSpace",               print0xa001                   },
-        {"MLutXmp.exif.ComponentsConfiguration",  print0x9101                   },
-        {"MLutXmp.exif.Contrast",                 printNormalSoftHard           },
-        {"MLutXmp.exif.CreateDate",               printXmpDate                  },
-        {"MLutXmp.exif.CustomRendered",           print0xa401                   },
-        {"MLutXmp.exif.DateTimeOriginal",         printXmpDate                  },
-        {"MLutXmp.exif.ExifVersion",              printXmpVersion               },
-        {"MLutXmp.exif.ExposureBiasValue",        print0x9204                   },
-        {"MLutXmp.exif.ExposureMode",             print0xa402                   },
-        {"MLutXmp.exif.ExposureProgram",          print0x8822                   },
-        {"MLutXmp.exif.FileSource",               print0xa300                   },
-        {"MLutXmp.exif.FlashpixVersion",          printXmpVersion               },
-        {"MLutXmp.exif.FNumber",                  print0x829d                   },
-        {"MLutXmp.exif.FocalLength",              print0x920a                   },
-        {"MLutXmp.exif.FocalPlaneResolutionUnit", printExifUnit                 },
-        {"MLutXmp.exif.FocalPlaneXResolution",    printFloat                    },
-        {"MLutXmp.exif.FocalPlaneYResolution",    printFloat                    },
-        {"MLutXmp.exif.GainControl",              print0xa407                   },
-        {"MLutXmp.exif.GPSAltitudeRef",           print0x0005                   },
-        {"MLutXmp.exif.GPSDestBearingRef",        printGPSDirRef                },
-        {"MLutXmp.exif.GPSDestDistanceRef",       print0x0019                   },
-        {"MLutXmp.exif.GPSDifferential",          print0x001e                   },
-        {"MLutXmp.exif.GPSImgDirectionRef",       printGPSDirRef                },
-        {"MLutXmp.exif.GPSMeasureMode",           print0x000a                   },
-        {"MLutXmp.exif.GPSSpeedRef",              print0x000c                   },
-        {"MLutXmp.exif.GPSStatus",                print0x0009                   },
-        {"MLutXmp.exif.GPSTimeStamp",             printXmpDate                  },
-        {"MLutXmp.exif.GPSTrackRef",              printGPSDirRef                },
-        {"MLutXmp.exif.LightSource",              print0x9208                   },
-        {"MLutXmp.exif.MeteringMode",             print0x9207                   },
-        {"MLutXmp.exif.ModifyDate",               printXmpDate                  },
-        {"MLutXmp.exif.Saturation",               print0xa409                   },
-        {"MLutXmp.exif.SceneCaptureType",         print0xa406                   },
-        {"MLutXmp.exif.SceneType",                print0xa301                   },
-        {"MLutXmp.exif.SensingMethod",            print0xa217                   },
-        {"MLutXmp.exif.Sharpness",                printNormalSoftHard           },
-        {"MLutXmp.exif.ShutterSpeedValue",        print0x9201                   },
-        {"MLutXmp.exif.SubjectDistanceRange",     print0xa40c                   },
-        {"MLutXmp.exif.WhiteBalance",             print0xa403                   },
-        {"MLutXmp.tiff.Orientation",              print0x0112                   },
-        {"MLutXmp.tiff.ResolutionUnit",           printExifUnit                 },
-        {"MLutXmp.tiff.XResolution",              printLong                     },
-        {"MLutXmp.tiff.YCbCrPositioning",         print0x0213                   },
-        {"MLutXmp.tiff.YResolution",              printLong                     },
-        {"MLutXmp.iptcExt.DigitalSourcefileType",    EXV_PRINT_VOCABULARY(iptcExtDigitalSourcefileType)   },
-        {"MLutXmp.plus.AdultContentWarning",         EXV_PRINT_VOCABULARY(plusAdultContentWarning)        },
-        {"MLutXmp.plus.CopyrightStatus",             EXV_PRINT_VOCABULARY(plusCopyrightStatus)            },
-        {"MLutXmp.plus.CreditLineRequired",          EXV_PRINT_VOCABULARY(plusCreditLineRequired)         },
-        {"MLutXmp.plus.ImageAlterationConstraints",  EXV_PRINT_VOCABULARY(plusImageAlterationConstraints) },
-        {"MLutXmp.plus.ImageDuplicationConstraints", EXV_PRINT_VOCABULARY(plusImageDuplicationConstraints)},
-        {"MLutXmp.plus.ImageFileConstraints",        EXV_PRINT_VOCABULARY(plusImageFileConstraints)       },
-        {"MLutXmp.plus.ImageFileFormatAsDelivered",  EXV_PRINT_VOCABULARY(plusImageFileFormatAsDelivered) },
-        {"MLutXmp.plus.ImageFileSizeAsDelivered",    EXV_PRINT_VOCABULARY(plusImageFileSizeAsDelivered)   },
-        {"MLutXmp.plus.ImageType",                   EXV_PRINT_VOCABULARY(plusImageType)                  },
-        {"MLutXmp.plus.LicensorTelephoneType1",      EXV_PRINT_VOCABULARY(plusLicensorTelephoneType)      },
-        {"MLutXmp.plus.LicensorTelephoneType2",      EXV_PRINT_VOCABULARY(plusLicensorTelephoneType)      },
-        {"MLutXmp.plus.MinorModelAgeDisclosure",     EXV_PRINT_VOCABULARY(plusMinorModelAgeDisclosure)    },
-        {"MLutXmp.plus.ModelReleaseStatus",          EXV_PRINT_VOCABULARY(plusModelReleaseStatus)         },
-        {"MLutXmp.plus.PropertyReleaseStatus",       EXV_PRINT_VOCABULARY(plusPropertyReleaseStatus)      },
-        {"MLutXmp.plus.Reuse",                       EXV_PRINT_VOCABULARY(plusReuse)                      }
+        {"Xmp.crs.CropUnits",                 EXV_PRINT_TAG(crsCropUnits)   },
+        {"Xmp.exif.ApertureValue",            print0x9202                   },
+        {"Xmp.exif.BrightnessValue",          printFloat                    },
+        {"Xmp.exif.ColorSpace",               print0xa001                   },
+        {"Xmp.exif.ComponentsConfiguration",  print0x9101                   },
+        {"Xmp.exif.Contrast",                 printNormalSoftHard           },
+        {"Xmp.exif.CreateDate",               printXmpDate                  },
+        {"Xmp.exif.CustomRendered",           print0xa401                   },
+        {"Xmp.exif.DateTimeOriginal",         printXmpDate                  },
+        {"Xmp.exif.ExifVersion",              printXmpVersion               },
+        {"Xmp.exif.ExposureBiasValue",        print0x9204                   },
+        {"Xmp.exif.ExposureMode",             print0xa402                   },
+        {"Xmp.exif.ExposureProgram",          print0x8822                   },
+        {"Xmp.exif.FileSource",               print0xa300                   },
+        {"Xmp.exif.FlashpixVersion",          printXmpVersion               },
+        {"Xmp.exif.FNumber",                  print0x829d                   },
+        {"Xmp.exif.FocalLength",              print0x920a                   },
+        {"Xmp.exif.FocalPlaneResolutionUnit", printExifUnit                 },
+        {"Xmp.exif.FocalPlaneXResolution",    printFloat                    },
+        {"Xmp.exif.FocalPlaneYResolution",    printFloat                    },
+        {"Xmp.exif.GainControl",              print0xa407                   },
+        {"Xmp.exif.GPSAltitudeRef",           print0x0005                   },
+        {"Xmp.exif.GPSDestBearingRef",        printGPSDirRef                },
+        {"Xmp.exif.GPSDestDistanceRef",       print0x0019                   },
+        {"Xmp.exif.GPSDifferential",          print0x001e                   },
+        {"Xmp.exif.GPSImgDirectionRef",       printGPSDirRef                },
+        {"Xmp.exif.GPSMeasureMode",           print0x000a                   },
+        {"Xmp.exif.GPSSpeedRef",              print0x000c                   },
+        {"Xmp.exif.GPSStatus",                print0x0009                   },
+        {"Xmp.exif.GPSTimeStamp",             printXmpDate                  },
+        {"Xmp.exif.GPSTrackRef",              printGPSDirRef                },
+        {"Xmp.exif.LightSource",              print0x9208                   },
+        {"Xmp.exif.MeteringMode",             print0x9207                   },
+        {"Xmp.exif.ModifyDate",               printXmpDate                  },
+        {"Xmp.exif.Saturation",               print0xa409                   },
+        {"Xmp.exif.SceneCaptureType",         print0xa406                   },
+        {"Xmp.exif.SceneType",                print0xa301                   },
+        {"Xmp.exif.SensingMethod",            print0xa217                   },
+        {"Xmp.exif.Sharpness",                printNormalSoftHard           },
+        {"Xmp.exif.ShutterSpeedValue",        print0x9201                   },
+        {"Xmp.exif.SubjectDistanceRange",     print0xa40c                   },
+        {"Xmp.exif.WhiteBalance",             print0xa403                   },
+        {"Xmp.tiff.Orientation",              print0x0112                   },
+        {"Xmp.tiff.ResolutionUnit",           printExifUnit                 },
+        {"Xmp.tiff.XResolution",              printLong                     },
+        {"Xmp.tiff.YCbCrPositioning",         print0x0213                   },
+        {"Xmp.tiff.YResolution",              printLong                     },
+        {"Xmp.iptcExt.DigitalSourcefileType",    EXV_PRINT_VOCABULARY(iptcExtDigitalSourcefileType)   },
+        {"Xmp.plus.AdultContentWarning",         EXV_PRINT_VOCABULARY(plusAdultContentWarning)        },
+        {"Xmp.plus.CopyrightStatus",             EXV_PRINT_VOCABULARY(plusCopyrightStatus)            },
+        {"Xmp.plus.CreditLineRequired",          EXV_PRINT_VOCABULARY(plusCreditLineRequired)         },
+        {"Xmp.plus.ImageAlterationConstraints",  EXV_PRINT_VOCABULARY(plusImageAlterationConstraints) },
+        {"Xmp.plus.ImageDuplicationConstraints", EXV_PRINT_VOCABULARY(plusImageDuplicationConstraints)},
+        {"Xmp.plus.ImageFileConstraints",        EXV_PRINT_VOCABULARY(plusImageFileConstraints)       },
+        {"Xmp.plus.ImageFileFormatAsDelivered",  EXV_PRINT_VOCABULARY(plusImageFileFormatAsDelivered) },
+        {"Xmp.plus.ImageFileSizeAsDelivered",    EXV_PRINT_VOCABULARY(plusImageFileSizeAsDelivered)   },
+        {"Xmp.plus.ImageType",                   EXV_PRINT_VOCABULARY(plusImageType)                  },
+        {"Xmp.plus.LicensorTelephoneType1",      EXV_PRINT_VOCABULARY(plusLicensorTelephoneType)      },
+        {"Xmp.plus.LicensorTelephoneType2",      EXV_PRINT_VOCABULARY(plusLicensorTelephoneType)      },
+        {"Xmp.plus.MinorModelAgeDisclosure",     EXV_PRINT_VOCABULARY(plusMinorModelAgeDisclosure)    },
+        {"Xmp.plus.ModelReleaseStatus",          EXV_PRINT_VOCABULARY(plusModelReleaseStatus)         },
+        {"Xmp.plus.PropertyReleaseStatus",       EXV_PRINT_VOCABULARY(plusPropertyReleaseStatus)      },
+        {"Xmp.plus.Reuse",                       EXV_PRINT_VOCABULARY(plusReuse)                      }
     };
 
     XmpNsInfo::Ns::Ns(const std::string& ns)
@@ -2482,11 +2482,11 @@ namespace Exiv2 {
     }
 
     XmpProperties::NsRegistry XmpProperties::nsRegistry_;
-    Exiv2::RWLock XmpProperties::rwLock_;
+    std::mutex XmpProperties::mutex_;
 
     const XmpNsInfo* XmpProperties::lookupNsRegistry(const XmpNsInfo::Prefix& prefix)
     {
-        ScopedReadLock srl(rwLock_);
+        std::lock_guard<std::mutex> scoped_read_lock(mutex_);
         return lookupNsRegistryUnsafe(prefix);
     }
 
@@ -2502,8 +2502,7 @@ namespace Exiv2 {
     void XmpProperties::registerNs(const std::string& ns,
                                    const std::string& prefix)
     {
-        ScopedWriteLock swl(rwLock_);
-
+        std::lock_guard<std::mutex> scoped_write_lock(mutex_);
         std::string ns2 = ns;
         if (   ns2.substr(ns2.size() - 1, 1) != "/"
             && ns2.substr(ns2.size() - 1, 1) != "#") ns2 += "/";
@@ -2535,7 +2534,7 @@ namespace Exiv2 {
 
     void XmpProperties::unregisterNs(const std::string& ns)
     {
-        ScopedWriteLock swl(rwLock_);
+        std::lock_guard<std::mutex> scoped_write_lock(mutex_);
         unregisterNsUnsafe(ns);
     }
 
@@ -2551,8 +2550,7 @@ namespace Exiv2 {
 
     void XmpProperties::unregisterNs()
     {
-        ScopedWriteLock swl(rwLock_);
-
+        std::lock_guard<std::mutex> scoped_write_lock(mutex_);
         NsRegistry::iterator i = nsRegistry_.begin();
         while (i != nsRegistry_.end()) {
             NsRegistry::iterator kill = i++;
@@ -2562,7 +2560,7 @@ namespace Exiv2 {
 
     std::string XmpProperties::prefix(const std::string& ns)
     {
-        ScopedReadLock srl(rwLock_);
+        std::lock_guard<std::mutex> scoped_read_lock(mutex_);
         std::string ns2 = ns;
         if (   ns2.substr(ns2.size() - 1, 1) != "/"
             && ns2.substr(ns2.size() - 1, 1) != "#") ns2 += "/";
@@ -2580,7 +2578,7 @@ namespace Exiv2 {
 
     std::string XmpProperties::ns(const std::string& prefix)
     {
-        ScopedReadLock srl(rwLock_);
+        std::lock_guard<std::mutex> scoped_read_lock(mutex_);
         const XmpNsInfo* xn = lookupNsRegistryUnsafe(XmpNsInfo::Prefix(prefix));
         if (xn != 0) return xn->ns_;
         return nsInfoUnsafe(prefix)->ns_;
@@ -2618,7 +2616,7 @@ namespace Exiv2 {
                 prefix = property.substr(0, i);
                 property = property.substr(i+1);
             }
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
             std::cout << "Nested key: " << key.key() << ", prefix: " << prefix
                       << ", property: " << property << "\n";
 #endif
@@ -2647,7 +2645,7 @@ namespace Exiv2 {
 
     const XmpNsInfo* XmpProperties::nsInfo(const std::string& prefix)
     {
-        ScopedReadLock srl(rwLock_);
+        std::lock_guard<std::mutex> scoped_read_lock(mutex_);
         return nsInfoUnsafe(prefix);
     }
 
@@ -2726,7 +2724,7 @@ namespace Exiv2 {
         prefix_ = prefix;
     }
 
-    const char* XmpKey::Impl::familyName_ = "MLutXmp";
+    const char* XmpKey::Impl::familyName_ = "Xmp";
 
     XmpKey::XmpKey(const std::string& key) : p_(new Impl)
     {

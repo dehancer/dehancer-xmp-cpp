@@ -23,8 +23,7 @@
   @author  Brad Schick (brad) <brad@robotbattle.com>
   @date    24-Jul-04, brad: created
  */
-#ifndef DATASETS_HPP_
-#define DATASETS_HPP_
+#pragma once
 
 // *****************************************************************************
 #include "exiv2lib_export.h"
@@ -172,15 +171,12 @@ namespace Exiv2 {
         static const uint16_t Preview                = 202;
         //@}
 
-    private:
-        //! Prevent construction: not implemented.
-        IptcDataSets() {}
-        //! Prevent copy-construction: not implemented.
-        IptcDataSets(const IptcDataSets& rhs);
-        //! Prevent assignment: not implemented.
-        IptcDataSets& operator=(const IptcDataSets& rhs);
+        IptcDataSets() = delete;
+        IptcDataSets& operator=(const IptcDataSets& rhs) = delete;
+        IptcDataSets& operator=(const IptcDataSets&& rhs) = delete;
+        IptcDataSets(const IptcDataSets& rhs) = delete;
+        IptcDataSets(const IptcDataSets&& rhs) = delete;
 
-    public:
         /*!
           @brief Return the name of the dataset.
           @param number The dataset number
@@ -396,5 +392,3 @@ namespace Exiv2 {
     EXIV2API std::ostream& operator<<(std::ostream& os, const DataSet& dataSet);
 
 }                                       // namespace Exiv2
-
-#endif                                  // #ifndef DATASETS_HPP_

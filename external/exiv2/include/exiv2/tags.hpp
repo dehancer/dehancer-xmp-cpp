@@ -25,8 +25,7 @@
   @date    15-Jan-04, ahu: created<BR>
            11-Feb-04, ahu: isolated as a component
  */
-#ifndef TAGS_HPP_
-#define TAGS_HPP_
+#pragma once
 
 // *****************************************************************************
 #include "exiv2lib_export.h"
@@ -105,14 +104,13 @@ namespace Exiv2 {
 
     //! Access to Exif group and tag lists and misc. tag reference methods, implemented as a static class.
     class EXIV2API ExifTags {
-        //! Prevent construction: not implemented.
-        ExifTags();
-        //! Prevent copy-construction: not implemented.
-        ExifTags(const ExifTags& rhs);
-        //! Prevent assignment: not implemented.
-        ExifTags& operator=(const ExifTags& rhs);
-
     public:
+        ExifTags() = delete;
+        ExifTags& operator=(const ExifTags& rhs) = delete;
+        ExifTags& operator=(const ExifTags&& rhs) = delete;
+        ExifTags(const ExifTags& rhs) = delete;
+        ExifTags(const ExifTags&& rhs) = delete;
+
         //! Return read-only list of built-in groups
         static const GroupInfo* groupList();
         //! Return read-only list of built-in \em groupName tags.
@@ -233,5 +231,3 @@ namespace Exiv2 {
     EXIV2API std::ostream& operator<<(std::ostream& os, const TagInfo& ti);
 
 }                                       // namespace Exiv2
-
-#endif                                  // #ifndef TAGS_HPP_

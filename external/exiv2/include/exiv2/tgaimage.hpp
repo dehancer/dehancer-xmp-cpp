@@ -26,8 +26,7 @@
            <a href="mailto:marco.piovanelli@pobox.com">marco.piovanelli@pobox.com</a>
   @date    05-Mar-2007, marco: created
  */
-#ifndef TGAIMAGE_HPP_
-#define TGAIMAGE_HPP_
+#pragma once
 
 // *****************************************************************************
 #include "exiv2lib_export.h"
@@ -42,25 +41,17 @@ namespace Exiv2 {
 // *****************************************************************************
 // class definitions
 
-    // Add TARGA to the supported image formats
-    namespace ImageType {
-        const int tga = 13; //!< Truevision TARGA (tga) image type (see class TgaImage)
-    }
-
     /*!
       @brief Class to access raw TARGA images. This is just a stub - we only
           read width and height.
      */
     class EXIV2API TgaImage : public Image {
-        //! @name NOT Implemented
-        //@{
-        //! Copy constructor
-        TgaImage(const TgaImage& rhs);
-        //! Assignment operator
-        TgaImage& operator=(const TgaImage& rhs);
-        //@}
-
     public:
+        TgaImage& operator=(const TgaImage& rhs) = delete;
+        TgaImage& operator=(const TgaImage&& rhs) = delete;
+        TgaImage(const TgaImage& rhs) = delete;
+        TgaImage(const TgaImage&& rhs) = delete;
+
         //! @name Creators
         //@{
         /*!
@@ -126,5 +117,3 @@ namespace Exiv2 {
     EXIV2API bool isTgaType(BasicIo& iIo, bool advance);
 
 }                                       // namespace Exiv2
-
-#endif                                  // #ifndef TGAIMAGE_HPP_

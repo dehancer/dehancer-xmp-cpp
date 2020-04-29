@@ -3,9 +3,6 @@
 #ifndef _EXV_CONF_H_
 #define _EXV_CONF_H_
 
-// Defined if you want to use libssh for SshIO.
-#cmakedefine EXV_USE_SSH
-
 // Define to 1 if you want to use libcurl in httpIO.
 #cmakedefine EXV_USE_CURL
 
@@ -21,9 +18,6 @@
 // Define if you want translation of program messages to the user's native language
 #cmakedefine EXV_ENABLE_NLS
 
-// Define if you want video support.
-#cmakedefine EXV_ENABLE_VIDEO
-
 // Define if you have the strerror_r function.
 #cmakedefine EXV_HAVE_STRERROR_R
 
@@ -35,14 +29,11 @@
 
 /* Define to `const' or to empty, depending on the second argument of `iconv'. */
 #cmakedefine ICONV_ACCEPTS_CONST_INPUT
-#if defined ICONV_ACCEPTS_CONST_INPUT
+#if defined(ICONV_ACCEPTS_CONST_INPUT) || defined(__NetBSD__)
 #define EXV_ICONV_CONST const
 #else
 #define EXV_ICONV_CONST
 #endif
-
-// Define if you have the <regex.h> header file.
-#cmakedefine EXV_HAVE_REGEX_H
 
 // Define if you have the mmap function.
 #cmakedefine EXV_HAVE_MMAP
@@ -56,8 +47,8 @@
 // Define if you have the <sys/mman.h> header file.
 #cmakedefine EXV_HAVE_SYS_MMAN_H
 
-// Define if you have are using the zlib library.
-#cmakedefine EXV_HAVE_LIBZ
+// Define if PNG support has been enabled
+#cmakedefine EXIV2_ENABLE_PNG
 
 /* Define if you have (Exiv2/xmpsdk) Adobe XMP Toolkit. */
 #cmakedefine EXV_HAVE_XMP_TOOLKIT
@@ -84,5 +75,8 @@
 
 // Definition to enable conversion of UCS2 encoded Windows tags to UTF-8.
 #cmakedefine EXV_HAVE_PRINTUCS2
+
+// Defined if we are compiling with gcc < 4.9 and need boost::regex
+#cmakedefine EXV_NEED_BOOST_REGEX
 
 #endif /* !_EXV_CONF_H_ */

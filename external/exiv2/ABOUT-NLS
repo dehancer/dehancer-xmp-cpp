@@ -70,7 +70,7 @@ will, respectively, bypass any pre-existing `gettext' to use the
 internationalizing routines provided within this package, or else,
 _totally_ disable translation of messages.
 
-   When you already have GNU `gettext' installed on your system and open
+   When you already have GNU `gettext' installed on your system and run
 configure without an option for your new package, `configure' will
 probably detect the previously built and installed `libintl.a' file and
 will decide to use this.  This might not be desirable.  You should use

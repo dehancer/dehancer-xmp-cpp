@@ -1061,7 +1061,7 @@ namespace Exiv2 {
                 N_("Picture Finish"),
                 minoltaCs5DId, makerTags, unsignedShort, -1, EXV_PRINT_TAG(minoltaPictureFinish5D)),
         TagInfo(0x0091, "ExposureManualBias", N_("Exposure Manual Bias"),
-                N_("Exposure manual impact"),
+                N_("Exposure manual bias"),
                 minoltaCs5DId, makerTags, unsignedShort, -1, printMinoltaExposureManualBias5D),
         TagInfo(0x009E, "AFMode", N_("AF Mode"),
                 N_("AF mode"),

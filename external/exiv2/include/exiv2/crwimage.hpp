@@ -26,8 +26,7 @@
            <a href="mailto:ahuggel@gmx.net">ahuggel@gmx.net</a>
   @date    28-Aug-05, ahu: created
  */
-#ifndef CRWIMAGE_HPP_
-#define CRWIMAGE_HPP_
+#pragma once
 
 // *****************************************************************************
 #include "exiv2lib_export.h"
@@ -46,11 +45,6 @@ namespace Exiv2 {
 
 // *****************************************************************************
 // class definitions
-
-    // Add CRW to the supported image formats
-    namespace ImageType {
-        const int crw = 3;          //!< CRW image type (see class CrwImage)
-    }
 
     /*!
       @brief Class to access raw Canon CRW images. Only Exif metadata and a
@@ -96,15 +90,10 @@ namespace Exiv2 {
         int pixelHeight() const override;
         //@}
 
-    private:
-        //! @name NOT Implemented
-        //@{
-        //! Copy constructor
-        CrwImage(const CrwImage& rhs);
-        //! Assignment operator
-        CrwImage& operator=(const CrwImage& rhs);
-        //@}
-
+        CrwImage& operator=(const CrwImage& rhs) = delete;
+        CrwImage& operator=(const CrwImage&& rhs) = delete;
+        CrwImage(const CrwImage& rhs) = delete;
+        CrwImage(const CrwImage&& rhs) = delete;
     }; // class CrwImage
 
     /*!
@@ -167,5 +156,3 @@ namespace Exiv2 {
     EXIV2API bool isCrwType(BasicIo& iIo, bool advance);
 
 }                                       // namespace Exiv2
-
-#endif                                  // #ifndef CRWIMAGE_HPP_

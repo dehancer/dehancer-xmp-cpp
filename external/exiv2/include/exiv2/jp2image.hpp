@@ -18,12 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301 USA.
  */
 
-/*
-  File:      jp2image.cpp
-*/
-
-#ifndef JP2IMAGE_HPP_
-#define JP2IMAGE_HPP_
+#pragma once
 
 // *****************************************************************************
 #include "exiv2lib_export.h"
@@ -38,12 +33,6 @@ namespace Exiv2
 
 // *****************************************************************************
 // class definitions
-
-    // Add JPEG-2000 to the supported image formats
-    namespace ImageType
-    {
-        const int jp2 = 15;                     //!< JPEG-2000 image type
-    }
 
     /*!
       @brief Class to access JPEG-2000 images.
@@ -94,13 +83,12 @@ namespace Exiv2
         std::string mimeType() const override;
         //@}
 
+        Jp2Image& operator=(const Jp2Image& rhs) = delete;
+        Jp2Image& operator=(const Jp2Image&& rhs) = delete;
+        Jp2Image(const Jp2Image& rhs) = delete;
+        Jp2Image(const Jp2Image&& rhs) = delete;
+
     private:
-        //! @name NOT Implemented
-        //@{
-        //! Copy constructor
-        Jp2Image(const Jp2Image& rhs);
-        //! Assignment operator
-        Jp2Image& operator=(const Jp2Image& rhs);
         /*!
           @brief Provides the main implementation of writeMetadata() by
                 writing all buffered metadata to the provided BasicIo.
@@ -136,5 +124,3 @@ namespace Exiv2
     EXIV2API bool isJp2Type(BasicIo& iIo, bool advance);
 
 }                                       // namespace Exiv2
-
-#endif                                  // #ifndef JP2IMAGE_HPP_

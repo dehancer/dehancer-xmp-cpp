@@ -242,7 +242,7 @@ namespace Exiv2 {
                 N_("White balance bracket"),
                 olympusId, makerTags, unsignedShort, -1, printValue),
         TagInfo(0x0304, "WhiteBalanceBias", N_("White Balance Bias"),
-                N_("White balance impact"),
+                N_("White balance bias"),
                 olympusId, makerTags, unsignedShort, -1, printValue),
         TagInfo(0x0403, "SceneMode", N_("Scene Mode"),
                 N_("Scene mode"),
@@ -819,7 +819,7 @@ namespace Exiv2 {
 
     const TagInfo OlympusMakerNote::tagInfoRd_[] = {
         TagInfo(0x0000, "RawDevVersion", N_("Raw Development Version"), N_("Raw development version"), olympusRdId, makerTags, undefined, -1, printExifVersion),
-        TagInfo(0x0100, "ExposureBiasValue", N_("Exposure Bias Value"), N_("Exposure impact value"), olympusRdId, makerTags, signedRational, -1, printValue),
+        TagInfo(0x0100, "ExposureBiasValue", N_("Exposure Bias Value"), N_("Exposure bias value"), olympusRdId, makerTags, signedRational, -1, printValue),
         TagInfo(0x0101, "WhiteBalanceValue", N_("White Balance Value"), N_("White balance value"), olympusRdId, makerTags, unsignedShort, -1, printValue),
         TagInfo(0x0102, "WBFineAdjustment", N_("WB Fine Adjustment"), N_("WB fine adjustment"), olympusRdId, makerTags, signedShort, -1, printValue),
         TagInfo(0x0103, "GrayPoint", N_("Gray Point"), N_("Gray point"), olympusRdId, makerTags, unsignedShort, -1, printValue),
@@ -889,7 +889,7 @@ namespace Exiv2 {
 
     const TagInfo OlympusMakerNote::tagInfoRd2_[] = {
         TagInfo(0x0000, "RawDev2Version", N_("Raw Development 2 Version"), N_("Raw development 2 version"), olympusRd2Id, makerTags, undefined, -1, printExifVersion),
-        TagInfo(0x0100, "ExposureBiasValue", N_("Exposure Bias Value"), N_("Exposure impact value"), olympusRd2Id, makerTags, signedRational, -1, printValue),
+        TagInfo(0x0100, "ExposureBiasValue", N_("Exposure Bias Value"), N_("Exposure bias value"), olympusRd2Id, makerTags, signedRational, -1, printValue),
         TagInfo(0x0101, "WhiteBalance", N_("White Balance"), N_("White balance"), olympusRd2Id, makerTags, unsignedShort, -1, EXV_PRINT_TAG(olympusRd2WhiteBalance)),
         TagInfo(0x0102, "WhiteBalanceValue", N_("White Balance Value"), N_("White balance value"), olympusRd2Id, makerTags, unsignedShort, -1, printValue),
         TagInfo(0x0103, "WBFineAdjustment", N_("WB Fine Adjustment"), N_("White balance fine adjustment"), olympusRd2Id, makerTags, signedShort, -1, printValue),

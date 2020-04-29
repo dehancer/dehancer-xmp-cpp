@@ -206,7 +206,7 @@ Website: (3)
 	0001302	Use sha256 Checksums on Downloads and Archive pages of the web site.
 	0001288	site defaults to http://, and https:// certificate is bogus
 
-MLutXmp: (3)
+Xmp: (3)
 	0001354	Inconsistency with long XMP namespaces (e.g. 'Iptc4xmpExt')
 	0001278	XMP SDK Split
 	0000941	Upgrade xmpsdk source to Adobe's current version

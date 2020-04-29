@@ -24,8 +24,7 @@
            <a href="mailto:ahuggel@gmx.net">ahuggel@gmx.net</a>
   @date    28-Aug-05, ahu: created
  */
-#ifndef CRWIMAGE_INT_HPP_
-#define CRWIMAGE_INT_HPP_
+#pragma once
 
 // *****************************************************************************
 // included header files
@@ -74,7 +73,6 @@ namespace Exiv2 {
 
     //! Type to identify where the data is stored in a directory
     enum DataLocId {
-        invalidDataLocId,
         valueData,
         directoryData,
         lastDataLocId
@@ -514,7 +512,8 @@ namespace Exiv2 {
 
     private:
         // DATA
-        static const char signature_[];   //!< Canon CRW signature "HEAPCCDR"
+        static constexpr char signature_[]{
+            'H', 'E', 'A', 'P', 'C', 'C', 'D', 'R', '\0' };   //!< Canon CRW signature "HEAPCCDR"
 
         CiffDirectory*    pRootDir_;      //!< Pointer to the root directory
         ByteOrder         byteOrder_;     //!< Applicable byte order
@@ -572,13 +571,9 @@ namespace Exiv2 {
              to image metadata and vice versa
      */
     class CrwMap {
-        //! @name Not implemented
-        //@{
-        //! Default constructor
-        CrwMap();
-        //@}
-
     public:
+        CrwMap() = delete;
+
         /*!
           @brief Decode image metadata from a CRW entry, convert and add it
                  to the image metadata. This function converts only one CRW
@@ -732,5 +727,3 @@ namespace Exiv2 {
                             ByteOrder byteOrder);
 
 }}                                      // namespace Internal, Exiv2
-
-#endif                                  // #ifndef CRWIMAGE_INT_HPP_

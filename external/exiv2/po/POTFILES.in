@@ -1,6 +1,6 @@
 # List of source files with translatable strings, generated with
 # $ grep -l '[N ]_(' src/*.cpp src/*.hpp | sort
-# Note: Please open 'make update-po' after changing this list
+# Note: Please run 'make update-po' after changing this list
 
 src/actions.cpp
 src/canonmn.cpp

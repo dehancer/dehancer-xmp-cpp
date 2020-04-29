@@ -866,7 +866,7 @@ static int
 CountUTF8 ( const XMP_Uns8 * charStart, const XMP_Uns8 * bufEnd )
 {
 	XMP_Assert ( charStart < bufEnd );		// Catch this in debug builds.
-	if ( charStart >= bufEnd ) return 0;	// Don't open-on in release builds.
+	if ( charStart >= bufEnd ) return 0;	// Don't run-on in release builds.
 	if ( (*charStart & 0xC0) != 0xC0 ) return 0;	// Must have at least 2 high bits set.
 	
 	int byteCount = 2;
@@ -896,7 +896,7 @@ static int
 CountControlEscape ( const XMP_Uns8 * escStart, const XMP_Uns8 * bufEnd )
 {
 	XMP_Assert ( escStart < bufEnd );	// Catch this in debug builds.
-	if ( escStart >= bufEnd ) return 0;	// Don't open-on in release builds.
+	if ( escStart >= bufEnd ) return 0;	// Don't run-on in release builds.
 	XMP_Assert ( *escStart == '&' );
 	
 	size_t tailLen = bufEnd - escStart;

@@ -27,8 +27,7 @@
            <a href="mailto:mul@rentapacs.de">mul@rentapacs.de</a>
   @date    05-Mar-2007, marco: created
  */
-#ifndef PSDIMAGE_HPP_
-#define PSDIMAGE_HPP_
+#pragma once
 
 // *****************************************************************************
 #include "exiv2lib_export.h"
@@ -43,24 +42,16 @@ namespace Exiv2 {
 // *****************************************************************************
 // class definitions
 
-    // Add PSD to the supported image formats
-    namespace ImageType {
-        const int psd = 12; //!< Photoshop (PSD) image type (see class PsdImage)
-    }
-
     /*!
       @brief Class to access raw Photoshop images.
      */
     class EXIV2API PsdImage : public Image {
-        //! @name NOT Implemented
-        //@{
-        //! Copy constructor
-        PsdImage(const PsdImage& rhs);
-        //! Assignment operator
-        PsdImage& operator=(const PsdImage& rhs);
-        //@}
-
     public:
+        PsdImage& operator=(const PsdImage& rhs) = delete;
+        PsdImage& operator=(const PsdImage&& rhs) = delete;
+        PsdImage(const PsdImage& rhs) = delete;
+        PsdImage(const PsdImage&& rhs) = delete;
+
         //! @name Creators
         //@{
         /*!
@@ -116,13 +107,13 @@ namespace Exiv2 {
           @return 4 if opening or writing to the associated BasicIo fails
          */
         void doWriteMetadata(BasicIo& oIo);
-        uint32_t writeExifData(const ExifData& exifData, BasicIo& out);
+        size_t writeExifData(const ExifData& exifData, BasicIo& out);
         //@}
 
         //! @name Accessors
         //@{
-        uint32_t writeIptcData(const IptcData& iptcData, BasicIo& out) const;
-        uint32_t writeXmpData(const XmpData& xmpData, BasicIo& out) const;
+        size_t writeIptcData(const IptcData& iptcData, BasicIo& out) const;
+        size_t writeXmpData(const XmpData& xmpData, BasicIo& out) const;
         //@}
 
     }; // class PsdImage
@@ -143,5 +134,3 @@ namespace Exiv2 {
     EXIV2API bool isPsdType(BasicIo& iIo, bool advance);
 
 }                                       // namespace Exiv2
-
-#endif                                  // #ifndef PSDIMAGE_HPP_

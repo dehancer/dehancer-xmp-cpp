@@ -24,8 +24,7 @@
            <a href="mailto:ahuggel@gmx.net">ahuggel@gmx.net</a>
   @date    06-Jan-09, ahu: created
  */
-#ifndef RW2IMAGE_HPP_
-#define RW2IMAGE_HPP_
+#pragma once
 
 // *****************************************************************************
 #include "exiv2lib_export.h"
@@ -39,11 +38,6 @@ namespace Exiv2 {
 
 // *****************************************************************************
 // class definitions
-
-    // Add RW2 to the supported image formats
-    namespace ImageType {
-        const int rw2 = 16;             //!< RW2 image type (see class Rw2Image)
-    }
 
     /*!
       @brief Class to access raw Panasonic RW2 images.  Exif metadata is
@@ -102,16 +96,11 @@ namespace Exiv2 {
         int pixelHeight() const override;
         //@}
 
-    private:
-        //! @name NOT implemented
-        //@{
-        //! Copy constructor
-        Rw2Image(const Rw2Image& rhs);
-        //! Assignment operator
-        Rw2Image& operator=(const Rw2Image& rhs);
-        //@}
-
-    }; // class Rw2Image
+        Rw2Image& operator=(const Rw2Image& rhs) = delete;
+        Rw2Image& operator=(const Rw2Image&& rhs) = delete;
+        Rw2Image(const Rw2Image& rhs) = delete;
+        Rw2Image(const Rw2Image&& rhs) = delete;
+    };  // class Rw2Image
 
     /*!
       @brief Stateless parser class for data in RW2 format. Images use this
@@ -151,5 +140,3 @@ namespace Exiv2 {
     EXIV2API bool isRw2Type(BasicIo& iIo, bool advance);
 
 }                                       // namespace Exiv2
-
-#endif                                  // #ifndef RW2IMAGE_HPP_

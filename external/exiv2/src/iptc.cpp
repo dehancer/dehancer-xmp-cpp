@@ -163,17 +163,17 @@ namespace Exiv2 {
         return TypeInfo::typeName(typeId());
     }
 
-    long Iptcdatum::typeSize() const
+    size_t Iptcdatum::typeSize() const
     {
         return TypeInfo::typeSize(typeId());
     }
 
-    long Iptcdatum::count() const
+    size_t Iptcdatum::count() const
     {
         return value_.get() == 0 ? 0 : value_->count();
     }
 
-    long Iptcdatum::size() const
+    size_t Iptcdatum::size() const
     {
         return value_.get() == 0 ? 0 : value_->size();
     }
@@ -276,21 +276,21 @@ namespace Exiv2 {
 
     long IptcData::size() const
     {
-        long newSize = 0;
+        size_t newSize = 0;
         const_iterator iter = iptcMetadata_.begin();
         const_iterator end = iptcMetadata_.end();
         for ( ; iter != end; ++iter) {
             // marker, record Id, dataset num, first 2 bytes of size
             newSize += 5;
-            long dataSize = iter->size();
+            size_t dataSize = iter->size();
             newSize += dataSize;
             if (dataSize > 32767) {
                 // extended dataset (we always use 4 bytes)
                 newSize += 4;
             }
         }
-        return newSize;
-    } // IptcData::size
+        return (long)newSize;
+    }
 
     int IptcData::add(const IptcKey& key, Value* value)
     {
@@ -429,16 +429,13 @@ namespace Exiv2 {
 
     const byte IptcParser::marker_ = 0x1C;          // Dataset marker
 
-    int IptcParser::decode(
-              IptcData& iptcData,
-        const byte*     pData,
-              uint32_t  size
-    )
+    int IptcParser::decode(IptcData& iptcData, const byte* pData, size_t size)
     {
-#ifdef DEBUG
+#ifdef EXIV2_DEBUG_MESSAGES
         std::cerr << "IptcParser::decode, size = " << size << "\n";
 #endif
         const byte* pRead = pData;
+        const byte* const pEnd = pData + size;
         iptcData.clear();
 
         uint16_t record = 0;
@@ -446,7 +443,7 @@ namespace Exiv2 {
         uint32_t sizeData = 0;
         byte extTest = 0;
 
-        while (pRead + 3 < pData + size) {
+        while (6 <= static_cast<size_t>(pEnd - pRead)) {
             // First byte should be a marker. If it isn't, scan forward and skip
             // the chunk bytes present in some images. This deviates from the
             // standard, which advises to treat such cases as errors.
@@ -460,6 +457,7 @@ namespace Exiv2 {
                 uint16_t sizeOfSize = (getUShort(pRead, bigEndian) & 0x7FFF);
                 if (sizeOfSize > 4) return 5;
                 pRead += 2;
+                if (sizeOfSize > static_cast<size_t>(pEnd - pRead)) return 6;
                 sizeData = 0;
                 for (; sizeOfSize > 0; --sizeOfSize) {
                     sizeData |= *pRead++ << (8 *(sizeOfSize-1));
@@ -470,7 +468,7 @@ namespace Exiv2 {
                 sizeData = getUShort(pRead, bigEndian);
                 pRead += 2;
             }
-            if (pRead + sizeData <= pData + size) {
+            if (sizeData <= static_cast<size_t>(pEnd - pRead)) {
                 int rc = 0;
                 if ((rc = readData(iptcData, dataSet, record, pRead, sizeData)) != 0) {
 #ifndef SUPPRESS_WARNINGS
@@ -484,6 +482,7 @@ namespace Exiv2 {
             else {
                 EXV_WARNING << "IPTC dataset " << IptcKey(dataSet, record)
                             << " has invalid size " << sizeData << "; skipped.\n";
+                return 7;
             }
 #endif
             pRead += sizeData;
@@ -522,13 +521,13 @@ namespace Exiv2 {
             *pWrite++ = static_cast<byte>(iter->tag());
 
             // extended or standard dataset?
-            long dataSize = iter->size();
+            size_t dataSize = iter->size();
             if (dataSize > 32767) {
                 // always use 4 bytes for extended length
                 uint16_t sizeOfSize = 4 | 0x8000;
                 us2Data(pWrite, sizeOfSize, bigEndian);
                 pWrite += 2;
-                ul2Data(pWrite, dataSize, bigEndian);
+                ul2Data(pWrite, static_cast<uint32_t>(dataSize), bigEndian);
                 pWrite += 4;
             }
             else {

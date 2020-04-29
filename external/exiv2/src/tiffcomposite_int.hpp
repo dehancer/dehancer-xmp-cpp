@@ -24,8 +24,7 @@
            <a href="mailto:ahuggel@gmx.net">ahuggel@gmx.net</a>
   @date    11-Apr-06, ahu: created
  */
-#ifndef TIFFCOMPOSITE_INT_HPP_
-#define TIFFCOMPOSITE_INT_HPP_
+#pragma once
 
 // *****************************************************************************
 // included header files
@@ -142,7 +141,7 @@ namespace Exiv2 {
           Writes the TIFF header to the IO, if it hasn't been written yet, followed
           by the data passed in the arguments.
          */
-        long write(const byte* pData, long wcount);
+        size_t write(const byte* pData, size_t wcount);
         /*!
           @brief Wraps the corresponding BasicIo::putb() method.
 
@@ -298,7 +297,7 @@ namespace Exiv2 {
                  write(). Components derived from TiffEntryBase implement this
                  method corresponding to their implementation of writeData().
          */
-        uint32_t sizeData() const;
+        size_t sizeData() const;
         /*!
           @brief Return the size in bytes of the image data of this component
                  when written to a binary image.  This is a support function for
@@ -355,7 +354,7 @@ namespace Exiv2 {
         //! Implements count().
         virtual uint32_t doCount() const =0;
         //! Implements sizeData().
-        virtual uint32_t doSizeData() const =0;
+        virtual size_t doSizeData() const =0;
         //! Implements sizeImage().
         virtual uint32_t doSizeImage() const =0;
         //@}
@@ -519,7 +518,7 @@ namespace Exiv2 {
         //! Implements size(). Return the size of a standard TIFF entry
         uint32_t doSize() const override;
         //! Implements sizeData(). Return 0.
-        uint32_t doSizeData() const override;
+        size_t doSizeData() const override;
         //! Implements sizeImage(). Return 0.
         uint32_t doSizeImage() const override;
         //@}
@@ -530,13 +529,10 @@ namespace Exiv2 {
                                     TiffType  tiffType,
                                     ByteOrder byteOrder);
 
-    private:
-        //! @name NOT implemented
-        //@{
-        //! Assignment operator.
-        TiffEntryBase& operator=(const TiffEntryBase& rhs);
-        //@}
+    public:
+        TiffEntryBase& operator=(const TiffEntryBase& rhs) = delete;
 
+    private:
         // DATA
         TiffType tiffType_;   //!< Field TIFF type
         uint32_t count_;      //!< The number of values of the indicated type
@@ -613,7 +609,7 @@ namespace Exiv2 {
          */
         virtual void setStrips(const Value* pSize,
                                const byte*  pData,
-                               uint32_t     sizeData,
+                               size_t       sizeData,
                                uint32_t     baseOffset) =0;
         //@}
 
@@ -658,7 +654,7 @@ namespace Exiv2 {
 
         //! @name Manipulators
         //@{
-        void setStrips(const Value* pSize, const byte* pData, uint32_t sizeData, uint32_t baseOffset) override;
+        void setStrips(const Value* pSize, const byte* pData, size_t sizeData, uint32_t baseOffset) override;
         //@}
 
     protected:
@@ -700,7 +696,7 @@ namespace Exiv2 {
         // Using doWriteImage from base class
         // Using doSize() from base class
         //! Implements sizeData(). Return the size of the data area.
-        uint32_t doSizeData() const override;
+        size_t doSizeData() const override;
         // Using doSizeImage from base class
         //@}
 
@@ -737,7 +733,7 @@ namespace Exiv2 {
 
         //! @name Manipulators
         //@{
-        void setStrips(const Value* pSize, const byte* pData, uint32_t sizeData, uint32_t baseOffset) override;
+        void setStrips(const Value* pSize, const byte* pData, size_t sizeData, uint32_t baseOffset) override;
         //@}
 
     protected:
@@ -783,7 +779,7 @@ namespace Exiv2 {
         //! Implements size(). Return the size of the strip pointers.
         uint32_t doSize() const override;
         //! Implements sizeData(). Return the size of the image data area.
-        uint32_t doSizeData() const override;
+        size_t doSizeData() const override;
         //! Implements sizeImage(). Return the size of the image data area.
         uint32_t doSizeImage() const override;
         //@}
@@ -923,7 +919,7 @@ namespace Exiv2 {
           @brief This class does not really implement sizeData(), it only has
                  size(). This method must not be called; it commits suicide.
          */
-        uint32_t doSizeData() const override;
+        size_t doSizeData() const override;
         /*!
           @brief Implements sizeImage(). Return the sum of the image sizes of
                  all components plus that of the next-IFD, if there is any.
@@ -931,13 +927,10 @@ namespace Exiv2 {
         uint32_t doSizeImage() const override;
         //@}
 
-    private:
-        //! @name NOT implemented
-        //@{
-        //! Assignment operator.
-        TiffDirectory& operator=(const TiffDirectory& rhs);
-        //@}
+    public:
+        TiffDirectory& operator=(const TiffDirectory& rhs) = delete;
 
+    private:
         //! @name Private Accessors
         //@{
         //! Write a binary directory entry for a TIFF component.
@@ -1025,18 +1018,17 @@ namespace Exiv2 {
         //! Implements size(). Return the size of the sub-Ifd pointers.
         uint32_t doSize() const override;
         //! Implements sizeData(). Return the sum of the sizes of all sub-IFDs.
-        uint32_t doSizeData() const override;
+        size_t doSizeData() const override;
         //! Implements sizeImage(). Return the sum of the image sizes of all sub-IFDs.
         uint32_t doSizeImage() const override;
         //@}
 
-    private:
-        //! @name NOT implemented
-        //@{
-        //! Assignment operator.
-        TiffSubIfd& operator=(const TiffSubIfd& rhs);
-        //@}
+    public:
+        TiffSubIfd& operator=(const TiffSubIfd& rhs) = delete;
+        TiffSubIfd& operator=(const TiffSubIfd&& rhs) = delete;
+        TiffSubIfd(const TiffSubIfd&& rhs) = delete;
 
+    private:
         //! A collection of TIFF directories (IFDs)
         typedef std::vector<TiffDirectory*> Ifds;
 
@@ -1103,15 +1095,13 @@ namespace Exiv2 {
         // Using doSizeImage from base class
         //@}
 
-    private:
-        //! @name NOT implemented
-        //@{
-        //! Copy constructor.
-        TiffMnEntry(const TiffMnEntry& rhs);
-        //! Assignment operator.
-        TiffMnEntry& operator=(const TiffMnEntry& rhs);
-        //@}
+    public:
+        TiffMnEntry& operator=(const TiffMnEntry& rhs) = delete;
+        TiffMnEntry& operator=(const TiffMnEntry&& rhs) = delete;
+        TiffMnEntry(const TiffMnEntry& rhs) = delete;
+        TiffMnEntry(const TiffMnEntry&& rhs) = delete;
 
+    private:
         // DATA
         IfdId          mnGroup_;             //!< New group for concrete mn
         TiffComponent* mn_;                  //!< The Makernote
@@ -1249,7 +1239,7 @@ namespace Exiv2 {
           @brief This class does not really implement sizeData(), it only has
                  size(). This method must not be called; it commits suicide.
          */
-        uint32_t doSizeData() const override;
+        size_t doSizeData() const override;
         /*!
           @brief Implements sizeImage(). Return the total image data size of the
                  makernote IFD.
@@ -1257,21 +1247,14 @@ namespace Exiv2 {
         uint32_t doSizeImage() const override;
         //@}
 
+    public:
+        TiffIfdMakernote& operator=(const TiffIfdMakernote& rhs) = delete;
+
+        TiffIfdMakernote& operator=(const TiffIfdMakernote&& rhs) = delete;
+        TiffIfdMakernote(const TiffIfdMakernote& rhs) = delete;
+        TiffIfdMakernote(const TiffIfdMakernote&& rhs) = delete;
+
     private:
-        /*!
-          @name NOT implemented
-
-          Implementing the copy constructor and assignment operator will require
-          cloning the header, i.e., clone() functionality on the MnHeader
-          hierarchy.
-         */
-        //@{
-        //! Copy constructor.
-        TiffIfdMakernote(const TiffIfdMakernote& rhs);
-        //! Assignment operator.
-        TiffIfdMakernote& operator=(const TiffIfdMakernote& rhs);
-        //@}
-
         // DATA
         MnHeader*     pHeader_;                 //!< Makernote header
         TiffDirectory ifd_;                     //!< Makernote IFD
@@ -1446,13 +1429,12 @@ namespace Exiv2 {
         // Using doSizeImage from base class
         //@}
 
-    private:
-        //! @name NOT implemented
-        //@{
-        //! Assignment operator.
-        TiffBinaryArray& operator=(const TiffBinaryArray& rhs);
-        //@}
+    public:
+        TiffBinaryArray& operator=(const TiffBinaryArray& rhs) = delete;
+        TiffBinaryArray& operator=(const TiffBinaryArray&& rhs) = delete;
+        TiffBinaryArray(const TiffBinaryArray&& rhs) = delete;
 
+    private:
         // DATA
         const CfgSelFct cfgSelFct_; //!< Pointer to a function to determine which cfg to use (may be 0)
         const ArraySet* arraySet_;  //!< Pointer to the array set, if any (may be 0)
@@ -1642,5 +1624,3 @@ namespace Exiv2 {
     }
 
 }}                                      // namespace Internal, Exiv2
-
-#endif                                  // #ifndef TIFFCOMPOSITE_INT_HPP_

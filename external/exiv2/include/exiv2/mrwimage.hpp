@@ -25,8 +25,7 @@
            <a href="mailto:ahuggel@gmx.net">ahuggel@gmx.net</a>
   @date    13-May-06, ahu: created
  */
-#ifndef MRWIMAGE_HPP_
-#define MRWIMAGE_HPP_
+#pragma once
 
 // *****************************************************************************
 #include "exiv2lib_export.h"
@@ -40,11 +39,6 @@ namespace Exiv2 {
 
 // *****************************************************************************
 // class definitions
-
-    // Add MRW to the supported image formats
-    namespace ImageType {
-        const int mrw = 5;          //!< MRW image type (see class MrwImage)
-    }
 
     /*!
       @brief Class to access raw Minolta MRW images. Exif metadata is supported
@@ -104,16 +98,11 @@ namespace Exiv2 {
         int pixelHeight() const override;
         //@}
 
-    private:
-        //! @name NOT Implemented
-        //@{
-        //! Copy constructor
-        MrwImage(const MrwImage& rhs);
-        //! Assignment operator
-        MrwImage& operator=(const MrwImage& rhs);
-        //@}
-
-    }; // class MrwImage
+        MrwImage& operator=(const MrwImage& rhs) = delete;
+        MrwImage& operator=(const MrwImage&& rhs) = delete;
+        MrwImage(const MrwImage& rhs) = delete;
+        MrwImage(const MrwImage&& rhs) = delete;
+    };  // class MrwImage
 
 // *****************************************************************************
 // template, inline and free functions
@@ -131,5 +120,3 @@ namespace Exiv2 {
     EXIV2API bool isMrwType(BasicIo& iIo, bool advance);
 
 }                                       // namespace Exiv2
-
-#endif                                  // #ifndef MRWIMAGE_HPP_

@@ -4,7 +4,7 @@
 # $ exiv2 -m cmd.txt file ...
 #
 # to apply the commands in cmd.txt to each file. Alternatively, commands can be
-# open from the command line directly, without a command file:
+# run from the command line directly, without a command file: 
 #
 # $ exiv2 -M"add Iptc.Application2.Credit String mee too!" file ...
 #
@@ -25,8 +25,8 @@
 #       for Exif keys, and
 #    String|Date|Time|Short|Undefined  for Iptc keys
 #    The format for Iptc Date values is YYYY-MM-DD (year, month, day) and
-#    for Iptc Time values it is HH:MM:SSï¿½HH:MM where HH:MM:SS refers to local 
-#    hour, minute and seconds and ï¿½HH:MM refers to hours and minutes ahead or 
+#    for Iptc Time values it is HH:MM:SS±HH:MM where HH:MM:SS refers to local 
+#    hour, minute and seconds and ±HH:MM refers to hours and minutes ahead or 
 #    behind Universal Coordinated Time.
 #    A default type is used if none is explicitly given. The default type is 
 #    determined based on the key.

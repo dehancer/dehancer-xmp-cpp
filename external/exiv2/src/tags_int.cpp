@@ -106,7 +106,8 @@ namespace Exiv2 {
         { nikonWtId,       "Makernote", "NikonWt",      Nikon3MakerNote::tagListWt     },
         { nikonIiId,       "Makernote", "NikonIi",      Nikon3MakerNote::tagListIi     },
         { nikonAfId,       "Makernote", "NikonAf",      Nikon3MakerNote::tagListAf     },
-        { nikonAf2Id,      "Makernote", "NikonAf2",     Nikon3MakerNote::tagListAf2    },
+        { nikonAf21Id,     "Makernote", "NikonAf2",     Nikon3MakerNote::tagListAf21   },
+        { nikonAf22Id,     "Makernote", "NikonAf22",    Nikon3MakerNote::tagListAf22   },
         { nikonAFTId,      "Makernote", "NikonAFT",     Nikon3MakerNote::tagListAFT    },
         { nikonFiId,       "Makernote", "NikonFi",      Nikon3MakerNote::tagListFi     },
         { nikonMeId,       "Makernote", "NikonMe",      Nikon3MakerNote::tagListMe     },
@@ -161,9 +162,10 @@ namespace Exiv2 {
         { sony1MltCs7DId,  "Makernote", "Sony1MltCs7D", MinoltaMakerNote::tagListCs7D  },
         { sony1MltCsOldId, "Makernote", "Sony1MltCsOld",MinoltaMakerNote::tagListCsStd },
         { sony1MltCsNewId, "Makernote", "Sony1MltCsNew",MinoltaMakerNote::tagListCsStd },
-        { sony1MltCsA100Id,"Makernote","Sony1MltCsA100",MinoltaMakerNote::tagListCsA100},
+        { sony1MltCsA100Id,"Makernote", "Sony1MltCsA100",MinoltaMakerNote::tagListCsA100},
         { sony2CsId,       "Makernote", "Sony2Cs",      SonyMakerNote::tagListCs       },
         { sony2Cs2Id,      "Makernote", "Sony2Cs2",     SonyMakerNote::tagListCs2      },
+        { sony2FpId,       "Makernote", "Sony2Fp",      SonyMakerNote::tagListFp       },
         { lastId,          "(Last IFD info)", "(Last IFD item)", 0 }
     };
 
@@ -808,7 +810,7 @@ namespace Exiv2 {
         TagInfo(0x9201, "ShutterSpeedValue", N_("Shutter Speed Value"), N_("Shutter speed."), ifd0Id, tiffEp, signedRational, 1, print0x9201), // TIFF/EP tag
         TagInfo(0x9202, "ApertureValue", N_("Aperture Value"), N_("The lens aperture."), ifd0Id, tiffEp, unsignedRational, 1, print0x9202), // TIFF/EP tag
         TagInfo(0x9203, "BrightnessValue", N_("Brightness Value"), N_("The value of brightness."), ifd0Id, tiffEp, signedRational, 1, printFloat), // TIFF/EP tag
-        TagInfo(0x9204, "ExposureBiasValue", N_("Exposure Bias Value"), N_("The exposure impact."), ifd0Id, tiffEp, signedRational, 1, print0x9204), // TIFF/EP tag
+        TagInfo(0x9204, "ExposureBiasValue", N_("Exposure Bias Value"), N_("The exposure bias."), ifd0Id, tiffEp, signedRational, 1, print0x9204), // TIFF/EP tag
         TagInfo(0x9205, "MaxApertureValue", N_("Max Aperture Value"), N_("The smallest F number of the lens."), ifd0Id, tiffEp, unsignedRational, 1, print0x9202), // TIFF/EP tag
         TagInfo(0x9206, "SubjectDistance", N_("Subject Distance"), N_("The distance to the subject, given in meters."), ifd0Id, tiffEp, signedRational, 1, print0x9206), // TIFF/EP tag
         TagInfo(0x9207, "MeteringMode", N_("Metering Mode"), N_("The metering mode."), ifd0Id, tiffEp, unsignedShort, 1, print0x9207), // TIFF/EP tag
@@ -1523,7 +1525,7 @@ namespace Exiv2 {
                 "Ordinarily it is given in the range of -99.99 to 99.99."),
                 exifId, captureCond, signedRational, 1, printFloat),
         TagInfo(0x9204, "ExposureBiasValue", N_("Exposure Bias"),
-                N_("The exposure impact. The units is the APEX value. Ordinarily "
+                N_("The exposure bias. The units is the APEX value. Ordinarily "
                 "it is given in the range of -99.99 to 99.99."),
                 exifId, captureCond, signedRational, 1, print0x9204),
         TagInfo(0x9205, "MaxApertureValue", N_("Max Aperture Value"),
@@ -1942,7 +1944,7 @@ namespace Exiv2 {
         TagInfo(0xb002, "MPFImageList", N_("MPFImageList"),
                 N_("MPF Image List"),
                 mpfId, mpfTags, asciiString, 0, printValue),
-        TagInfo(0xb003, "MPFImageUIDList", N_("MPFImageUIDList	"),
+        TagInfo(0xb003, "MPFImageUIDList", N_("MPFImageUIDList  "),
                 N_("MPF Image UID List"),
                 mpfId, mpfTags, unsignedLong, 1, printValue),
         TagInfo(0xb004, "MPFTotalFrames", N_("MPFTotalFrames"),
@@ -2160,6 +2162,32 @@ namespace Exiv2 {
     std::ostream& printValue(std::ostream& os, const Value& value, const ExifData*)
     {
         return os << value;
+    }
+
+    std::ostream& printBitmask(std::ostream& os, const Value& value, const ExifData* metadata)
+    {
+        if (value.typeId() == Exiv2::unsignedShort || value.typeId() == Exiv2::signedShort)
+        {
+            uint16_t bit   = 0;
+            uint16_t comma = 0;
+            for (uint16_t i = 0; i < value.count(); i++ ) { // for each element in value array
+                uint16_t bits = static_cast<uint16_t>(value.toLong(i));
+                for (uint16_t b = 0; b < 16; ++b) { // for every bit
+                    if (bits & (1 << b)) {
+                        if ( comma++ ) {
+                            os << ",";
+                        }
+                        os << bit;
+                    }
+                    bit++ ;
+                }
+            }
+            // if no bits are set, print "(none)"
+            if ( !comma ) os << N_("(none)");
+        } else {
+            printValue(os,value,metadata);
+        }
+        return os;
     }
 
     float fnumber(float apertureValue)

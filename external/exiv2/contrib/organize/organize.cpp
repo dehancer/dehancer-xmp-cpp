@@ -59,7 +59,7 @@ const unsigned DOT_EVERY = 55;
 struct Pattern {
     std::string pat;
     std::string desc;
-    pfunc funcs[4];  // order should always be exif, iptc, mlut_xmp, file
+    pfunc funcs[4];  // order should always be exif, iptc, xmp, file
 };
 
 struct PathPart {
@@ -269,7 +269,7 @@ std::string build_dest(const fs::path &source_file)
         for(unsigned fx = 0; fx < g_run_order.size(); ++fx) {
             if(g_run_order[fx] != -1 && pat->funcs[g_run_order[fx]]) {
                 if(g_run_order[fx] == FILE_SLOT) {
-                    // Always open file operations
+                    // Always run file operations
                     result = pat->funcs[g_run_order[fx]](image.get(), source_file);
                 }
                 else if(image.get()) {
@@ -340,7 +340,7 @@ int main(int argc, char* argv[])
         ("limit-depth,l", po::value<long>(), 
             "limit recursion to specified depth (0 disables recursion)")
         ("verbose,v", "prints operations as they happen")
-        ("dry-open,n", "do not make actual changes (implies verbose)")
+        ("dry-run,n", "do not make actual changes (implies verbose)")
         ("help,h", "show this help message then exit")
         ("version,V", "show program version then exit")
         ;
@@ -391,7 +391,7 @@ int main(int argc, char* argv[])
         required(vm, "dest-dir");
         required(vm, "pattern");
     
-        const bool dry_run = vm.count("dry-open") != 0;
+        const bool dry_run = vm.count("dry-run") != 0;
         g_verbose = (vm.count("verbose") != 0 || dry_run);
     
         std::string order = "eif";
@@ -415,7 +415,7 @@ int main(int argc, char* argv[])
                     g_run_order[i] = IPTC_SLOT;
                     break;
                 case 'x': 
-                    throw std::logic_error(std::string("mlut_xmp not implemented yet '") +
+                    throw std::logic_error(std::string("xmp not implemented yet '") + 
                         *iter + "'");
                     break;
                 case 'f': 
