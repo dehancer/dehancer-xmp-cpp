@@ -14,6 +14,7 @@
 
 #include "../dotenv/dotenv.h"
 #include "../dotenv/dotenv_utils.h"
+#include "dehancer/Utils.h"
 
 TEST(XMP, XMPOpenTest) {
 
@@ -32,7 +33,7 @@ TEST(XMP, XMPOpenTest) {
    * * read properties
    * */
 
-  auto xmp = dehancer::CameraLutXmp::Open(file_path, pass, cache_dir);
+  auto xmp = dehancer::CameraLutXmp::Open(file_path, pass, cache_dir, true);
 
   EXPECT_TRUE(xmp);
 

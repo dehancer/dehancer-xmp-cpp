@@ -58,7 +58,9 @@ namespace dehancer {
         static dehancer::expected<MLutXmp,Error> Open(
                 const std::string &path,
                 const Blowfish::KeyType& key,
-                const std::string& cache_dir);
+                const std::string& cache_dir,
+                bool purge_cache = false
+                );
 
 
         static dehancer::expected<MLutXmp,Error> Open(const std::string &path);
@@ -106,7 +108,8 @@ namespace dehancer {
         static dehancer::expected<MLutXmp,Error> parse(const std::string &metaBuffer,
                                                        const Blowfish::KeyType &key,
                                                        const std::string& path,
-                                                       const std::string& cache_dir);
+                                                       const std::string& cache_dir
+                                                       );
 
     };
 }
