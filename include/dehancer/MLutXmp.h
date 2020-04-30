@@ -42,13 +42,24 @@ namespace dehancer {
          * Open xmp-mlut-file
          * @param path - file path
          * @param key - pass key, by default empty means properties read only
-         * @param cache_path
          * @return
          */
         static dehancer::expected<MLutXmp,Error> Open(
                 const std::string &path,
+                const Blowfish::KeyType& key);
+
+        /**
+        * Open xmp-mlut-file
+        * @param path - file path
+        * @param key - pass key, by default empty means properties read only
+        * @param cache_path
+        * @return
+        */
+        static dehancer::expected<MLutXmp,Error> Open(
+                const std::string &path,
                 const Blowfish::KeyType& key,
-                const std::string& cache_dir = "");
+                const std::string& cache_dir);
+
 
         static dehancer::expected<MLutXmp,Error> Open(const std::string &path);
 

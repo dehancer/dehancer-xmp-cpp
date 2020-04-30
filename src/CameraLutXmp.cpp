@@ -187,6 +187,12 @@ namespace dehancer {
 
     dehancer::expected<CameraLutXmp,Error> CameraLutXmp::Open(
             const std::string& path,
+            const Blowfish::KeyType& key) {
+      return Open(path,key,"");
+    }
+
+    dehancer::expected<CameraLutXmp,Error> CameraLutXmp::Open(
+            const std::string& path,
             const Blowfish::KeyType& key,
             const std::string& cache_dir) {
 

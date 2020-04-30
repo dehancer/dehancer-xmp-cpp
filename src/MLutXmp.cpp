@@ -51,6 +51,13 @@ namespace dehancer {
 
     dehancer::expected<MLutXmp,Error> MLutXmp::Open(
             const std::string& path,
+            const Blowfish::KeyType& key
+    ) {
+      return Open(path,key,"");
+    }
+
+    dehancer::expected<MLutXmp,Error> MLutXmp::Open(
+            const std::string& path,
             const Blowfish::KeyType& key,
             const std::string& cache_dir
             ) {
