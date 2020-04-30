@@ -44,7 +44,23 @@ namespace dehancer {
          * @param key - pass key, by default empty means properties read only
          * @return
          */
-        static dehancer::expected<MLutXmp,Error> Open(const std::string &path, const Blowfish::KeyType& key);
+        static dehancer::expected<MLutXmp,Error> Open(
+                const std::string &path,
+                const Blowfish::KeyType& key);
+
+        /**
+        * Open xmp-mlut-file
+        * @param path - file path
+        * @param key - pass key, by default empty means properties read only
+        * @param cache_path
+        * @return
+        */
+        static dehancer::expected<MLutXmp,Error> Open(
+                const std::string &path,
+                const Blowfish::KeyType& key,
+                const std::string& cache_dir);
+
+
         static dehancer::expected<MLutXmp,Error> Open(const std::string &path);
 
         Exiv2::Value::UniquePtr get_value(const std::string &key) const ;
@@ -61,12 +77,12 @@ namespace dehancer {
         std::string get_tags() const ;
         std::string get_author() const ;
         std::string get_maintainer() const ;
-        const int   get_ISO_index() const ;
-        const int   get_expand_mode() const;
-        const float get_expand_impact() const;
+        int   get_ISO_index() const ;
+        int   get_expand_mode() const;
+        float get_expand_impact() const;
 
-        const FilmType  get_film_type() const ;
-        const ColorType get_color_type() const;
+        FilmType  get_film_type() const ;
+        ColorType get_color_type() const;
 
         const std::vector<dehancer::License::Type>& get_license_matrix() const ;
         const std::vector<CLutBuffer>& get_cluts() const ;
@@ -75,14 +91,22 @@ namespace dehancer {
         ~MLutXmp();
 
     private:
-        MLutXmp():path_(){};
+        MLutXmp();
         std::string path_;
+        std::string cache_dir_;
         std::map<std::string, Exiv2::Value::UniquePtr> meta_;
         std::vector<CLutBuffer> cluts_;
         std::vector<dehancer::License::Type> license_matrix_;
 
+        std::string get_cache_path() const ;
+        std::string get_cache_meta_path() const ;
+        std::string get_cache_clut_path(int index) const ;
+
     private:
         static dehancer::expected<MLutXmp,Error> parse(const std::string &metaBuffer,
-                                                       const Blowfish::KeyType &key, const std::string& path);
+                                                       const Blowfish::KeyType &key,
+                                                       const std::string& path,
+                                                       const std::string& cache_dir);
+
     };
 }

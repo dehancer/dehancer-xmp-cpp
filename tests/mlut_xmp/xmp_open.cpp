@@ -23,6 +23,7 @@ TEST(XMP, XMPOpenTest) {
   std::cout << std::endl;
 
   std::string file_path = "../../../tests/mlut_xmp/mlut.mlut";
+  std::string cache_dir = "../../../tests/mlut_xmp";
 
   std::cout << "Open test: " << file_path << std::endl;
 
@@ -30,7 +31,7 @@ TEST(XMP, XMPOpenTest) {
    * * read properties
    * */
 
-  auto xmp = dehancer::MLutXmp::Open(file_path, pass);
+  auto xmp = dehancer::MLutXmp::Open(file_path, pass, cache_dir);
 
   EXPECT_TRUE(xmp);
 
@@ -70,6 +71,10 @@ TEST(XMP, XMPOpenTest) {
 
     for (int i = 0; i < 3; i++) {
       auto data = xmp->get_cluts()[i];
+
+      std::cout << " mlut_xmp luts: " << data.size() << "  >> " << std::endl;
+
+      continue;
 
       std::ofstream outFile;
 

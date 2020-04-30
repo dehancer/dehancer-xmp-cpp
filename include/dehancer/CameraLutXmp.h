@@ -34,7 +34,23 @@ namespace dehancer {
         * @param key - pass key, by default empty means properties read only
         * @return
         */
-        static dehancer::expected<CameraLutXmp,Error> Open(const std::string &path, const Blowfish::KeyType& key);
+        static dehancer::expected<CameraLutXmp,Error> Open(
+                const std::string &path,
+                const Blowfish::KeyType& key
+                );
+
+        /**
+       * Open xmp-mlut-file
+       * @param path - file path
+       * @param key - pass key, by default empty means properties read only
+       * @param cache_dir
+       * @return
+       */
+        static dehancer::expected<CameraLutXmp,Error> Open(
+                const std::string &path,
+                const Blowfish::KeyType& key,
+                const std::string& cache_dir
+        );
         static dehancer::expected<CameraLutXmp,Error> Open(const std::string &path);
 
         Exiv2::Value::UniquePtr get_value(const std::string &key) const ;
@@ -61,14 +77,21 @@ namespace dehancer {
         ~CameraLutXmp();
 
     private:
-        CameraLutXmp():path_(){};
+        CameraLutXmp():path_(),cache_dir_(){};
         std::string path_;
+        std::string cache_dir_;
         std::map<std::string, Exiv2::Value::UniquePtr> meta_;
         CLutBuffer clut_;
         std::vector<dehancer::License::Type> license_matrix_;
 
+        std::string get_cache_path() const ;
+        std::string get_cache_meta_path() const ;
+        std::string get_cache_clut_path() const ;
     private:
-        static dehancer::expected<CameraLutXmp,Error> parse(const std::string &metaBuffer,
-                                                     const Blowfish::KeyType &key, const std::string& path);
+        static dehancer::expected<CameraLutXmp,Error> parse(
+                const std::string &metaBuffer,
+                const Blowfish::KeyType &key,
+                const std::string& path,
+                const std::string& cache_dir);
     };
 }
