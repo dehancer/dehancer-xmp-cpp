@@ -66,3 +66,7 @@ xcuserdata
 
 .env
 canon-c200-canon_log.clut
+tests/mlut_xmp/mlut_9644211546205041191.clut0
+tests/mlut_xmp/mlut_9644211546205041191.clut1
+tests/mlut_xmp/mlut_9644211546205041191.clut2
+tests/mlut_xmp/mlut_9644211546205041191.meta
