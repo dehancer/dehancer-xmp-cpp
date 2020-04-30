@@ -14,6 +14,7 @@
 
 #include "../dotenv/dotenv.h"
 #include "../dotenv/dotenv_utils.h"
+#include "dehancer/Utils.h"
 
 TEST(XMP, XMPOpenTest) {
 
@@ -22,7 +23,9 @@ TEST(XMP, XMPOpenTest) {
   std::cout << std::endl;
 
   std::string file_path = "../../../tests/cameralut_xmp/clut.clut";
-  std::string cache_path = "../../../tests/cameralut_xmp";
+  std::string cache_dir = "./cache/";
+
+  dehancer::file::mkdir_p(cache_dir.c_str(),0777);
 
   std::cout << "Open test: " << file_path << std::endl;
 
@@ -30,7 +33,7 @@ TEST(XMP, XMPOpenTest) {
    * * read properties
    * */
 
-  auto xmp = dehancer::CameraLutXmp::Open(file_path, pass, cache_path);
+  auto xmp = dehancer::CameraLutXmp::Open(file_path, pass, cache_dir, true);
 
   EXPECT_TRUE(xmp);
 

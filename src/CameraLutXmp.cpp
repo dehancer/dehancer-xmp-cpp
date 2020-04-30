@@ -194,18 +194,15 @@ namespace dehancer {
     dehancer::expected<CameraLutXmp,Error> CameraLutXmp::Open(
             const std::string& path,
             const Blowfish::KeyType& key,
-            const std::string& cache_dir) {
+            const std::string& cache_dir,
+            bool purge_cache
+            ) {
 
 
       try {
 
 
-        if (!cache_dir.empty()) {
-          if (access(cache_dir.c_str(),W_OK)!=0) {
-            return dehancer::make_unexpected(Error(
-                    CommonError::PERMISSIONS_ERROR,
-                    error_string("mlut xmp cache dir %s could not be opened to write or found", cache_dir.c_str())));
-          }
+        if (!purge_cache && !cache_dir.empty() && access(cache_dir.c_str(),W_OK)==0 ) {
 
           auto xmp = CameraLutXmp();
           xmp.path_ = path;
