@@ -6,9 +6,13 @@
 #include "dehancer/Blowfish.h"
 #include "dehancer/Base64.h"
 #include "dehancer/Utils.h"
+#include "nlohmann/json.h"
 
 #include <fstream>
 #include <sstream>
+#include <map>
+#include <vector>
+#include <unistd.h>
 
 namespace dehancer {
 
@@ -31,25 +35,77 @@ namespace dehancer {
     }
 
 
-    MLutXmp::~MLutXmp() {}
+    MLutXmp::~MLutXmp() = default;
 
     dehancer::expected<MLutXmp,Error> MLutXmp::Create(const std::string &buffer) {
       return MLutXmp::Create(buffer,Blowfish::KeyType());
     }
 
     dehancer::expected<MLutXmp,Error> MLutXmp::Create(const std::string &buffer, const Blowfish::KeyType &key) {
-      return parse(buffer,key,"");
+      return parse(buffer,key,"","");
     }
 
     dehancer::expected<MLutXmp,Error> MLutXmp::Open(const std::string &path) {
       return MLutXmp::Open(path,Blowfish::KeyType());
     }
 
-    dehancer::expected<MLutXmp,Error> MLutXmp::Open(const std::string& path, const Blowfish::KeyType& key) {
+    dehancer::expected<MLutXmp,Error> MLutXmp::Open(
+            const std::string& path,
+            const Blowfish::KeyType& key,
+            const std::string& cache_dir
+            ) {
 
       std::string metaBuffer;
       std::ifstream inFile;
       try {
+
+        if (!cache_dir.empty()) {
+          if (access(cache_dir.c_str(),W_OK)!=0) {
+            return dehancer::make_unexpected(Error(
+                    CommonError::PERMISSIONS_ERROR,
+                    error_string("mlut xmp cache dir %s could not be opened to write or found", cache_dir.c_str())));
+          }
+
+          auto xmp = MLutXmp();
+          xmp.path_ = path;
+          xmp.cache_dir_ = cache_dir;
+          auto meta_file_name = xmp.get_cache_meta_path();
+
+          if (access(meta_file_name.c_str(),R_OK)==0) {
+            nlohmann::json meta;
+            std::ifstream  meta_file(meta_file_name);
+            meta_file>>meta;
+
+            size_t lut_count = meta.at("lut_count");
+
+            for (int i=0; i<lut_count; ++i) {
+              std::string lut_file = xmp.get_cache_clut_path(i);
+              std::ifstream instream(lut_file, std::ios::in | std::ios::binary);
+              Blowfish fish(key.empty() ? Blowfish::KeyType({0,0,0,0,0,0,0,0}) : key);
+
+              CLutBuffer tmp((std::istreambuf_iterator<char>(instream)), std::istreambuf_iterator<char>());
+              CLutBuffer buffer;
+
+              fish.decrypt(tmp, buffer);
+
+              xmp.cluts_.push_back(buffer);
+            }
+
+            for (auto m: meta.at("meta")) {
+              auto buf = m["value"].get<std::string>();
+              auto value =  Exiv2::XmpTextValue(buf);
+              xmp.meta_[m["key"]] = value.clone();
+            }
+
+            for (auto m: meta.at("license_matrix")) {
+              xmp.license_matrix_.push_back(m);
+            }
+
+            if (xmp.cluts_.size()!=0)
+              return xmp;
+
+          }
+        }
 
         inFile.open(path.c_str(),  std::fstream::in);
 
@@ -68,7 +124,7 @@ namespace dehancer {
 
         inFile.close();
 
-        return parse(metaBuffer, key, path);
+        return parse(metaBuffer, key, path, cache_dir);
 
       }
       catch (std::exception &err) {
@@ -76,8 +132,11 @@ namespace dehancer {
       }
     }
 
-    dehancer::expected<MLutXmp,Error> MLutXmp::parse(const std::string &metaBuffer, const Blowfish::KeyType &key,
-                                                     const std::string &path) {
+    dehancer::expected<MLutXmp,Error> MLutXmp::parse(
+            const std::string &metaBuffer,
+            const Blowfish::KeyType &key,
+            const std::string &path,
+            const std::string& cache_dir) {
 
       Exiv2::XmpData xmpData;
 
@@ -93,6 +152,8 @@ namespace dehancer {
 
       auto xmp = MLutXmp();
       xmp.path_ = path;
+      xmp.cache_dir_ = cache_dir;
+      bool has_cache = !xmp.cache_dir_.empty();
 
       for (auto md = xmpData.begin(); md != xmpData.end(); ++md) {
 
@@ -141,7 +202,71 @@ namespace dehancer {
         xmp.meta_[md->key()] = md->value().clone();
       }
 
+      if (has_cache) {
+        try {
+
+          std::string meta_file =  xmp.get_cache_meta_path();
+
+          nlohmann::json meta;
+
+          meta["meta"] = "[]"_json;
+          meta["lut_count"] = xmp.cluts_.size();
+
+          for (auto& m: xmp.meta_) {
+            meta["meta"].push_back({{"key", m.first},{"type_id",m.second->typeId()},{"value",m.second->toString()}});
+          }
+
+          meta["license_matrix"] = "[]"_json;
+          for (auto& m: xmp.license_matrix_) {
+            meta["license_matrix"].push_back(m);
+          }
+
+          if (!meta.empty()) {
+            std::ofstream file(meta_file);
+            file << meta;
+
+            for (int i = 0; i < xmp.cluts_.size(); ++i) {
+              std::string lut_file = xmp.get_cache_clut_path(i);
+              std::ofstream fout(lut_file, std::ios::out | std::ios::binary);
+
+              Blowfish fish(key.empty() ? Blowfish::KeyType({0,0,0,0,0,0,0,0}) : key);
+
+              CLutBuffer buffer;
+              fish.encrypt(xmp.cluts_[i],buffer);
+              fout.write(reinterpret_cast<const char *>(buffer.data()),buffer.size());
+              fout.close();
+            }
+          }
+        }
+        catch (std::exception &e) {
+          return dehancer::make_unexpected(Error(
+                  CommonError::PARSE_ERROR,
+                  error_string("mlut xmp file %s could not be writen to cache: %s", path.c_str(), e.what())));
+        }
+      }
+
       return xmp;
+    }
+
+    std::string MLutXmp::get_cache_meta_path() const {
+      return get_cache_path().append(".meta");
+    }
+
+    std::string MLutXmp::get_cache_clut_path(int index) const {
+      return get_cache_path().append(".clut").append(std::to_string(index));
+    }
+
+    std::string MLutXmp::get_cache_path() const {
+      auto file_path = cache_dir_;
+      auto h = std::hash<std::string>()(path_);
+
+      if (file_path.back() != '/')
+        file_path.append("/");
+
+      file_path.append("mlut_");
+      file_path.append(std::to_string(h));
+
+      return file_path;
     }
 
     MLutXmp::MLutXmp(const MLutXmp &other):path_(other.path_){
@@ -197,31 +322,31 @@ namespace dehancer {
       return license_matrix_;
     }
 
-    const MLutXmp::ColorType MLutXmp::get_color_type() const {
+    MLutXmp::ColorType MLutXmp::get_color_type() const {
       if (get_value("nscolorType"))
         return static_cast< MLutXmp::ColorType>(get_value("nscolorType")->toLong());
       return MLutXmp::ColorType::color;
     }
 
-    const MLutXmp::FilmType MLutXmp::get_film_type() const {
+    MLutXmp::FilmType MLutXmp::get_film_type() const {
       if (get_value("nsfilmType"))
         return static_cast< MLutXmp::FilmType>(get_value("nsfilmType")->toLong());
       return MLutXmp::FilmType::negative;
     }
 
-    const int MLutXmp::get_ISO_index() const {
+    int MLutXmp::get_ISO_index() const {
       if (get_value("nsISOIndex"))
-        return get_value("nsISOIndex")->toLong();
+        return static_cast<int>(get_value("nsISOIndex")->toLong());
       return 100;
     }
 
-    const int MLutXmp::get_expand_mode() const {
+    int MLutXmp::get_expand_mode() const {
       if (get_value("nsexpandBlendingMode"))
-        return get_value("nsexpandBlendingMode")->toLong();
+        return static_cast<int>(get_value("nsexpandBlendingMode")->toLong());
       return 0;
     }
 
-    const float MLutXmp::get_expand_impact() const {
+    float MLutXmp::get_expand_impact() const {
       if (get_value("nsexpandImpact"))
         return get_value("nsexpandImpact")->toFloat();
       return 1;
@@ -236,7 +361,7 @@ namespace dehancer {
 
     int MLutXmp::get_revision() const {
       if (get_value("nsrevision"))
-        return get_value("nsrevision")->toLong();
+        return static_cast<int>(get_value("nsrevision")->toLong());
       return 0;
     }
 
@@ -301,5 +426,7 @@ namespace dehancer {
       if (get_value("nsisVideoEnabled")) return get_value("nsisVideoEnabled")->toString() == "True";
       return false;
     }
+
+    MLutXmp::MLutXmp() :path_(),cache_dir_(){}
 
 }
