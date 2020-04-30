@@ -55,8 +55,6 @@ namespace dehancer {
             const std::string& cache_dir
             ) {
 
-      std::string metaBuffer;
-      std::ifstream inFile;
       try {
 
         if (!cache_dir.empty()) {
@@ -107,6 +105,9 @@ namespace dehancer {
           }
         }
 
+        std::string metaBuffer;
+        std::ifstream inFile;
+
         inFile.open(path.c_str(),  std::fstream::in);
 
         if (!inFile.is_open()) {
@@ -153,7 +154,6 @@ namespace dehancer {
       auto xmp = MLutXmp();
       xmp.path_ = path;
       xmp.cache_dir_ = cache_dir;
-      bool has_cache = !xmp.cache_dir_.empty();
 
       for (auto md = xmpData.begin(); md != xmpData.end(); ++md) {
 
@@ -202,7 +202,7 @@ namespace dehancer {
         xmp.meta_[md->key()] = md->value().clone();
       }
 
-      if (has_cache) {
+      if (!xmp.cache_dir_.empty()) {
         try {
 
           std::string meta_file =  xmp.get_cache_meta_path();

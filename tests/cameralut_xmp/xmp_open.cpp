@@ -22,6 +22,7 @@ TEST(XMP, XMPOpenTest) {
   std::cout << std::endl;
 
   std::string file_path = "../../../tests/cameralut_xmp/clut.clut";
+  std::string cache_path = "../../../tests/cameralut_xmp";
 
   std::cout << "Open test: " << file_path << std::endl;
 
@@ -29,7 +30,7 @@ TEST(XMP, XMPOpenTest) {
    * * read properties
    * */
 
-  auto xmp = dehancer::CameraLutXmp::Open(file_path, pass);
+  auto xmp = dehancer::CameraLutXmp::Open(file_path, pass, cache_path);
 
   EXPECT_TRUE(xmp);
 

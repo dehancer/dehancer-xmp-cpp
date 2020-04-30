@@ -6,9 +6,13 @@
 #include "dehancer/Blowfish.h"
 #include "dehancer/Base64.h"
 #include "dehancer/Utils.h"
+#include "nlohmann/json.h"
 
 #include <fstream>
 #include <sstream>
+#include <map>
+#include <vector>
+#include <unistd.h>
 
 namespace dehancer {
 
@@ -33,8 +37,12 @@ namespace dehancer {
 
     CameraLutXmp::~CameraLutXmp() {}
 
-    dehancer::expected<CameraLutXmp,Error> CameraLutXmp::parse(const std::string &metaBuffer,
-                                                               const Blowfish::KeyType &key, const std::string& path) {
+    dehancer::expected<CameraLutXmp,Error> CameraLutXmp::parse(
+            const std::string &metaBuffer,
+            const Blowfish::KeyType &key,
+            const std::string& path,
+            const std::string& cache_dir) {
+
       Exiv2::XmpData xmpData;
 
       if (0 != Exiv2::XmpParser::decode(xmpData, metaBuffer)) {
@@ -49,6 +57,7 @@ namespace dehancer {
 
       auto xmp = CameraLutXmp();
       xmp.path_ = path;
+      xmp.cache_dir_ = cache_dir;
 
       for (auto md = xmpData.begin(); md != xmpData.end(); ++md) {
 
@@ -98,7 +107,69 @@ namespace dehancer {
         xmp.meta_[md->key()] = md->value().clone();
       }
 
+      if (!xmp.cache_dir_.empty()) {
+        try {
+
+          std::string meta_file =  xmp.get_cache_meta_path();
+
+          nlohmann::json meta;
+
+          meta["meta"] = "[]"_json;
+
+          for (auto& m: xmp.meta_) {
+            meta["meta"].push_back({{"key", m.first},{"type_id",m.second->typeId()},{"value",m.second->toString()}});
+          }
+
+          meta["license_matrix"] = "[]"_json;
+          for (auto& m: xmp.license_matrix_) {
+            meta["license_matrix"].push_back(m);
+          }
+
+          if (!meta.empty()) {
+            std::ofstream file(meta_file);
+            file << meta;
+
+            std::string lut_file = xmp.get_cache_clut_path();
+            std::ofstream fout(lut_file, std::ios::out | std::ios::binary);
+
+            Blowfish fish(key.empty() ? Blowfish::KeyType({0,0,0,0,0,0,0,0}) : key);
+
+            CLutBuffer buffer;
+            fish.encrypt(xmp.clut_,buffer);
+            fout.write(reinterpret_cast<const char *>(buffer.data()),buffer.size());
+            fout.close();
+
+          }
+        }
+        catch (std::exception &e) {
+          return dehancer::make_unexpected(Error(
+                  CommonError::PARSE_ERROR,
+                  error_string("clut xmp file %s could not be writen to cache: %s", path.c_str(), e.what())));
+        }
+      }
+
       return xmp;
+    }
+
+    std::string CameraLutXmp::get_cache_meta_path() const {
+      return get_cache_path().append(".meta");
+    }
+
+    std::string CameraLutXmp::get_cache_clut_path() const {
+      return get_cache_path().append(".clut");
+    }
+
+    std::string CameraLutXmp::get_cache_path() const {
+      auto file_path = cache_dir_;
+      auto h = std::hash<std::string>()(path_);
+
+      if (file_path.back() != '/')
+        file_path.append("/");
+
+      file_path.append("clut_");
+      file_path.append(std::to_string(h));
+
+      return file_path;
     }
 
     dehancer::expected<CameraLutXmp,Error> CameraLutXmp::Create(const std::string &metaBuffer) {
@@ -107,18 +178,66 @@ namespace dehancer {
 
     dehancer::expected<CameraLutXmp,Error> CameraLutXmp::Create(const std::string &metaBuffer,
                                                                 const Blowfish::KeyType &key) {
-      return parse(metaBuffer,key,"");
+      return parse(metaBuffer,key,"","");
     }
 
     dehancer::expected<CameraLutXmp,Error> CameraLutXmp::Open(const std::string &path) {
       return CameraLutXmp::Open(path,Blowfish::KeyType());
     }
 
-    dehancer::expected<CameraLutXmp,Error> CameraLutXmp::Open(const std::string& path, const Blowfish::KeyType& key) {
+    dehancer::expected<CameraLutXmp,Error> CameraLutXmp::Open(
+            const std::string& path,
+            const Blowfish::KeyType& key,
+            const std::string& cache_dir) {
 
-      std::string metaBuffer;
-      std::ifstream inFile;
+
       try {
+
+
+        if (!cache_dir.empty()) {
+          if (access(cache_dir.c_str(),W_OK)!=0) {
+            return dehancer::make_unexpected(Error(
+                    CommonError::PERMISSIONS_ERROR,
+                    error_string("mlut xmp cache dir %s could not be opened to write or found", cache_dir.c_str())));
+          }
+
+          auto xmp = CameraLutXmp();
+          xmp.path_ = path;
+          xmp.cache_dir_ = cache_dir;
+          auto meta_file_name = xmp.get_cache_meta_path();
+
+          if (access(meta_file_name.c_str(),R_OK)==0) {
+            nlohmann::json meta;
+            std::ifstream  meta_file(meta_file_name);
+            meta_file>>meta;
+
+            std::string lut_file = xmp.get_cache_clut_path();
+            std::ifstream instream(lut_file, std::ios::in | std::ios::binary);
+            Blowfish fish(key.empty() ? Blowfish::KeyType({0,0,0,0,0,0,0,0}) : key);
+
+            CLutBuffer tmp((std::istreambuf_iterator<char>(instream)), std::istreambuf_iterator<char>());
+
+            fish.decrypt(tmp, xmp.clut_);
+
+            for (auto m: meta.at("meta")) {
+              auto buf = m["value"].get<std::string>();
+              auto value =  Exiv2::XmpTextValue(buf);
+              xmp.meta_[m["key"]] = value.clone();
+            }
+
+            for (auto m: meta.at("license_matrix")) {
+              xmp.license_matrix_.push_back(m);
+            }
+
+            if (xmp.clut_.size()!=0)
+              return xmp;
+
+          }
+        }
+
+
+        std::string metaBuffer;
+        std::ifstream inFile;
 
         inFile.open(path.c_str(), std::fstream::in);
 
@@ -136,7 +255,7 @@ namespace dehancer {
                           std::istreambuf_iterator<char>());
 
         inFile.close();
-        return parse(metaBuffer, key, path);
+        return parse(metaBuffer, key, path, cache_dir);
 
       }
       catch (std::exception &err) {
