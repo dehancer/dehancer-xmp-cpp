@@ -5,7 +5,7 @@
 #include "dehancer/MLutXmp.h"
 #include "dehancer/Utils.h"
 
-#include "gtest/gtest.h"
+//#include "gtest/gtest.h"
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -18,88 +18,104 @@
 
 TEST(XMP, XMPOpenTest) {
 
-  auto pass = get_key();
+  try {
 
-  std::cout << std::endl;
+    auto pass = get_key();
 
-  std::string file_path = "../../../tests/mlut_xmp/mlut.mlut";
-  std::string cache_dir = "./cache";
-
-  dehancer::file::mkdir_p(cache_dir.c_str(),0777);
-
-  std::cout << "Open test: " << file_path << std::endl;
-
-  /*
-   * * read properties
-   * */
-
-  auto xmp = dehancer::MLutXmp::Open(file_path, pass, cache_dir);
-
-  EXPECT_TRUE(xmp);
-
-  if (xmp) {
-
-    std::cout << "               id: " << xmp->get_id() << std::endl;
-    std::cout << " is photo enabled: " << xmp->is_photo_enabled() << std::endl;
-    std::cout << " is video enabled: " << xmp->is_video_enabled() << std::endl;
-    std::cout << "       color tyoe: " << (int)xmp->get_color_type() << std::endl;
-    std::cout << "        film tyoe: " << (int)xmp->get_color_type() << std::endl;
-
-    auto lics = xmp->get_license_matrix();
-
-    for(auto l: lics) {
-      std::cout << " has lic: " << static_cast<int>(l) << std::endl;
-    }
-
-    auto list = xmp->get_key_list();
     std::cout << std::endl;
 
+    std::string file_path = "../../../tests/mlut_xmp/mlut.mlut";
+    std::string cache_dir = "./cache";
 
-    std::for_each(list.begin(), list.end(), [&xmp](const std::string &key) {
-        auto value = xmp->get_value(key);
+    dehancer::file::mkdir_p(cache_dir.c_str(), 0777);
 
-        if (value) {
-          if (value->typeId() == Exiv2::TypeId::string || value->typeId() == Exiv2::TypeId::xmpText)
-            std::cout << " mlut_xmp key: " << key << " = " << value->toString() << std::endl;
-          else if (value->typeId() == Exiv2::TypeId::signedLong || value->typeId() == Exiv2::TypeId::unsignedLong)
-            std::cout << " mlut_xmp key: " << key << " = " << value->toLong() << std::endl;
-          else {
-            std::cout << " mlut_xmp key: " << key << " type:  " << std::hex << value->typeId() << std::endl;
-          }
-        }
-    });
+    std::cout << "Open test: " << file_path << std::endl;
 
-    EXPECT_TRUE(xmp->get_cluts().size() == 3);
+    /*
+     * * read properties
+     * */
 
-    for (int i = 0; i < 3; i++) {
-      auto data = xmp->get_cluts()[i];
+    auto xmp = dehancer::MLutXmp::Open(file_path, pass, cache_dir);
 
-      std::cout << " mlut_xmp luts: " << data.size() << "  >> " << std::endl;
-
-      continue;
-
-      std::ofstream outFile;
-
-      std::string file = "./";
-      xmp->get_name();
-      file.append(xmp->get_name());
-      file.append("[");
-      file.append(std::to_string(i));
-      file.append("].png");
-
-      outFile.open(file, std::fstream::out | std::ofstream::binary);
-
-      std::copy(data.begin(), data.end(), std::ostreambuf_iterator<char>(outFile));
-
-      auto str = std::string(data.begin(), data.end());
-
-      std::cout << " mlut_xmp luts: " << xmp->get_cluts().size() << "  >> " << std::endl;
-      std::copy(data.begin(), data.end(), std::ostream_iterator<uint16_t>(std::cout, " "));
-
-      std::cout << std::endl;
+    if (!xmp) {
+      std::cerr << xmp.error().message() << std::endl;
     }
 
-  } else {
-    std::cerr << "Error: " << xmp.error().message() << std::endl;
+    EXPECT_TRUE(xmp);
+
+    if (xmp) {
+
+      std::cout << "               id: " << xmp->get_id() << std::endl;
+      std::cout << " is photo enabled: " << xmp->is_photo_enabled() << std::endl;
+      std::cout << " is video enabled: " << xmp->is_video_enabled() << std::endl;
+      std::cout << "       color tyoe: " << (int) xmp->get_color_type() << std::endl;
+      std::cout << "        film tyoe: " << (int) xmp->get_color_type() << std::endl;
+
+      auto lics = xmp->get_license_matrix();
+
+      for (auto l: lics) {
+        std::cout << " has lic: " << static_cast<int>(l) << std::endl;
+      }
+
+      auto list = xmp->get_key_list();
+      std::cout << std::endl;
+
+
+      std::for_each(list.begin(), list.end(), [&xmp](const std::string &key) {
+          auto value = xmp->get_value(key);
+
+          if (value) {
+            if (value->typeId() == Exiv2::TypeId::string || value->typeId() == Exiv2::TypeId::xmpText)
+              std::cout << " mlut_xmp key: " << key << " = " << value->toString() << std::endl;
+            else if (value->typeId() == Exiv2::TypeId::signedLong || value->typeId() == Exiv2::TypeId::unsignedLong)
+              std::cout << " mlut_xmp key: " << key << " = " << value->toLong() << std::endl;
+            else {
+              std::cout << " mlut_xmp key: " << key << " type:  " << std::hex << value->typeId() << std::endl;
+            }
+          }
+      });
+
+      EXPECT_TRUE(xmp->get_cluts().size() == 3);
+
+      for (int i = 0; i < 3; i++) {
+        auto data = xmp->get_cluts()[i];
+
+        std::cout << " mlut_xmp luts: " << data.size() << "  >> " << std::endl;
+
+        continue;
+
+        std::ofstream outFile;
+
+        std::string file = "./";
+        xmp->get_name();
+        file.append(xmp->get_name());
+        file.append("[");
+        file.append(std::to_string(i));
+        file.append("].png");
+
+        outFile.open(file, std::fstream::out | std::ofstream::binary);
+
+        std::copy(data.begin(), data.end(), std::ostreambuf_iterator<char>(outFile));
+
+        auto str = std::string(data.begin(), data.end());
+
+        std::cout << " mlut_xmp luts: " << xmp->get_cluts().size() << "  >> " << std::endl;
+        std::copy(data.begin(), data.end(), std::ostream_iterator<uint16_t>(std::cout, " "));
+
+        std::cout << std::endl;
+      }
+
+    } else {
+      std::cerr << "Error: " << xmp.error().message() << std::endl;
+    }
+  }
+  catch (const std::runtime_error &e) {
+    std::cerr << "Exception runtime: " << e.what() << std::endl;
+  }
+  catch (const std::exception &e) {
+    std::cerr << "Exception exception: " << e.what() << std::endl;
+  }
+  catch (...) {
+    std::cerr << "Exception unknown " << std::endl;
   }
 }

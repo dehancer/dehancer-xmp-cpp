@@ -11,6 +11,18 @@ project(${PROJECT_LIB} VERSION 0.6.1)
 #
 option(BUILD_TESTING "Enable creation of tests." OFF)
 
+option(DEHACNER_TARGET_ARCH "")
+
+if (DEHACNER_TARGET_ARCH)
+    #
+    # x86_64-apple-macos10.13
+    # or
+    # arm64-apple-macos11
+    #
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -target ${DEHACNER_TARGET_ARCH}")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -target ${DEHACNER_TARGET_ARCH}")
+endif ()
+
 #
 # Global setttings
 #
@@ -20,10 +32,11 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DPRINT_DEBUG -DDEBUG_BUILD=1")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ObjC++ -fvisibility=hidden -Wno-unused-command-line-argument")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Ofast -ffast-math")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ObjC++ -fvisibility=hidden -Wno-unused-command-line-argument")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ObjC++ -Wno-unused-command-line-argument")
+#set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Ofast -ffast-math")
 
-set(CMAKE_LINK_LIBRARY_FILE_FLAG "${CMAKE_LINK_LIBRARY_FILE_FLAG} -Wl, -fvisibility=hidden")
+set(CMAKE_LINK_LIBRARY_FILE_FLAG "${CMAKE_LINK_LIBRARY_FILE_FLAG} -Wl")
 
 # googletes, etc
 set (EXTERNAL_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/external)
@@ -82,7 +95,8 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     message(STATUS "Using gcc" )
 
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -W -Wall -Wextra -Wno-ignored-qualifiers -Wvariadic-macros -pthread -static-libgcc -static-libstdc++")
-    set(CMAKE_CXX_FLAGS "-fvisibility=hidden -Wno-pedantic")
+    #set(CMAKE_CXX_FLAGS "-fvisibility=hidden -Wno-pedantic")
+    set(CMAKE_CXX_FLAGS "-Wno-pedantic")
     set(CMAKE_LINK_DEPENDS_NO_SHARED TRUE)
 
     add_compile_options(-lpthread)
@@ -144,6 +158,7 @@ ExternalProject_Add(ed25519cpplib
         -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
         -DBUILD_TESTING=OFF
         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+        -DDEHACNER_TARGET_ARCH=${DEHACNER_TARGET_ARCH}
         INSTALL_COMMAND make install
         PREFIX=${CMAKE_BINARY_DIR}/ed25519cpplib
         )
@@ -156,6 +171,7 @@ ExternalProject_Add(base64cpplib
         -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
         -DBUILD_TESTING=OFF
         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+        -DDEHACNER_TARGET_ARCH=${DEHACNER_TARGET_ARCH}
         INSTALL_COMMAND make install
         )
 set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES};base64cpplib)
@@ -169,15 +185,16 @@ ExternalProject_Add(exiv2_lib
         -DEXIV2_BUILD_SAMPLES=OFF
         -DEXIV2_BUILD_EXIV2_COMMAND=ON
         -DEXIV2_ENABLE_XMP=ON
-        -DBUILD_WITH_CCACHE=ON
-        BUILD_COMMAND make
-        INSTALL_COMMAND make install
-        BUILD_ALWAYS ON
-        LOG_DOWNLOAD ON
-        LOG_CONFIGURE ON
-        LOG_BUILD ON
-        LOG_INSTALL ON
-        LOG_OUTPUT_ON_FAILURE ON
+        #-DBUILD_WITH_CCACHE=ON
+        -DDEHACNER_TARGET_ARCH=${DEHACNER_TARGET_ARCH}
+        #BUILD_COMMAND make
+        #INSTALL_COMMAND make install
+        #BUILD_ALWAYS ON
+        #LOG_DOWNLOAD ON
+        #LOG_CONFIGURE ON
+        #LOG_BUILD ON
+        #LOG_INSTALL ON
+        #LOG_OUTPUT_ON_FAILURE ON
 )
 set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES};exiv2_lib)
 
@@ -188,6 +205,7 @@ ExternalProject_Add(dehancer_common_cpplib
         -DCMAKE_OSX_DEPLOYMENT_TARGET=${DCMAKE_OSX_DEPLOYMENT_TARGET}
         -DBUILD_TESTING=OFF
         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+        -DDEHACNER_TARGET_ARCH=${DEHACNER_TARGET_ARCH}
         INSTALL_COMMAND make install
         )
 set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES};dehancer_common_cpplib)
