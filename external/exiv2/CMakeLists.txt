@@ -13,7 +13,7 @@ include(CTest)
 include(cmake/gcovr.cmake REQUIRED)
 
 # options and their default values
-option( BUILD_SHARED_LIBS             "Build exiv2lib as a shared library"                    ON  )
+option( BUILD_SHARED_LIBS             "Build exiv2lib as a shared library"                    OFF  )
 option( EXIV2_ENABLE_XMP              "Build with XMP metadata support"                       ON  )
 option( EXIV2_ENABLE_EXTERNAL_XMP     "Use external version of XMP"                           OFF )
 option( EXIV2_ENABLE_PNG              "Build with png support (requires libz)"                ON  )
@@ -25,8 +25,8 @@ option( EXIV2_ENABLE_WIN_UNICODE      "Use Unicode paths (wstring) on Windows"  
 option( EXIV2_ENABLE_WEBREADY         "Build webready support into library"                   OFF )
 option( EXIV2_ENABLE_CURL             "USE Libcurl for HttpIo (WEBREADY)"                     OFF )
 
-option( EXIV2_BUILD_SAMPLES           "Build sample applications"                             ON  )
-option( EXIV2_BUILD_EXIV2_COMMAND     "Build exiv2 command-line executable"                   ON  )
+option( EXIV2_BUILD_SAMPLES           "Build sample applications"                             OFF  )
+option( EXIV2_BUILD_EXIV2_COMMAND     "Build exiv2 command-line executable"                   OFF  )
 option( EXIV2_BUILD_UNIT_TESTS        "Build unit tests"                                      OFF )
 option( EXIV2_BUILD_FUZZ_TESTS        "Build fuzz tests (libFuzzer)"                          OFF )
 option( EXIV2_BUILD_DOC               "Add 'doc' target to generate documentation"            OFF )
@@ -50,6 +50,7 @@ if (DEHANCER_TARGET_ARCH)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -target ${DEHANCER_TARGET_ARCH}")
 endif ()
 
+set(EXTRA_COMPILE_FLAGS "${EXTRA_COMPILE_FLAGS} -fvisibility=hidden")
 
 mark_as_advanced(
     EXIV2_TEAM_EXTRA_WARNINGS
