@@ -30,25 +30,27 @@ std::vector<std::uint8_t > split_by_pattern(const std::string& content, const st
 
 
 Blowfish::KeyType get_key() {
-  auto clut_key = dotenv::get_dotenv("CMLUT_KEY");
 
-  EXPECT_TRUE(clut_key);
+  auto clut_key = dotenv::get_dotenv("CMLUT_KEY");
 
   if (!clut_key) {
     std::cerr << "CMLUT_KEY: " << clut_key.error().message() << std::endl;
     return {};
   }
 
+  EXPECT_TRUE(clut_key);
+
   return split_by_pattern(clut_key.value(), "\\s*,\\s*");
 }
 
 std::string get_clut_file_path() {
   auto path = dotenv::get_dotenv("CLUT_FILE");
-  EXPECT_TRUE(path);
   if (!path) {
     std::cerr << "CMLUT_KEY: " << path.error().message() << std::endl;
     return "";
   }
+  EXPECT_TRUE(path);
+
   return path.value();
 }
 
