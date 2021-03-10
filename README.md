@@ -1,5 +1,14 @@
 # dehancer-xmp-cpp
 
+Requirements 
+============
+
+    git clone https://github.com/madler/zlib
+    cd zlib 
+    ./configure --static --archs="-arch x86_64" --prefix=/usr/local/x86_64
+    make && sudo make install
+    
+
 Build M1
 ==========
     mkdir build-arm64 && cd build-arm64

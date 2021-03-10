@@ -52,18 +52,37 @@ configure_file(include/dehancer/version.h.in ${CMAKE_BINARY_DIR}/generated/versi
 # Packages
 #
 find_package (PkgConfig QUIET)
-find_package (Threads REQUIRED)
-find_package (EXPAT REQUIRED)
-find_package (ZLIB REQUIRED)
-find_package (Iconv REQUIRED)
-
 if(NOT PKG_CONFIG_FOUND)
     message(FATAL_ERROR "pkg-config not found!" )
     message(FATAL_ERROR "sudo apt-get install pkg-config, or brew install pkg-config")
 endif()
 
+find_package (Threads REQUIRED)
+find_package (EXPAT REQUIRED)
+#find_package (ZLIB REQUIRED)
+find_package (Iconv REQUIRED)
+
+if (${DEHANCER_TARGET_ARCH} MATCHES "arm64.*")
+    find_package (ZLIB REQUIRED)
+elseif (${DEHANCER_TARGET_ARCH} MATCHES "x86_64.*")
+    SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+    set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:/usr/local/x86_64")
+    pkg_check_modules(ZLIB ZLIB)
+    if(ZLIB_FOUND)
+        MESSAGE(FATAL "x86_64 zlib not found")
+    endif()
+
+    include_directories(
+            ${ZLIB_INCLUDE_DIRS}
+    )
+    link_directories(
+            ${ZLIB_LIBRARY_DIRS}
+    )
+endif()
+
+
 #
-# Programms
+# Programs
 #
 find_program(CCACHE_FOUND ccache)
 #find_program(MAKE_EXE NAMES gmake nmake make)
@@ -179,7 +198,7 @@ ExternalProject_Add(exiv2_lib
         -DBUILD_SHARED_LIBS=OFF
         -DCMAKE_POSITION_INDEPENDENT_CODE=ON
         -DEXIV2_BUILD_SAMPLES=OFF
-        -DEXIV2_BUILD_EXIV2_COMMAND=ON
+        -DEXIV2_BUILD_EXIV2_COMMAND=OFF
         -DEXIV2_ENABLE_XMP=ON
         -DBUILD_WITH_CCACHE=OFF
         -DDEHANCER_TARGET_ARCH=${DEHANCER_TARGET_ARCH}
