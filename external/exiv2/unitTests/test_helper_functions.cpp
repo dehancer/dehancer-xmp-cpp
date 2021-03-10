@@ -1,6 +1,6 @@
 #include "helper_functions.hpp"
 
-#include <gtest/gtest.h>
+#include "gtestwrapper.h"
 
 TEST(string_from_unterminated, terminatedArray)
 {

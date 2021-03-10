@@ -26,7 +26,8 @@
            11-Feb-04, ahu: isolated as a component<BR>
            31-Jul-04, brad: added Time, Data and String values
  */
-#pragma once
+#ifndef TYPES_HPP_
+#define TYPES_HPP_
 
 #include "exiv2lib_export.h"
 
@@ -35,12 +36,31 @@
 #include "slice.hpp"
 
 // + standard includes
-#include <algorithm>
-#include <cstdint>
-#include <limits>
-#include <sstream>
 #include <string>
 #include <vector>
+#include <limits>
+#include <algorithm>
+#include <sstream>
+
+#ifdef _MSC_VER
+// Visual Studio 2010 and later has stdint.h
+# if   _MSC_VER >= _MSC_VER_2010
+#  include <stdint.h>
+# else
+// Earlier compilers have MS C99 equivalents such as __int8
+   typedef unsigned __int8  uint8_t;
+   typedef unsigned __int16 uint16_t;
+   typedef unsigned __int32 uint32_t;
+   typedef unsigned __int64 uint64_t;
+   typedef          __int8  int8_t;
+   typedef          __int16 int16_t;
+   typedef          __int32 int32_t;
+   typedef          __int64 int64_t;
+# endif
+#else
+  # include <stdint.h>
+#endif
+
 
 // MSVC macro to convert a string to a wide string
 #ifdef EXV_UNICODE_PATH
@@ -53,6 +73,12 @@
          <a href="http://www.parashift.com/c++-faq-lite/pointers-to-members.html#faq-33.5" title="[33.5] How can I avoid syntax errors when calling a member function using a pointer-to-member-function?">[33.5] How can I avoid syntax errors when calling a member function using a pointer-to-member-function?</a>.
  */
 #define EXV_CALL_MEMBER_FN(object,ptrToMember)  ((object).*(ptrToMember))
+
+// Simple min and max macros
+//! Simple common min macro
+#define EXV_MIN(a,b) ((a) < (b) ? (a) : (b))
+//! Simple common max macro
+#define EXV_MAX(a,b) ((a) > (b) ? (a) : (b))
 
 #if defined(__GNUC__) && (__GNUC__ >= 4) || defined(__clang__)
 #define EXV_WARN_UNUSED_RESULT __attribute__ ((warn_unused_result))
@@ -82,39 +108,16 @@ namespace Exiv2 {
     typedef std::pair<int32_t, int32_t> Rational;
 
     //! Type to express the byte order (little or big endian)
-    enum ByteOrder
-    {
-        invalidByteOrder,
-        littleEndian,
-        bigEndian,
-    };
+    enum ByteOrder { invalidByteOrder, littleEndian, bigEndian };
 
     //! Type to indicate write method used by TIFF parsers
-    enum WriteMethod
-    {
-        wmIntrusive,
-        wmNonIntrusive,
-    };
+    enum WriteMethod { wmIntrusive, wmNonIntrusive };
 
     //! An identifier for each type of metadata
-    enum MetadataId
-    {
-        mdNone = 0,
-        mdExif = 1,
-        mdIptc = 2,
-        mdComment = 4,
-        mdXmp = 8,
-        mdIccProfile = 16,
-    };
+    enum MetadataId { mdNone=0, mdExif=1, mdIptc=2, mdComment=4, mdXmp=8, mdIccProfile=16 };
 
     //! An identifier for each mode of metadata support
-    enum AccessMode
-    {
-        amNone = 0,
-        amRead = 1,
-        amWrite = 2,
-        amReadWrite = 3,
-    };
+    enum AccessMode { amNone=0, amRead=1, amWrite=2, amReadWrite=3 };
 
     /*!
       @brief %Exiv2 value type identifiers.
@@ -161,19 +164,20 @@ namespace Exiv2 {
 
     //! Type information lookup functions. Implemented as a static class.
     class EXIV2API TypeInfo {
-    public:
-        TypeInfo() = delete;
-        TypeInfo& operator=(const TypeInfo& rhs) = delete;
-        TypeInfo& operator=(const TypeInfo&& rhs) = delete;
-        TypeInfo(const TypeInfo& rhs) = delete;
-        TypeInfo(const TypeInfo&& rhs) = delete;
+        //! Prevent construction: not implemented.
+        TypeInfo();
+        //! Prevent copy-construction: not implemented.
+        TypeInfo(const TypeInfo& rhs);
+        //! Prevent assignment: not implemented.
+        TypeInfo& operator=(const TypeInfo& rhs);
 
+    public:
         //! Return the name of the type, 0 if unknown.
         static const char* typeName(TypeId typeId);
         //! Return the type id for a type name
         static TypeId typeId(const std::string& typeName);
         //! Return the size in bytes of one element of this type
-        static size_t typeSize(TypeId typeId);
+        static long typeSize(TypeId typeId);
 
     };
 
@@ -184,9 +188,9 @@ namespace Exiv2 {
      */
     struct EXIV2API DataBufRef {
         //! Constructor
-        explicit DataBufRef(std::pair<byte*, size_t> rhs) : p(rhs) {}
+        explicit DataBufRef(std::pair<byte*, long> rhs) : p(rhs) {}
         //! Pointer to a byte array and its size
-        std::pair<byte*, size_t> p;
+        std::pair<byte*, long> p;
     };
 
     /*!
@@ -202,12 +206,12 @@ namespace Exiv2 {
         //! Default constructor
         DataBuf();
         //! Constructor with an initial buffer size
-        explicit DataBuf(size_t size);
+        explicit DataBuf(long size);
         //! Constructor, copies an existing buffer
-        DataBuf(const byte* pData, size_t size);
+        DataBuf(const byte* pData, long size);
         /*!
           @brief Copy constructor. Transfers the buffer to the newly created
-                 object similar to std::unique_ptr, i.e., the original object is
+                 object similar to std::auto_ptr, i.e., the original object is
                  modified.
          */
         DataBuf(DataBuf& rhs);
@@ -219,7 +223,7 @@ namespace Exiv2 {
         //@{
         /*!
           @brief Assignment operator. Transfers the buffer and releases the
-                 buffer at the original object similar to std::unique_ptr, i.e.,
+                 buffer at the original object similar to std::auto_ptr, i.e.,
                  the original object is modified.
          */
         DataBuf& operator=(DataBuf& rhs);
@@ -228,13 +232,13 @@ namespace Exiv2 {
                  the requested \em size is less than the current buffer size, no
                  new memory is allocated and the buffer size doesn't change.
          */
-        void alloc(size_t size);
+        void alloc(long size);
         /*!
           @brief Release ownership of the buffer to the caller. Returns the
                  buffer as a data pointer and size pair, resets the internal
                  buffer.
          */
-        EXV_WARN_UNUSED_RESULT std::pair<byte*, size_t> release();
+        EXV_WARN_UNUSED_RESULT std::pair<byte*, long> release();
 
          /*!
            @brief Free the internal buffer and reset the size to 0.
@@ -242,40 +246,27 @@ namespace Exiv2 {
         void free();
 
         //! Reset value
-        void reset(std::pair<byte*, size_t> =std::make_pair((byte*)(0),size_t(0)));
+        void reset(std::pair<byte*, long> =std::make_pair((byte*)(0),long(0)));
         //@}
 
         /*!
           @name Conversions
 
           Special conversions with auxiliary type to enable copies
-          and assignments, similar to those used for std::unique_ptr.
+          and assignments, similar to those used for std::auto_ptr.
           See http://www.josuttis.com/libbook/auto_ptr.html for a discussion.
          */
         //@{
-        // cppcheck-suppress noExplicitConstructor
         DataBuf(const DataBufRef& rhs);
         DataBuf& operator=(DataBufRef rhs);
         operator DataBufRef();
-        //@}
-
-        //! @name Iterators
-        //@{
-        //! Return iterator pointing to first element of buffer
-        byte* begin() noexcept;
-        //! Return const iterator pointing to first element of buffer
-        const byte* cbegin() const noexcept;
-        //! Return iterator pointing behind last element of buffer
-        byte* end() noexcept;
-        //! Return const iterator pointing behind last element of buffer
-        const byte* cend() const noexcept;
         //@}
 
         // DATA
         //! Pointer to the buffer, 0 if none has been allocated
         byte* pData_;
         //! The current size of the buffer
-        size_t size_;
+        long size_;
     }; // class DataBuf
 
     /*!
@@ -406,15 +397,12 @@ namespace Exiv2 {
      */
     EXIV2API const char* exvGettext(const char* str);
 
-    //! Convert a std::string s to a wide string returned as a std::wstring.
+#ifdef EXV_UNICODE_PATH
+    //! Convert an std::string s to a unicode string returned as a std::wstring.
     EXIV2API std::wstring s2ws(const std::string& s);
-
-    //! Convert a wide std::wstring s to its multibyte representation as a std::string.
-    //!
-    //! @return A narrow byte version of `s` or an empty string if `s`
-    //!     contains invalid characters.
+    //! Convert a unicode std::wstring s to an std::string.
     EXIV2API std::string ws2s(const std::wstring& s);
-
+#endif
     /*!
       @brief Return a \em long set to the value represented by \em s.
 
@@ -518,7 +506,7 @@ namespace Exiv2 {
     const T* find(T (&src)[N], const K& key)
     {
         const T* rc = std::find(src, src + N, key);
-        return rc == src + N ? nullptr : rc;
+        return rc == src + N ? 0 : rc;
     }
 
     //! Template used in the COUNTOF macro to determine the size of an array
@@ -550,14 +538,11 @@ namespace Exiv2 {
     T stringTo(const std::string& s, bool& ok)
     {
         std::istringstream is(s);
-        // cppcheck-suppress unassignedVariable
         T tmp;
-        // cppcheck-suppress uninitvar
         ok = (is >> tmp) ? true : false;
         std::string rest;
         is >> std::skipws >> rest;
         if (!rest.empty()) ok = false;
-        // cppcheck-suppress uninitvar
         return tmp;
     }
 
@@ -620,3 +605,5 @@ namespace Exiv2 {
     }
 
 }                                       // namespace Exiv2
+
+#endif                                  // #ifndef TYPES_HPP_

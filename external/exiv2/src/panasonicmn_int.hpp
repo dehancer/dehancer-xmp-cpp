@@ -29,7 +29,8 @@
            <a href="mailto:caulier dot gilles at gmail dot com">caulier dot gilles at gmail dot com</a>
   @date    11-Jun-05, ahu: created
  */
-#pragma once
+#ifndef PANASONICMN_INT_HPP_
+#define PANASONICMN_INT_HPP_
 
 // *****************************************************************************
 // included header files
@@ -91,3 +92,5 @@ namespace Exiv2 {
     }; // class PanasonicMakerNote
 
 }}                                      // namespace Internal, Exiv2
+
+#endif                                  // #ifndef PANASONICMN_INT_HPP_

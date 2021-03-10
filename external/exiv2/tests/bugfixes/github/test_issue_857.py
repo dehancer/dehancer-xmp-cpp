@@ -22,7 +22,7 @@ class OutOfMemoryInRafImageReadMetadata(metaclass=CaseMeta):
 $kerCorruptedMetadata
 """,
 """Exiv2 exception in print action for file $filename2:
-$kerCorruptedMetadata
+This does not look like a TIFF image
 """
 ]
     retval = [1,1]

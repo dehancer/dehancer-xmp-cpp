@@ -6,7 +6,7 @@ git:
 
 env:
   global:
-    - COMMON_CMAKE_OPTIONS="-DEXIV2_ENABLE_WEBREADY=ON -DEXIV2_ENABLE_CURL=ON -DEXIV2_BUILD_UNIT_TESTS=ON -DEXIV2_TEAM_WARNINGS_AS_ERRORS=ON -DCMAKE_INSTALL_PREFIX=install"
+    - COMMON_CMAKE_OPTIONS="-DEXIV2_ENABLE_WEBREADY=ON -DEXIV2_ENABLE_CURL=ON -DEXIV2_BUILD_UNIT_TESTS=ON -DEXIV2_ENABLE_BMFF=ON -DEXIV2_TEAM_WARNINGS_AS_ERRORS=ON -DCMAKE_INSTALL_PREFIX=install"
 
 matrix:
   include:
@@ -21,6 +21,38 @@ matrix:
     - name: "Ubuntu 16.04 - gcc-5.4 (Debug)"
       os: linux
       dist: xenial
+      sudo: required
+      compiler: gcc
+      env:
+        - BUILD_TYPE="Debug"
+
+    - name: "Ubuntu 18.04 - gcc (Release)"
+      os: linux
+      dist: bionic
+      sudo: required
+      compiler: gcc
+      env:
+        - BUILD_TYPE="Release"
+
+    - name: "Ubuntu 18.04 - gcc (Debug)"
+      os: linux
+      dist: bionic
+      sudo: required
+      compiler: gcc
+      env:
+        - BUILD_TYPE="Debug"
+
+    - name: "Ubuntu 20.04 - gcc (Release)"
+      os: linux
+      dist: focal
+      sudo: required
+      compiler: gcc
+      env:
+        - BUILD_TYPE="Release"
+
+    - name: "Ubuntu 20.04 - gcc (Debug)"
+      os: linux
+      dist: focal
       sudo: required
       compiler: gcc
       env:

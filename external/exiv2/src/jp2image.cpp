@@ -34,7 +34,6 @@
 #include "safe_op.hpp"
 
 // + standard includes
-#include <array>
 #include <string>
 #include <cstring>
 #include <iostream>
@@ -132,8 +131,8 @@ struct Jp2UuidBox
 namespace Exiv2
 {
 
-    Jp2Image::Jp2Image(BasicIo::UniquePtr io, bool create)
-            : Image(ImageType::jp2, mdExif | mdIptc | mdXmp, std::move(io))
+    Jp2Image::Jp2Image(BasicIo::AutoPtr io, bool create)
+            : Image(ImageType::jp2, mdExif | mdIptc | mdXmp, io)
     {
         if (create)
         {
@@ -221,6 +220,7 @@ static void boxes_check(size_t b,size_t m)
             throw Error(kerNotAnImage, "JPEG-2000");
         }
 
+        long              position  = 0;
         Jp2BoxHeader      box       = {0,0};
         Jp2BoxHeader      subBox    = {0,0};
         Jp2ImageHeaderBox ihdr      = {0,0,0,0,0,0,0,0};
@@ -231,7 +231,7 @@ static void boxes_check(size_t b,size_t m)
         while (io_->read((byte*)&box, sizeof(box)) == sizeof(box))
         {
             boxes_check(boxes++,boxem );
-            int64 position = io_->tell();
+            position   = io_->tell();
             box.length = getLong((byte*)&box.length, bigEndian);
             box.type   = getLong((byte*)&box.type, bigEndian);
 #ifdef EXIV2_DEBUG_MESSAGES
@@ -256,7 +256,7 @@ static void boxes_check(size_t b,size_t m)
 #ifdef EXIV2_DEBUG_MESSAGES
                     std::cout << "Exiv2::Jp2Image::readMetadata: JP2Header box found" << std::endl;
 #endif
-                    int64 restore = io_->tell();
+                    long restore = io_->tell();
 
                     while (io_->read((byte*)&subBox, sizeof(subBox)) == sizeof(subBox) && subBox.length )
                     {
@@ -285,7 +285,7 @@ static void boxes_check(size_t b,size_t m)
                             }
                             DataBuf data(static_cast<long>(data_length));
                             io_->read(data.pData_,data.size_);
-                            const size_t iccLength = getULong(data.pData_+pad, bigEndian);
+                            const long    iccLength = getULong(data.pData_+pad, bigEndian);
                             // subtracting pad from data.size_ is safe:
                             // size_ is at least 8 and pad = 3
                             if (iccLength > data.size_ - pad) {
@@ -338,7 +338,7 @@ static void boxes_check(size_t b,size_t m)
                     if (io_->read((byte*)&uuid, sizeof(uuid)) == sizeof(uuid))
                     {
                         DataBuf rawData;
-                        size_t  bufRead;
+                        long    bufRead;
                         bool    bIsExif = memcmp(uuid.uuid, kJp2UuidExif, sizeof(uuid))==0;
                         bool    bIsIPTC = memcmp(uuid.uuid, kJp2UuidIptc, sizeof(uuid))==0;
                         bool    bIsXMP  = memcmp(uuid.uuid, kJp2UuidXmp , sizeof(uuid))==0;
@@ -353,19 +353,20 @@ static void boxes_check(size_t b,size_t m)
                             if (io_->error()) throw Error(kerFailedToReadImageData);
                             if (bufRead != rawData.size_) throw Error(kerInputDataReadFailed);
 
-                            if (rawData.size_ > 1)
+                            if (rawData.size_ > 0)
                             {
-                                bool foundPos{ false };
-                                size_t pos{ 0 };
-                                if ((rawData.pData_[0] == rawData.pData_[1]) &&
-                                    (rawData.pData_[0] == 'I' || rawData.pData_[0] == 'M')) {
-                                    foundPos = true;
-                                } else {
-                                    const std::array<byte, 6> exifHeader{ 0x45, 0x78, 0x69, 0x66, 0x00, 0x00 };
-                                    const auto& it = std::search(rawData.cbegin(), rawData.cend(), exifHeader.cbegin(), exifHeader.cend());
-                                    if (it != rawData.cend()) {
-                                        pos = it - rawData.cbegin() + exifHeader.size();
-                                        foundPos = true;
+                                // Find the position of Exif header in bytes array.
+                                long pos = (     (rawData.pData_[0]      == rawData.pData_[1])
+                                           &&    (rawData.pData_[0]=='I' || rawData.pData_[0]=='M')
+                                           )  ? 0 : -1;
+
+                                // #1242  Forgive having Exif\0\0 in rawData.pData_
+                                const byte exifHeader[] = { 0x45, 0x78, 0x69, 0x66, 0x00, 0x00 };
+                                for (long i=0 ; pos < 0 && i < rawData.size_-(long)sizeof(exifHeader) ; i++)
+                                {
+                                    if (memcmp(exifHeader, &rawData.pData_[i], sizeof(exifHeader)) == 0)
+                                    {
+                                        pos = i+sizeof(exifHeader);
 #ifndef SUPPRESS_WARNINGS
                                         EXV_WARNING << "Reading non-standard UUID-EXIF_bad box in " << io_->path() << std::endl;
 #endif
@@ -374,7 +375,7 @@ static void boxes_check(size_t b,size_t m)
                                 }
 
                                 // If found it, store only these data at from this place.
-                                if (foundPos)
+                                if (pos >= 0 )
                                 {
 #ifdef EXIV2_DEBUG_MESSAGES
                                     std::cout << "Exiv2::Jp2Image::readMetadata: Exif header found at position " << pos << std::endl;
@@ -383,7 +384,7 @@ static void boxes_check(size_t b,size_t m)
                                                                       iptcData(),
                                                                       xmpData(),
                                                                       rawData.pData_ + pos,
-                                                                      (uint32_t)(rawData.size_ - pos));
+                                                                      rawData.size_ - pos);
                                     setByteOrder(bo);
                                 }
                             }
@@ -483,14 +484,17 @@ static void boxes_check(size_t b,size_t m)
             out << " address |   length | box       | data" << std::endl;
         }
 
-        if (bPrint || bXMP || bICC || bIPTCErase) {
-            Jp2BoxHeader box = {1, 1};
-            Jp2BoxHeader subBox = {1, 1};
-            Jp2UuidBox uuid = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
-            bool bLF = false;
+        if ( bPrint || bXMP || bICC || bIPTCErase ) {
 
-            while (box.length && box.type != kJp2BoxTypeClose && io_->read((byte*)&box, sizeof(box)) == sizeof(box)) {
-                int64 position = io_->tell();
+            long              position  = 0;
+            Jp2BoxHeader      box       = {1,1};
+            Jp2BoxHeader      subBox    = {1,1};
+            Jp2UuidBox        uuid      = {{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}};
+            bool              bLF       = false;
+
+            while (box.length && box.type != kJp2BoxTypeClose && io_->read((byte*)&box, sizeof(box)) == sizeof(box))
+            {
+                position   = io_->tell();
                 box.length = getLong((byte*)&box.length, bigEndian);
                 box.type = getLong((byte*)&box.type, bigEndian);
 
@@ -512,7 +516,7 @@ static void boxes_check(size_t b,size_t m)
                         while (io_->read((byte*)&subBox, sizeof(subBox)) == sizeof(subBox) &&
                                io_->tell() < position + (long)box.length)  // don't read beyond the box!
                         {
-                            int64 address = io_->tell() - sizeof(subBox);
+                            int address = io_->tell() - sizeof(subBox);
                             subBox.length = getLong((byte*)&subBox.length, bigEndian);
                             subBox.type = getLong((byte*)&subBox.type, bigEndian);
 
@@ -526,7 +530,7 @@ static void boxes_check(size_t b,size_t m)
                                 out << Internal::stringFormat("%8ld | %8ld |  sub:", (size_t)address,
                                                               (size_t)subBox.length)
                                     << toAscii(subBox.type) << " | "
-                                    << Internal::binaryToString(makeSlice(data, 0, std::min(30_z, data.size_)));
+                                    << Internal::binaryToString(makeSlice(data, 0, std::min(30l, data.size_)));
                                 bLF = true;
                             }
 
@@ -570,7 +574,7 @@ static void boxes_check(size_t b,size_t m)
 
                             DataBuf rawData;
                             rawData.alloc(box.length - sizeof(uuid) - sizeof(box));
-                            size_t bufRead = io_->read(rawData.pData_, rawData.size_);
+                            long bufRead = io_->read(rawData.pData_, rawData.size_);
                             if (io_->error())
                                 throw Error(kerFailedToReadImageData);
                             if (bufRead != rawData.size_)
@@ -585,7 +589,7 @@ static void boxes_check(size_t b,size_t m)
                             if (bIsExif && bRecursive && rawData.size_ > 0) {
                                 if ((rawData.pData_[0] == rawData.pData_[1]) &&
                                     (rawData.pData_[0] == 'I' || rawData.pData_[0] == 'M')) {
-                                    BasicIo::UniquePtr p = BasicIo::UniquePtr(new MemIo(rawData.pData_, rawData.size_));
+                                    BasicIo::AutoPtr p = BasicIo::AutoPtr(new MemIo(rawData.pData_, rawData.size_));
                                     printTiffStructure(*p, out, option, depth);
                                 }
                             }
@@ -621,7 +625,7 @@ static void boxes_check(size_t b,size_t m)
             throw Error(kerDataSourceOpenFailed, io_->path(), strError());
         }
         IoCloser closer(*io_);
-        BasicIo::UniquePtr tempIo(new MemIo);
+        BasicIo::AutoPtr tempIo(new MemIo);
         assert (tempIo.get() != 0);
 
         doWriteMetadata(*tempIo); // may throw
@@ -674,20 +678,20 @@ static void boxes_check(size_t b,size_t m)
                 if ( ! iccProfileDefined() ) {
                     const char* pad   = "\x01\x00\x00\x00\x00\x00\x10\x00\x00\x05\x1cuuid";
                     uint32_t    psize = 15;
+                    newlen            = sizeof(newBox) + psize ;
                     ul2Data((byte*)&newBox.length,psize      ,bigEndian);
                     ul2Data((byte*)&newBox.type  ,newBox.type,bigEndian);
                     ::memcpy(output.pData_+outlen                     ,&newBox            ,sizeof(newBox));
                     ::memcpy(output.pData_+outlen+sizeof(newBox)      ,pad                ,psize         );
-                    newlen = psize ;
                 } else {
-                    const char* pad   = "\0x02\x00\x00";
+                    const char* pad   = "\x02\x00\x00";
                     uint32_t    psize = 3;
-                    ul2Data((byte*)&newBox.length, psize + static_cast<uint32_t>(iccProfile_.size_), bigEndian);
-                    ul2Data((byte*)&newBox.type, newBox.type, bigEndian);
+                    newlen            = sizeof(newBox) + psize + iccProfile_.size_;
+                    ul2Data((byte*)&newBox.length,newlen,bigEndian);
+                    ul2Data((byte*)&newBox.type,newBox.type,bigEndian);
                     ::memcpy(output.pData_+outlen                     ,&newBox            ,sizeof(newBox)  );
                     ::memcpy(output.pData_+outlen+sizeof(newBox)      , pad               ,psize           );
                     ::memcpy(output.pData_+outlen+sizeof(newBox)+psize,iccProfile_.pData_,iccProfile_.size_);
-                    newlen = psize + static_cast<uint32_t>(iccProfile_.size_);
                 }
             } else {
                 ::memcpy(output.pData_+outlen,boxBuf.pData_+inlen,subBox.length);
@@ -747,7 +751,7 @@ static void boxes_check(size_t b,size_t m)
             // Read chunk header.
 
             std::memset(bheaderBuf.pData_, 0x00, bheaderBuf.size_);
-            size_t bufRead = io_->read(bheaderBuf.pData_, bheaderBuf.size_);
+            long bufRead = io_->read(bheaderBuf.pData_, bheaderBuf.size_);
             if (io_->error()) throw Error(kerFailedToReadImageData);
             if (bufRead != bheaderBuf.size_) throw Error(kerInputDataReadFailed);
 
@@ -788,7 +792,7 @@ static void boxes_check(size_t b,size_t m)
                 throw Error(kerFailedToReadImageData);
             }
 
-            if (bufRead != (size_t)(box.length - 8))
+            if (bufRead != (long)(box.length - 8))
             {
 #ifdef EXIV2_DEBUG_MESSAGES
                 std::cout << "Exiv2::Jp2Image::doWriteMetadata: Cannot read source file data" << std::endl;
@@ -821,7 +825,7 @@ static void boxes_check(size_t b,size_t m)
                             memcpy(rawExif.pData_, &blob[0], blob.size());
 
                             DataBuf boxData(8 + 16 + rawExif.size_);
-                            ul2Data(boxDataSize, static_cast<uint32_t>(boxData.size_), Exiv2::bigEndian);
+                            ul2Data(boxDataSize, boxData.size_, Exiv2::bigEndian);
                             ul2Data(boxUUIDtype, kJp2BoxTypeUuid, Exiv2::bigEndian);
                             memcpy(boxData.pData_,          boxDataSize,    4);
                             memcpy(boxData.pData_ + 4,      boxUUIDtype,    4);
@@ -844,7 +848,7 @@ static void boxes_check(size_t b,size_t m)
                         if (rawIptc.size_ > 0)
                         {
                             DataBuf boxData(8 + 16 + rawIptc.size_);
-                            ul2Data(boxDataSize, (uint32_t)boxData.size_, Exiv2::bigEndian);
+                            ul2Data(boxDataSize, boxData.size_, Exiv2::bigEndian);
                             ul2Data(boxUUIDtype, kJp2BoxTypeUuid, Exiv2::bigEndian);
                             memcpy(boxData.pData_,          boxDataSize,    4);
                             memcpy(boxData.pData_ + 4,      boxUUIDtype,    4);
@@ -874,7 +878,7 @@ static void boxes_check(size_t b,size_t m)
 
                         DataBuf xmp(reinterpret_cast<const byte*>(xmpPacket_.data()), static_cast<long>(xmpPacket_.size()));
                         DataBuf boxData(8 + 16 + xmp.size_);
-                        ul2Data(boxDataSize, (uint32_t)boxData.size_, Exiv2::bigEndian);
+                        ul2Data(boxDataSize, boxData.size_, Exiv2::bigEndian);
                         ul2Data(boxUUIDtype, kJp2BoxTypeUuid, Exiv2::bigEndian);
                         memcpy(boxData.pData_,          boxDataSize,  4);
                         memcpy(boxData.pData_ + 4,      boxUUIDtype,  4);
@@ -941,9 +945,9 @@ static void boxes_check(size_t b,size_t m)
 
     // *************************************************************************
     // free functions
-    Image::UniquePtr newJp2Instance(BasicIo::UniquePtr io, bool create)
+    Image::AutoPtr newJp2Instance(BasicIo::AutoPtr io, bool create)
     {
-        Image::UniquePtr image(new Jp2Image(std::move(io), create));
+        Image::AutoPtr image(new Jp2Image(io, create));
         if (!image->good())
         {
             image.reset();

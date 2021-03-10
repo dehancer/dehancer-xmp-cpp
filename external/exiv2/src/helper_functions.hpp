@@ -24,7 +24,8 @@
            <a href="mailto:dan.cermak@cgc-instruments.com">dan.cermak@cgc-instruments.com</a>
   @date    25-May-18, D4N: created
  */
-#pragma once
+#ifndef HELPER_FUNCTIONS_HPP
+#define HELPER_FUNCTIONS_HPP
 
 #include <string>
 
@@ -44,3 +45,5 @@
 
  */
 std::string string_from_unterminated(const char* data, size_t data_length);
+
+#endif  // HELPER_FUNCTIONS_HPP

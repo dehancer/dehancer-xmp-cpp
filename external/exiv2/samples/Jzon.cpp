@@ -538,7 +538,7 @@ namespace Jzon
 		for (ChildList::iterator it = children.begin(); it != children.end(); ++it)
 		{
 			delete (*it).second;
-			(*it).second = nullptr;
+			(*it).second = NULL;
 		}
 		children.clear();
 	}
@@ -548,28 +548,28 @@ namespace Jzon
 		if (!children.empty())
 			return Object::iterator(&children.front());
 		else
-			return Object::iterator(nullptr);
+			return Object::iterator(NULL);
 	}
 	Object::const_iterator Object::begin() const
 	{
 		if (!children.empty())
 			return Object::const_iterator(&children.front());
 		else
-			return Object::const_iterator(nullptr);
+			return Object::const_iterator(NULL);
 	}
 	Object::iterator Object::end()
 	{
 		if (!children.empty())
 			return Object::iterator(&children.back()+1);
 		else
-			return Object::iterator(nullptr);
+			return Object::iterator(NULL);
 	}
 	Object::const_iterator Object::end() const
 	{
 		if (!children.empty())
 			return Object::const_iterator(&children.back()+1);
 		else
-			return Object::const_iterator(nullptr);
+			return Object::const_iterator(NULL);
 	}
 
 	bool Object::Has(const std::string &name) const
@@ -661,7 +661,7 @@ namespace Jzon
 		for (ChildList::iterator it = children.begin(); it != children.end(); ++it)
 		{
 			delete (*it);
-			(*it) = nullptr;
+			(*it) = NULL;
 		}
 		children.clear();
 	}
@@ -671,28 +671,28 @@ namespace Jzon
 		if (!children.empty())
 			return Array::iterator(&children.front());
 		else
-			return Array::iterator(nullptr);
+			return Array::iterator(NULL);
 	}
 	Array::const_iterator Array::begin() const
 	{
 		if (!children.empty())
 			return Array::const_iterator(&children.front());
 		else
-			return Array::const_iterator(nullptr);
+			return Array::const_iterator(NULL);
 	}
 	Array::iterator Array::end()
 	{
 		if (!children.empty())
 			return Array::iterator(&children.back()+1);
 		else
-			return Array::iterator(nullptr);
+			return Array::iterator(NULL);
 	}
 	Array::const_iterator Array::end() const
 	{
 		if (!children.empty())
 			return Array::const_iterator(&children.back()+1);
 		else
-			return Array::const_iterator(nullptr);
+			return Array::const_iterator(NULL);
 	}
 
 	size_t Array::GetCount() const
@@ -810,7 +810,7 @@ namespace Jzon
 	Writer::~Writer()
 	{
 		delete fi;
-		fi = nullptr;
+		fi = NULL;
 	}
 
 	void Writer::SetFormat(const Format &format)
@@ -1040,7 +1040,7 @@ namespace Jzon
 				}
 			case T_OBJ_BEGIN :
 				{
-					Node *node = nullptr;
+					Node *node = NULL;
 					if (nodeStack.empty())
 					{
 						if (!root.IsObject())
@@ -1062,7 +1062,7 @@ namespace Jzon
 				}
 			case T_ARRAY_BEGIN :
 				{
-					Node *node = nullptr;
+					Node *node = NULL;
 					if (nodeStack.empty())
 					{
 						if (!root.IsArray())
@@ -1122,7 +1122,7 @@ namespace Jzon
 						}
 
 						delete node;
-						node = nullptr;
+						node = NULL;
 					}
 					break;
 				}
@@ -1144,7 +1144,7 @@ namespace Jzon
 					}
 					else
 					{
-						Node *node = nullptr;
+						Node *node = NULL;
 						if (nodeStack.empty())
 						{
 							if (!root.IsValue())
@@ -1178,7 +1178,7 @@ namespace Jzon
 								nodeStack.top().second->AsArray().Add(*node);
 
 							delete node;
-							node = nullptr;
+							node = NULL;
 							name.clear();
 						}
 						else
@@ -1261,7 +1261,7 @@ namespace Jzon
 
 		std::transform(value.begin(), value.end(), upperValue.begin(), toupper);
 
-		if (upperValue == "nullptr")
+		if (upperValue == "NULL")
 		{
 			data.push(MakePair(Value::VT_NULL, std::string("")));
 		}

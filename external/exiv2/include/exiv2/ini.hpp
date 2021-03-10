@@ -5,7 +5,8 @@
 //
 // https://github.com/benhoyt/inih
 
-#pragma once
+#ifndef __INIREADER_H__
+#define __INIREADER_H__
 
 #include "exiv2lib_export.h"
 
@@ -200,3 +201,5 @@ private:
                             const char* value); //!< value handler
 };
 } // namespace Exiv2
+
+#endif  // __INIREADER_H__

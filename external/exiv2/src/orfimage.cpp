@@ -49,8 +49,8 @@ namespace Exiv2 {
 
     using namespace Internal;
 
-    OrfImage::OrfImage(BasicIo::UniquePtr io, bool create)
-        : TiffImage(/*ImageType::orf, mdExif | mdIptc | mdXmp,*/ std::move(io),create)
+    OrfImage::OrfImage(BasicIo::AutoPtr io, bool create)
+        : TiffImage(/*ImageType::orf, mdExif | mdIptc | mdXmp,*/ io,create)
     {
         setTypeSupported(ImageType::orf, mdExif | mdIptc | mdXmp);
     } // OrfImage::OrfImage
@@ -195,7 +195,7 @@ namespace Exiv2 {
                      ed.end());
         }
 
-        std::unique_ptr<TiffHeaderBase> header(new OrfHeader(byteOrder));
+        std::auto_ptr<TiffHeaderBase> header(new OrfHeader(byteOrder));
         return TiffParserWorker::encode(io,
                                         pData,
                                         size,
@@ -210,9 +210,9 @@ namespace Exiv2 {
 
     // *************************************************************************
     // free functions
-    Image::UniquePtr newOrfInstance(BasicIo::UniquePtr io, bool create)
+    Image::AutoPtr newOrfInstance(BasicIo::AutoPtr io, bool create)
     {
-        Image::UniquePtr image(new OrfImage(std::move(io), create));
+        Image::AutoPtr image(new OrfImage(io, create));
         if (!image->good()) {
             image.reset();
         }

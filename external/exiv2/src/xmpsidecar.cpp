@@ -51,8 +51,8 @@ namespace {
 namespace Exiv2 {
 
 
-    XmpSidecar::XmpSidecar(BasicIo::UniquePtr io, bool create)
-        : Image(ImageType::xmp, mdXmp, std::move(io))
+    XmpSidecar::XmpSidecar(BasicIo::AutoPtr io, bool create)
+        : Image(ImageType::xmp, mdXmp, io)
     {
         if (create) {
             if (io_->open() == 0) {
@@ -91,7 +91,7 @@ namespace Exiv2 {
         std::string xmpPacket;
         const long len = 64 * 1024;
         byte buf[len];
-        size_t l;
+        long l;
         while ((l = io_->read(buf, len)) > 0) {
             xmpPacket.append(reinterpret_cast<char*>(buf), l);
         }
@@ -183,11 +183,12 @@ namespace Exiv2 {
             if (xmpPacket_.substr(0, 5)  != "<?xml") {
                 xmpPacket_ = xmlHeader + xmpPacket_ + xmlFooter;
             }
-            BasicIo::UniquePtr tempIo(new MemIo);
+            BasicIo::AutoPtr tempIo(new MemIo);
             assert(tempIo.get() != 0);
             // Write XMP packet
-            if (tempIo->write(reinterpret_cast<const byte*>(xmpPacket_.data()), xmpPacket_.size()) != xmpPacket_.size())
-                throw Error(kerImageWriteFailed);
+            if (   tempIo->write(reinterpret_cast<const byte*>(xmpPacket_.data()),
+                                 static_cast<long>(xmpPacket_.size()))
+                != static_cast<long>(xmpPacket_.size())) throw Error(kerImageWriteFailed);
             if (tempIo->error()) throw Error(kerImageWriteFailed);
             io_->close();
             io_->transfer(*tempIo); // may throw
@@ -196,9 +197,9 @@ namespace Exiv2 {
 
     // *************************************************************************
     // free functions
-    Image::UniquePtr newXmpInstance(BasicIo::UniquePtr io, bool create)
+    Image::AutoPtr newXmpInstance(BasicIo::AutoPtr io, bool create)
     {
-        Image::UniquePtr image(new XmpSidecar(std::move(io), create));
+        Image::AutoPtr image(new XmpSidecar(io, create));
         if (!image->good()) {
             image.reset();
         }

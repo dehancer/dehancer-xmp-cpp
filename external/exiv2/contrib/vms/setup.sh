@@ -27,12 +27,6 @@ case "$distro_id" in
         zypper --non-interactive install python3-pip git
         ;;
 
-    'alpine')
-        apk add python3 git python3-dev
-        python3 -m ensurepip
-        pip3 install --upgrade pip setuptools
-        ;;
-
     *)
         echo "Sorry, no predefined dependencies for your distribution exist yet"
         exit 1

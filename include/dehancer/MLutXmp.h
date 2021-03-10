@@ -31,6 +31,7 @@ namespace dehancer {
         };
 
         using CLutBuffer = std::vector<std::uint8_t>;
+        using exiv2_ptr_t = Exiv2::Value::AutoPtr;
 
     public:
 
@@ -64,8 +65,8 @@ namespace dehancer {
 
 
         static dehancer::expected<MLutXmp,Error> Open(const std::string &path);
-
-        Exiv2::Value::UniquePtr get_value(const std::string &key) const ;
+    
+        exiv2_ptr_t get_value(const std::string &key) const ;
         const std::vector<std::string> & get_key_list() const;
 
         time_t get_datetime() const ;
@@ -96,7 +97,7 @@ namespace dehancer {
         MLutXmp();
         std::string path_;
         std::string cache_dir_;
-        std::map<std::string, Exiv2::Value::UniquePtr> meta_;
+        std::map<std::string, exiv2_ptr_t> meta_;
         std::vector<CLutBuffer> cluts_;
         std::vector<dehancer::License::Type> license_matrix_;
 

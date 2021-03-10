@@ -25,7 +25,8 @@
            <a href="mailto:ahuggel@gmx.net">ahuggel@gmx.net</a>
   @date    27-Sep-10, ahu: created
  */
-#pragma once
+#ifndef SAMSUNGMN_INT_HPP_
+#define SAMSUNGMN_INT_HPP_
 
 // *****************************************************************************
 // included header files
@@ -62,3 +63,5 @@ namespace Exiv2 {
     }; // class Samsung2MakerNote
 
 }}                                      // namespace Internal, Exiv2
+
+#endif                                  // #ifndef SAMSUNGMN_INT_HPP_

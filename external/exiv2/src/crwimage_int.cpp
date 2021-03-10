@@ -153,9 +153,7 @@ namespace Exiv2 {
         { 0xffff, 0xffff }
     };
 
-#ifndef _MSC_VER
-    constexpr char CiffHeader::signature_[]; /// \todo Required in C++11, but deprecated in C++17. Remove this line when we move to C++17.
-#endif
+    const char CiffHeader::signature_[] = "HEAPCCDR";
 
     CiffHeader::~CiffHeader()
     {
@@ -181,20 +179,20 @@ namespace Exiv2 {
         }
     }
 
-    void CiffComponent::add(UniquePtr component)
+    void CiffComponent::add(AutoPtr component)
     {
-        doAddComponent(std::move(component));
+        doAdd(component);
     }
 
-    void CiffEntry::doAddComponent(UniquePtr /*component*/)
+    void CiffEntry::doAdd(AutoPtr /*component*/)
     {
         throw Error(kerFunctionNotSupported, "CiffEntry::add");
-    }
+    } // CiffEntry::doAdd
 
-    void CiffDirectory::doAddComponent(UniquePtr component)
+    void CiffDirectory::doAdd(AutoPtr component)
     {
         components_.push_back(component.release());
-    }
+    } // CiffDirectory::doAdd
 
     void CiffHeader::read(const byte* pData, uint32_t size)
     {
@@ -315,14 +313,14 @@ namespace Exiv2 {
 
         for (uint16_t i = 0; i < count; ++i) {
             uint16_t tag = getUShort(pData + o, byteOrder);
-            CiffComponent::UniquePtr m;
+            CiffComponent::AutoPtr m;
             switch (CiffComponent::typeId(tag)) {
-            case directory: m = CiffComponent::UniquePtr(new CiffDirectory); break;
-            default: m = CiffComponent::UniquePtr(new CiffEntry); break;
+            case directory: m = CiffComponent::AutoPtr(new CiffDirectory); break;
+            default: m = CiffComponent::AutoPtr(new CiffEntry); break;
             }
             m->setDir(this->tag());
             m->read(pData, size, o, byteOrder);
-            add(std::move(m));
+            add(m);
             o += 10;
         }
     }  // CiffDirectory::readDirectory
@@ -536,7 +534,7 @@ namespace Exiv2 {
            << ", " << _("size") << " = " << std::dec << size_
            << ", " << _("offset") << " = " << offset_ << "\n";
 
-        Value::UniquePtr value;
+        Value::AutoPtr value;
         if (typeId() != directory) {
             value = Value::create(typeId());
             value->read(pData_, size_, byteOrder);
@@ -562,13 +560,13 @@ namespace Exiv2 {
     {
         if (isAllocated_) {
             delete pData_;
-            pData_ = nullptr;
+            pData_ = 0;
             size_ = 0;
         }
         isAllocated_ = true;
-        auto p = buf.release();
+        std::pair<byte *, long> p = buf.release();
         pData_ = p.first;
-        size_  = (uint32_t)p.second;
+        size_  = p.second;
         if (size_ > 8 && dataLocation() == directoryData) {
             tag_ &= 0x3fff;
         }
@@ -628,7 +626,7 @@ namespace Exiv2 {
     CiffComponent* CiffDirectory::doFindComponent(uint16_t crwTagId,
                                                   uint16_t crwDir) const
     {
-        CiffComponent* cc = nullptr;
+        CiffComponent* cc = NULL;
         const Components::const_iterator b = components_.begin();
         const Components::const_iterator e = components_.end();
         for (Components::const_iterator i = b; i != e; ++i) {
@@ -656,12 +654,12 @@ namespace Exiv2 {
     CiffComponent* CiffComponent::add(CrwDirs& crwDirs, uint16_t crwTagId)
     {
         return doAdd(crwDirs, crwTagId);
-    }
+    } // CiffComponent::add
 
     CiffComponent* CiffComponent::doAdd(CrwDirs& /*crwDirs*/, uint16_t /*crwTagId*/)
     {
         return 0;
-    }
+    } // CiffComponent::doAdd
 
     CiffComponent* CiffDirectory::doAdd(CrwDirs& crwDirs, uint16_t crwTagId)
     {
@@ -692,9 +690,9 @@ namespace Exiv2 {
             }
             if (cc_ == 0) {
                 // Directory doesn't exist yet, add it
-                m_ = UniquePtr(new CiffDirectory(csd.crwDir_, csd.parent_));
+                m_ = AutoPtr(new CiffDirectory(csd.crwDir_, csd.parent_));
                 cc_ = m_.get();
-                add(std::move(m_));
+                add(m_);
             }
             // Recursive call to next lower level directory
             cc_ = cc_->add(crwDirs, crwTagId);
@@ -709,13 +707,13 @@ namespace Exiv2 {
             }
             if (cc_ == 0) {
                 // Tag doesn't exist yet, add it
-                m_ = UniquePtr(new CiffEntry(crwTagId, tag()));
+                m_ = AutoPtr(new CiffEntry(crwTagId, tag()));
                 cc_ = m_.get();
-                add(std::move(m_));
+                add(m_);
             }
         }
         return cc_;
-    }
+    } // CiffDirectory::doAdd
 
     void CiffHeader::remove(uint16_t crwTagId, uint16_t crwDir)
     {
@@ -827,7 +825,7 @@ namespace Exiv2 {
 
         // Make
         ExifKey key1("Exif.Image.Make");
-        Value::UniquePtr value1 = Value::create(ciffComponent.typeId());
+        Value::AutoPtr value1 = Value::create(ciffComponent.typeId());
         uint32_t i = 0;
         for (;    i < ciffComponent.size()
                && ciffComponent.pData()[i] != '\0'; ++i) {
@@ -838,7 +836,7 @@ namespace Exiv2 {
 
         // Model
         ExifKey key2("Exif.Image.Model");
-        Value::UniquePtr value2 = Value::create(ciffComponent.typeId());
+        Value::AutoPtr value2 = Value::create(ciffComponent.typeId());
         uint32_t j = i;
         for (;    i < ciffComponent.size()
                && ciffComponent.pData()[i] != '\0'; ++i) {
@@ -869,11 +867,11 @@ namespace Exiv2 {
         }
         assert(ifdId != ifdIdNotSet);
 
-        std::string gName(Internal::groupName(ifdId));
+        std::string groupName(Internal::groupName(ifdId));
         uint16_t c = 1;
         while (uint32_t(c)*2 < ciffComponent.size()) {
             uint16_t n = 1;
-            ExifKey key(c, gName);
+            ExifKey key(c, groupName);
             UShortValue value;
             if (ifdId == canonCsId && c == 23 && ciffComponent.size() > 50) n = 3;
             value.read(ciffComponent.pData() + c*2, n*2, byteOrder);
@@ -912,13 +910,7 @@ namespace Exiv2 {
         ULongValue v;
         v.read(ciffComponent.pData(), 8, byteOrder);
         time_t t = v.value_[0];
-#ifdef EXV_HAVE_GMTIME_R
-        struct tm tms;
-        struct tm* tm = &tms;
-        tm = gmtime_r(&t, tm);
-#else
-        struct tm* tm = std::gmtime(&t);
-#endif
+        struct tm* tm = std::localtime(&t);
         if (tm) {
             const size_t m = 20;
             char s[m];
@@ -973,7 +965,7 @@ namespace Exiv2 {
         assert(pCrwMapping != 0);
         // create a key and value pair
         ExifKey key(pCrwMapping->tag_, Internal::groupName(pCrwMapping->ifdId_));
-        Value::UniquePtr value;
+        Value::AutoPtr value;
         if (ciffComponent.typeId() != directory) {
             value = Value::create(ciffComponent.typeId());
             uint32_t size = 0;
@@ -1083,7 +1075,7 @@ namespace Exiv2 {
         const ExifData::const_iterator ed2 = image.exifData().findKey(k2);
         const ExifData::const_iterator edEnd = image.exifData().end();
 
-        size_t size = 0;
+        long size = 0;
         if (ed1 != edEnd) size += ed1->size();
         if (ed2 != edEnd) size += ed2->size();
         if (size != 0) {
@@ -1140,8 +1132,9 @@ namespace Exiv2 {
         if (ed != image.exifData().end()) {
             struct tm tm;
             std::memset(&tm, 0x0, sizeof(tm));
-            int rc = exifTime(ed->toString().c_str(), &tm);
-            if (rc == 0) t = timegm(&tm);
+            if ( exifTime(ed->toString().c_str(), &tm) == 0 ) {
+                t=::mktime(&tm);
+            }
         }
         if (t != 0) {
             DataBuf buf(12);
@@ -1173,9 +1166,8 @@ namespace Exiv2 {
         CiffComponent* cc = pHead->findComponent(pCrwMapping->crwTagId_,
                                                  pCrwMapping->crwDir_);
         if (edX != edEnd || edY != edEnd || edO != edEnd) {
-            size_t size = 28;
-            if (cc && cc->size() > size)
-                size = cc->size();
+            uint32_t size = 28;
+            if (cc && cc->size() > size) size = cc->size();
             DataBuf buf(size);
             std::memset(buf.pData_, 0x0, buf.size_);
             if (cc) std::memcpy(buf.pData_ + 8, cc->pData() + 8, cc->size() - 8);

@@ -33,6 +33,7 @@
 #include "metadatum.hpp"
 #include "i18n.h"                // NLS support.
 #include "xmp_exiv2.hpp"
+#include "rwlock.hpp"
 
 #include <iostream>
 #include <iomanip>
@@ -2482,11 +2483,11 @@ namespace Exiv2 {
     }
 
     XmpProperties::NsRegistry XmpProperties::nsRegistry_;
-    std::mutex XmpProperties::mutex_;
+    Exiv2::RWLock XmpProperties::rwLock_;
 
     const XmpNsInfo* XmpProperties::lookupNsRegistry(const XmpNsInfo::Prefix& prefix)
     {
-        std::lock_guard<std::mutex> scoped_read_lock(mutex_);
+        ScopedReadLock srl(rwLock_);
         return lookupNsRegistryUnsafe(prefix);
     }
 
@@ -2502,7 +2503,8 @@ namespace Exiv2 {
     void XmpProperties::registerNs(const std::string& ns,
                                    const std::string& prefix)
     {
-        std::lock_guard<std::mutex> scoped_write_lock(mutex_);
+        ScopedWriteLock swl(rwLock_);
+
         std::string ns2 = ns;
         if (   ns2.substr(ns2.size() - 1, 1) != "/"
             && ns2.substr(ns2.size() - 1, 1) != "#") ns2 += "/";
@@ -2534,7 +2536,7 @@ namespace Exiv2 {
 
     void XmpProperties::unregisterNs(const std::string& ns)
     {
-        std::lock_guard<std::mutex> scoped_write_lock(mutex_);
+        ScopedWriteLock swl(rwLock_);
         unregisterNsUnsafe(ns);
     }
 
@@ -2550,7 +2552,8 @@ namespace Exiv2 {
 
     void XmpProperties::unregisterNs()
     {
-        std::lock_guard<std::mutex> scoped_write_lock(mutex_);
+        ScopedWriteLock swl(rwLock_);
+
         NsRegistry::iterator i = nsRegistry_.begin();
         while (i != nsRegistry_.end()) {
             NsRegistry::iterator kill = i++;
@@ -2560,7 +2563,7 @@ namespace Exiv2 {
 
     std::string XmpProperties::prefix(const std::string& ns)
     {
-        std::lock_guard<std::mutex> scoped_read_lock(mutex_);
+        ScopedReadLock srl(rwLock_);
         std::string ns2 = ns;
         if (   ns2.substr(ns2.size() - 1, 1) != "/"
             && ns2.substr(ns2.size() - 1, 1) != "#") ns2 += "/";
@@ -2578,7 +2581,7 @@ namespace Exiv2 {
 
     std::string XmpProperties::ns(const std::string& prefix)
     {
-        std::lock_guard<std::mutex> scoped_read_lock(mutex_);
+        ScopedReadLock srl(rwLock_);
         const XmpNsInfo* xn = lookupNsRegistryUnsafe(XmpNsInfo::Prefix(prefix));
         if (xn != 0) return xn->ns_;
         return nsInfoUnsafe(prefix)->ns_;
@@ -2645,7 +2648,7 @@ namespace Exiv2 {
 
     const XmpNsInfo* XmpProperties::nsInfo(const std::string& prefix)
     {
-        std::lock_guard<std::mutex> scoped_read_lock(mutex_);
+        ScopedReadLock srl(rwLock_);
         return nsInfoUnsafe(prefix);
     }
 
@@ -2752,9 +2755,9 @@ namespace Exiv2 {
         return *this;
     }
 
-    XmpKey::UniquePtr XmpKey::clone() const
+    XmpKey::AutoPtr XmpKey::clone() const
     {
-        return UniquePtr(clone_());
+        return AutoPtr(clone_());
     }
 
     XmpKey* XmpKey::clone_() const
@@ -2836,14 +2839,25 @@ namespace Exiv2 {
 
     // *************************************************************************
     // free functions
+    // *************************************************************************
+    // free functions
     std::ostream& operator<<(std::ostream& os, const XmpPropertyInfo& property)
     {
-        return os << property.name_                       << ",\t"
-                  << property.title_                      << ",\t"
-                  << property.xmpValueType_               << ",\t"
-                  << TypeInfo::typeName(property.typeId_) << ",\t"
-                  << ( property.xmpCategory_ == xmpExternal ? "External" : "Internal" ) << ",\t"
-                  << property.desc_                       << "\n";
+        os << property.name_                       << ","
+           << property.title_                      << ","
+           << property.xmpValueType_               << ","
+           << TypeInfo::typeName(property.typeId_) << ","
+           << ( property.xmpCategory_ == xmpExternal ? "External" : "Internal" ) << ",";
+        // CSV encoded I am \"dead\" beat" => "I am ""dead"" beat"
+        char Q = '"';
+        os << Q;
+        for ( size_t i = 0 ; i < ::strlen(property.desc_) ; i++ ) {
+            char c = property.desc_[i];
+            if ( c == Q ) os << Q;
+            os << c;
+        }
+        os << Q << std::endl;
+        return os;
     }
     //! @endcond
 

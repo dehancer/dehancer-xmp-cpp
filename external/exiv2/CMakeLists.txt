@@ -1,34 +1,36 @@
-cmake_minimum_required( VERSION 3.5.0 )
+cmake_minimum_required( VERSION 3.3.2 )
 
-project(exiv2
-    VERSION 0.27.99.0   # Fake version number to indicate that the next version will be 28.0
-    LANGUAGES CXX C
+project(exiv2          # use TWEAK to categorize the build
+    VERSION 0.27.4.9   # 0.27.4    = GM               (tagged and released)
+                       # 0.27.4.9  = 27.4.9 Development
+                       # 0.27.4.00 = GM Preview
+                       # 0.27.4.2  = RC2              (tagged and released)
+                       # 0.27.4.20 = RC2 Preview
+                       # 0.27.4.29 = RC2 Development
+    LANGUAGES CXX
 )
 
-set (CMAKE_CXX_STANDARD 17)
-
 include(cmake/mainSetup.cmake  REQUIRED)
-include(CTest)
-
-include(cmake/gcovr.cmake REQUIRED)
 
 # options and their default values
-option( BUILD_SHARED_LIBS             "Build exiv2lib as a shared library"                    OFF  )
+option( BUILD_SHARED_LIBS             "Build exiv2lib as a shared library"                    ON  )
 option( EXIV2_ENABLE_XMP              "Build with XMP metadata support"                       ON  )
 option( EXIV2_ENABLE_EXTERNAL_XMP     "Use external version of XMP"                           OFF )
 option( EXIV2_ENABLE_PNG              "Build with png support (requires libz)"                ON  )
 option( EXIV2_ENABLE_NLS              "Build native language support (requires gettext)"      OFF )
 option( EXIV2_ENABLE_PRINTUCS2        "Build with Printucs2"                                  ON  )
 option( EXIV2_ENABLE_LENSDATA         "Build including lens data"                             ON  )
-option( EXIV2_ENABLE_DYNAMIC_RUNTIME  "Use dynamic runtime (used for static libs)"            ON )
+option( EXIV2_ENABLE_VIDEO            "Build video support into library"                      OFF )
+option( EXIV2_ENABLE_DYNAMIC_RUNTIME  "Use dynamic runtime (used for static libs)"            ON  )
 option( EXIV2_ENABLE_WIN_UNICODE      "Use Unicode paths (wstring) on Windows"                OFF )
 option( EXIV2_ENABLE_WEBREADY         "Build webready support into library"                   OFF )
 option( EXIV2_ENABLE_CURL             "USE Libcurl for HttpIo (WEBREADY)"                     OFF )
+option( EXIV2_ENABLE_SSH              "USE Libssh for SshIo (WEBREADY)"                       OFF )
+option( EXIV2_ENABLE_BMFF             "Build with BMFF support"                               OFF )
 
-option( EXIV2_BUILD_SAMPLES           "Build sample applications"                             OFF  )
-option( EXIV2_BUILD_EXIV2_COMMAND     "Build exiv2 command-line executable"                   OFF  )
+option( EXIV2_BUILD_SAMPLES           "Build sample applications"                             ON  )
+option( EXIV2_BUILD_EXIV2_COMMAND     "Build exiv2 command-line executable"                   ON  )
 option( EXIV2_BUILD_UNIT_TESTS        "Build unit tests"                                      OFF )
-option( EXIV2_BUILD_FUZZ_TESTS        "Build fuzz tests (libFuzzer)"                          OFF )
 option( EXIV2_BUILD_DOC               "Add 'doc' target to generate documentation"            OFF )
 
 # Only intended to be used by Exiv2 developers/contributors
@@ -37,20 +39,6 @@ option( EXIV2_TEAM_WARNINGS_AS_ERRORS "Treat warnings as errors"                
 option( EXIV2_TEAM_USE_SANITIZERS     "Enable ASAN and UBSAN when available"                  OFF )
 option( EXIV2_TEAM_PACKAGING          "Additional stuff for generating packages"              OFF )
 set(EXTRA_COMPILE_FLAGS " ")
-
-option(DEHANCER_TARGET_ARCH "")
-
-if (DEHANCER_TARGET_ARCH)
-    #
-    # x86_64-apple-macos10.13
-    # or
-    # arm64-apple-macos11
-    #
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -target ${DEHANCER_TARGET_ARCH}")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -target ${DEHANCER_TARGET_ARCH}")
-endif ()
-
-set(EXTRA_COMPILE_FLAGS "${EXTRA_COMPILE_FLAGS} -fvisibility=hidden")
 
 mark_as_advanced(
     EXIV2_TEAM_EXTRA_WARNINGS
@@ -64,8 +52,8 @@ option( BUILD_WITH_CCACHE             "Use ccache to speed up compilations"     
 option( BUILD_WITH_COVERAGE           "Add compiler flags to generate coverage stats"         OFF )
 
 set( PACKAGE_BUGREPORT                "http://github.com/exiv2/exiv2" )
-set( PACKAGE_URL                      "http://exiv2.dyndns.org")
-set( PROJECT_DESCRIPTION              "Exif and IPTC metadata library and tools")
+set( PACKAGE_URL                      "https://exiv2.org")
+set( PROJECT_DESCRIPTION              "Exif/IPTC/Xmp C++ metadata library and tools plus ICC Profiles, Previews and more.")
 
 if ( EXIV2_ENABLE_EXTERNAL_XMP )
     set(EXIV2_ENABLE_XMP OFF)
@@ -98,23 +86,44 @@ add_subdirectory( src )
 
 if( EXIV2_BUILD_UNIT_TESTS )
     add_subdirectory ( unitTests )
+    add_custom_target(unit_test
+        COMMAND env EXIV2_BINDIR="${CMAKE_RUNTIME_OUTPUT_DIRECTORY}" make unit_test
+        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/test"
+    )
 endif()
 
-if( EXIV2_BUILD_FUZZ_TESTS)
-    if ((NOT COMPILER_IS_CLANG) OR (NOT EXIV2_TEAM_USE_SANITIZERS))
-        message(FATAL_ERROR "You need to build with Clang and sanitizers for the fuzzers to work. "
-                "Use Clang and -DEXIV2_TEAM_USE_SANITIZERS=ON")
-    endif()
-    add_subdirectory ( fuzz )
-endif()
+add_custom_target(version_test
+	COMMAND env EXIV2_BINDIR="${CMAKE_RUNTIME_OUTPUT_DIRECTORY}" make version_test
+	WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/test"
+)
 
 if( EXIV2_BUILD_SAMPLES )
     ##
     # tests
-    add_custom_target(tests
-        COMMAND env EXIV2_BINDIR="${CMAKE_RUNTIME_OUTPUT_DIRECTORY}" make test
-        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/test"
-    )
+    if( EXIV2_BUILD_UNIT_TESTS )
+		add_custom_target(tests
+			COMMAND env EXIV2_BINDIR="${CMAKE_RUNTIME_OUTPUT_DIRECTORY}" make unit_test
+			COMMAND env EXIV2_BINDIR="${CMAKE_RUNTIME_OUTPUT_DIRECTORY}" make bash_tests
+		    COMMAND env EXIV2_BINDIR="${CMAKE_RUNTIME_OUTPUT_DIRECTORY}" make python_tests
+		    COMMAND env EXIV2_BINDIR="${CMAKE_RUNTIME_OUTPUT_DIRECTORY}" make version_test
+			WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/test"
+		)
+    else()
+		add_custom_target(tests
+			COMMAND env EXIV2_BINDIR="${CMAKE_RUNTIME_OUTPUT_DIRECTORY}" make bash_tests
+		    COMMAND env EXIV2_BINDIR="${CMAKE_RUNTIME_OUTPUT_DIRECTORY}" make python_tests
+		    COMMAND env EXIV2_BINDIR="${CMAKE_RUNTIME_OUTPUT_DIRECTORY}" make version_test
+			WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/test"
+		)
+    endif()
+	add_custom_target(python_tests
+		COMMAND env EXIV2_BINDIR="${CMAKE_RUNTIME_OUTPUT_DIRECTORY}" make python_tests
+		WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/test"
+	)
+	add_custom_target(bash_tests
+		COMMAND env EXIV2_BINDIR="${CMAKE_RUNTIME_OUTPUT_DIRECTORY}" make bash_tests
+		WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/test"
+	)
     add_subdirectory( samples )
     get_directory_property(SAMPLES DIRECTORY samples DEFINITION APPLICATIONS)
     add_dependencies(tests exiv2lib exiv2 ${SAMPLES})
@@ -128,8 +137,10 @@ if (EXIV2_TEAM_PACKAGING)
     include(cmake/packaging.cmake)
 endif()
 
+join_paths(libdir_for_pc_file "\${prefix}" "${CMAKE_INSTALL_LIBDIR}")
+join_paths(includedir_for_pc_file "\${prefix}" "${CMAKE_INSTALL_INCLUDEDIR}")
 configure_file(cmake/exiv2.pc.in exiv2.pc @ONLY)
-install(FILES ${CMAKE_BINARY_DIR}/exiv2.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/exiv2.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 
 # ******************************************************************************
 # Man page
@@ -137,3 +148,6 @@ install( FILES ${PROJECT_SOURCE_DIR}/man/man1/exiv2.1 DESTINATION ${CMAKE_INSTAL
 
 
 include(cmake/printSummary.cmake)
+
+# That's all Folks!
+##

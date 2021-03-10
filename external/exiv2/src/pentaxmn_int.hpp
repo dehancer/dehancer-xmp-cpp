@@ -24,7 +24,8 @@
            based on ExifTool implementation and
            <a href="http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/Pentax.html">Pentax Makernote list</a> by Phil Harvey<br>
  */
-#pragma once
+#ifndef PENTAXMN_INT_HPP_
+#define PENTAXMN_INT_HPP_
 
 // *****************************************************************************
 // included header files
@@ -119,3 +120,6 @@ namespace Exiv2 {
 
     } // namespace Internal
 } // namespace Exiv2
+
+
+#endif                                  // #ifndef PENTAXMN_INT_HPP_

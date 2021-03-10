@@ -72,7 +72,7 @@ int    timeZoneAdjust();
 char* realpath(const char* file,char* path)
 {
     char* result = (char*) malloc(_MAX_PATH);
-    if   (result) GetFullPathName(file,_MAX_PATH,result,nullptr);
+    if   (result) GetFullPathName(file,_MAX_PATH,result,NULL);
     return result ;
     UNUSED(path);
 }
@@ -142,7 +142,7 @@ class Position;
 typedef std::map<time_t,Position>           TimeDict_t;
 typedef std::map<time_t,Position>::iterator TimeDict_i;
 typedef std::vector<std::string>            strings_t;
-const char*  gDeg = nullptr ; // string "°" or "deg"
+const char*  gDeg = NULL ; // string "°" or "deg"
 TimeDict_t   gTimeDict   ;
 strings_t    gFiles;
 
@@ -223,13 +223,13 @@ std::string Position::toExifTimeStamp(std::string& t)
     const char* arg = t.c_str();
     int HH = 0 ;
     int mm = 0 ;
-    int SS = 0 ;
+    int SS1 = 0 ;
     if ( strstr(arg,":") || strstr(arg,"-") ) {
         int  YY,MM,DD    ;
         char a,b,c,d,e   ;
-        sscanf(arg,"%d%c%d%c%d%c%d%c%d%c%d",&YY,&a,&MM,&b,&DD,&c,&HH,&d,&mm,&e,&SS);
+        sscanf(arg,"%d%c%d%c%d%c%d%c%d%c%d",&YY,&a,&MM,&b,&DD,&c,&HH,&d,&mm,&e,&SS1);
     }
-    sprintf(result,"%d/1 %d/1 %d/1",HH,mm,SS);
+    sprintf(result,"%d/1 %d/1 %d/1",HH,mm,SS1);
     return std::string(result);
 }
 
@@ -406,15 +406,15 @@ time_t parseTime(const char* arg,bool bAdjust)
         // <time>2012-07-14T17:33:16Z</time>
 
         if ( strstr(arg,":") || strstr(arg,"-") ) {
-            int  YY,MM,DD,HH,mm,SS ;
+            int  YY,MM,DD,HH,mm,SS1 ;
             char a,b,c,d,e   ;
-            sscanf(arg,"%d%c%d%c%d%c%d%c%d%c%d",&YY,&a,&MM,&b,&DD,&c,&HH,&d,&mm,&e,&SS);
+            sscanf(arg,"%d%c%d%c%d%c%d%c%d%c%d",&YY,&a,&MM,&b,&DD,&c,&HH,&d,&mm,&e,&SS1);
 
             struct tm T;
             memset(&T,0,sizeof(T));
             T.tm_min  = mm  ;
             T.tm_hour = HH  ;
-            T.tm_sec  = SS  ;
+            T.tm_sec  = SS1 ;
             if ( bAdjust ) T.tm_sec -= Position::Adjust();
             T.tm_year = YY -1900 ;
             T.tm_mon  = MM -1    ;
@@ -429,7 +429,7 @@ time_t parseTime(const char* arg,bool bAdjust)
 // West of GMT is negative (PDT = Pacific Daylight = -07:00 == -25200 seconds
 int timeZoneAdjust()
 {
-    time_t    now   = time(nullptr);
+    time_t    now   = time(NULL);
     int       offset;
 
 #if   defined(_MSC_VER) || defined(__MINGW__)
@@ -441,7 +441,7 @@ int timeZoneAdjust()
     struct tm lcopy = *localtime(&now);
     time_t    gmt   =  timegm(&lcopy) ; // timegm modifies lcopy
     offset          = (int) ( ((long signed int) gmt) - ((long signed int) now) ) ;
-#elif defined(OS_SOLARIS)
+#elif defined(OS_SOLARIS) || defined(__sun__)
     struct tm local = *localtime(&now) ;
     time_t local_tt = (int) mktime(&local);
     time_t time_gmt = (int) mktime(gmtime(&now));
@@ -450,7 +450,7 @@ int timeZoneAdjust()
     struct tm local = *localtime(&now) ;
     offset          = local.tm_gmtoff ;
 
-#ifdef EXIV2_DEBUG_MESSAGES
+#if EXIV2_DEBUG_MESSAGES
     struct tm utc = *gmtime(&now);
     printf("utc  :  offset = %6d dst = %d time = %s", 0     ,utc  .tm_isdst, asctime(&utc  ));
     printf("local:  offset = %6d dst = %d time = %s", offset,local.tm_isdst, asctime(&local));
@@ -521,13 +521,13 @@ bool readDir(const char* path,Options& options)
     }
 #else
     DIR*    dir = opendir (path);
-    if (dir != nullptr)
+    if (dir != NULL)
     {
         bResult = true;
         struct dirent*  ent;
 
         // print all the files and directories within directory
-        while ((ent = readdir (dir)) != nullptr)
+        while ((ent = readdir (dir)) != NULL)
         {
             std::string pathName = makePath(path,ent->d_name);
             struct stat  buf     ;
@@ -556,7 +556,7 @@ inline size_t sip(FILE* f,char* buffer,size_t max_len,size_t len)
 bool readXML(const char* path,Options& options)
 {
     FILE*       f       = fopen(path,"r");
-    XML_Parser  parser  = XML_ParserCreate(nullptr);
+    XML_Parser  parser  = XML_ParserCreate(NULL);
     bool bResult        = f && parser ;
     if ( bResult ) {
         char   buffer[8*1024];
@@ -597,7 +597,7 @@ bool readImage(const char* path,Options& /* options */)
     bool bResult = false ;
 
     try {
-        Image::UniquePtr image = ImageFactory::open(path);
+        Image::AutoPtr image = ImageFactory::open(path);
         if ( image.get() ) {
             image->readMetadata();
             ExifData &exifData = image->exifData();
@@ -607,7 +607,7 @@ bool readImage(const char* path,Options& /* options */)
     return bResult ;
 }
 
-time_t readImageTime(const std::string& path,std::string* pS=nullptr)
+time_t readImageTime(const std::string& path,std::string* pS=NULL)
 {
     using namespace Exiv2;
 
@@ -617,13 +617,13 @@ time_t readImageTime(const std::string& path,std::string* pS=nullptr)
     { "Exif.Photo.DateTimeOriginal"
     , "Exif.Photo.DateTimeDigitized"
     , "Exif.Image.DateTime"
-    , nullptr
+    , NULL
     };
     const char* dateString = dateStrings[0] ;
 
     do {
         try {
-            Image::UniquePtr image = ImageFactory::open(path);
+            Image::AutoPtr image = ImageFactory::open(path);
             if ( image.get() ) {
                 image->readMetadata();
                 ExifData &exifData = image->exifData();
@@ -658,8 +658,8 @@ int readFile(const char* path,Options /* options */)
     if (  f ) {
         const char*  ext   = strstr(path,".");
         if  ( ext ) {
-            const char* docs[] = { ".doc",".txt", nullptr };
-            const char* code[] = { ".cpp",".h"  ,".pl" ,".py" ,".pyc", nullptr };
+            const char* docs[] = { ".doc",".txt", NULL };
+            const char* code[] = { ".cpp",".h"  ,".pl" ,".py" ,".pyc", NULL };
             if ( sina(ext,docs) )
                 nResult = typeDoc;
             if ( sina(ext,code) )
@@ -673,7 +673,7 @@ int readFile(const char* path,Options /* options */)
 
 Position* searchTimeDict(TimeDict_t& td, const time_t& time,long long delta)
 {
-    Position* result = nullptr;
+    Position* result = NULL;
     for ( int t = 0 ; !result && t < delta ; t++ ) {
         for ( int x = 0 ; !result && x < 2 ; x++ ) {
             int T = t * ((x==0)?-1:1);
@@ -844,7 +844,7 @@ int main(int argc,const char* argv[])
 #ifdef __APPLE__
                     char   buffer[1024];
 #else
-                    char*  buffer = nullptr;
+                    char*  buffer = NULL;
 #endif
                     char*  path = realpath(arg,buffer);
                     if  ( t && path ) {
@@ -901,12 +901,12 @@ int main(int argc,const char* argv[])
             try {
                 time_t t       = readImageTime(path,&stamp) ;
                 Position* pPos = searchTimeDict(gTimeDict,t,Position::deltaMax_);
-                Exiv2::Image::UniquePtr image = Exiv2::ImageFactory::open(path);
+                Exiv2::Image::AutoPtr image = Exiv2::ImageFactory::open(path);
                 if ( image.get() ) {
                     image->readMetadata();
                     Exiv2::ExifData& exifData = image->exifData();
                     if ( pPos ) {
-                        exifData["Exif.GPSInfo.GPSProcessingMethod" ] = "65 83 67 73 73 0 0 0 72 89 66 82 73 68 45 70 73 88"; // ASCII HYBRID-FIX
+                        exifData["Exif.GPSInfo.GPSProcessingMethod" ] = "charset=Ascii HYBRID-FIX";
                         exifData["Exif.GPSInfo.GPSVersionID"        ] = "2 2 0 0";
                         exifData["Exif.GPSInfo.GPSMapDatum"         ] = "WGS-84";
 

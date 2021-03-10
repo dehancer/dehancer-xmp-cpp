@@ -24,7 +24,8 @@
            <a href="mailto:ahuggel@gmx.net">ahuggel@gmx.net</a>
   @date    06-Jan-09, ahu: created
  */
-#pragma once
+#ifndef RW2IMAGE_INT_HPP_
+#define RW2IMAGE_INT_HPP_
 
 // *****************************************************************************
 // included header files
@@ -52,15 +53,17 @@ namespace Exiv2 {
         //! Default constructor
         Rw2Header();
         //! Destructor.
-        ~Rw2Header() override;
+        ~Rw2Header();
         //@}
 
         //! @name Accessors
         //@{
         //! Not yet implemented. Does nothing and returns an empty buffer.
-        DataBuf write() const override;
+        DataBuf write() const;
         //@}
 
     }; // class Rw2Header
 
 }}                                      // namespace Internal, Exiv2
+
+#endif                                  // #ifndef RW2IMAGE_INT_HPP_

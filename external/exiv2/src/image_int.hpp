@@ -24,7 +24,8 @@
            <a href="mailto:ahuggel@gmx.net">ahuggel@gmx.net</a>
   @date    10-May-15, ahu: created
  */
-#pragma once
+#ifndef IMAGE_INT_HPP_
+#define IMAGE_INT_HPP_
 
 // *****************************************************************************
 // included header files
@@ -87,7 +88,7 @@ namespace Exiv2 {
     template <typename T>
     struct binaryToStringHelper
     {
-        explicit binaryToStringHelper(const Slice<T> buf) noexcept : buf_(buf)
+        explicit binaryToStringHelper(const Slice<T> buf) throw() : buf_(buf)
         {
         }
 
@@ -121,7 +122,7 @@ namespace Exiv2 {
      *     the stream throws neither.
      */
     template <typename T>
-    inline binaryToStringHelper<T> binaryToString(const Slice<T> sl) noexcept
+    inline binaryToStringHelper<T> binaryToString(const Slice<T> sl) throw()
     {
         return binaryToStringHelper<T>(sl);
     }
@@ -137,3 +138,5 @@ namespace Exiv2 {
     std::string indent(int32_t depth);
 
 }}                                      // namespace Internal, Exiv2
+
+#endif                                  // #ifndef IMAGE_INT_HPP_

@@ -54,9 +54,8 @@ namespace {
     class FindXmpdatum {
     public:
         //! Constructor, initializes the object with key
-        explicit FindXmpdatum(const Exiv2::XmpKey& key) : key_(key.key())
-        {
-        }
+        FindXmpdatum(const Exiv2::XmpKey& key)
+            : key_(key.key()) {}
         /*!
           @brief Returns true if prefix and property of the argument
                  Xmpdatum are equal to that of the object.
@@ -95,7 +94,7 @@ namespace {
                    const XMP_OptionBits& opt);
 
     //! Make an XMP key from a schema namespace and property path
-    Exiv2::XmpKey::UniquePtr makeXmpKey(const std::string& schemaNs,
+    Exiv2::XmpKey::AutoPtr makeXmpKey(const std::string& schemaNs,
                                       const std::string& propPath);
 #endif // EXV_HAVE_XMP_TOOLKIT
 
@@ -129,8 +128,8 @@ namespace Exiv2 {
         Impl& operator=(const Impl& rhs);              //!< Assignment
 
         // DATA
-        XmpKey::UniquePtr key_;                          //!< Key
-        Value::UniquePtr  value_;                        //!< Value
+        XmpKey::AutoPtr key_;                          //!< Key
+        Value::AutoPtr  value_;                        //!< Value
     };
 
     Xmpdatum::Impl::Impl(const XmpKey& key, const Value* pValue)
@@ -217,17 +216,17 @@ namespace Exiv2 {
         return TypeInfo::typeName(typeId());
     }
 
-    size_t Xmpdatum::typeSize() const
+    long Xmpdatum::typeSize() const
     {
         return 0;
     }
 
-    size_t Xmpdatum::count() const
+    long Xmpdatum::count() const
     {
         return p_->value_.get() == 0 ? 0 : p_->value_->count();
     }
 
-    size_t Xmpdatum::size() const
+    long Xmpdatum::size() const
     {
         return p_->value_.get() == 0 ? 0 : p_->value_->size();
     }
@@ -257,9 +256,9 @@ namespace Exiv2 {
         return p_->value_.get() == 0 ? Rational(-1, 1) : p_->value_->toRational(n);
     }
 
-    Value::UniquePtr Xmpdatum::getValue() const
+    Value::AutoPtr Xmpdatum::getValue() const
     {
-        return p_->value_.get() == 0 ? nullptr : p_->value_->clone();
+        return p_->value_.get() == 0 ? Value::AutoPtr(0) : p_->value_->clone();
     }
 
     const Value& Xmpdatum::value() const
@@ -426,28 +425,28 @@ namespace Exiv2 {
             pLockData_ = pLockData;
             initialized_ = SXMPMeta::Initialize();
 #ifdef EXV_ADOBE_XMPSDK
-            SXMPMeta::RegisterNamespace("http://ns.adobe.com/lightroom/1.0/", "lr",nullptr);
-            SXMPMeta::RegisterNamespace("http://rs.tdwg.org/dwc/index.htm", "dwc",nullptr);
-            SXMPMeta::RegisterNamespace("http://purl.org/dc/terms/", "dcterms",nullptr);
-            SXMPMeta::RegisterNamespace("http://www.digikam.org/ns/1.0/", "digiKam",nullptr);
-            SXMPMeta::RegisterNamespace("http://www.digikam.org/ns/kipi/1.0/", "kipi",nullptr);
-            SXMPMeta::RegisterNamespace("http://ns.microsoft.com/photo/1.0/", "MicrosoftPhoto",nullptr);
-            SXMPMeta::RegisterNamespace("http://ns.acdsee.com/iptc/1.0/", "acdsee",nullptr);
-            SXMPMeta::RegisterNamespace("http://iptc.org/std/Iptc4xmpExt/2008-02-29/", "iptcExt",nullptr);
-            SXMPMeta::RegisterNamespace("http://ns.useplus.org/ldf/xmp/1.0/", "plus",nullptr);
-            SXMPMeta::RegisterNamespace("http://ns.iview-multimedia.com/mediapro/1.0/", "mediapro",nullptr);
-            SXMPMeta::RegisterNamespace("http://ns.microsoft.com/expressionmedia/1.0/", "expressionmedia",nullptr);
-            SXMPMeta::RegisterNamespace("http://ns.microsoft.com/photo/1.2/", "MP",nullptr);
-            SXMPMeta::RegisterNamespace("http://ns.microsoft.com/photo/1.2/t/RegionInfo#", "MPRI",nullptr);
-            SXMPMeta::RegisterNamespace("http://ns.microsoft.com/photo/1.2/t/Region#", "MPReg",nullptr);
-            SXMPMeta::RegisterNamespace("http://ns.google.com/photos/1.0/panorama/", "GPano",nullptr);
-            SXMPMeta::RegisterNamespace("http://www.metadataworkinggroup.com/schemas/regions/", "mwg-rs",nullptr);
-            SXMPMeta::RegisterNamespace("http://www.metadataworkinggroup.com/schemas/keywords/", "mwg-kw",nullptr);
-            SXMPMeta::RegisterNamespace("http://ns.adobe.com/xmp/sType/Area#", "stArea",nullptr);
-            SXMPMeta::RegisterNamespace("http://cipa.jp/exif/1.0/", "exifEX",nullptr);
-            SXMPMeta::RegisterNamespace("http://ns.adobe.com/camera-raw-saved-settings/1.0/", "crss",nullptr);
-            SXMPMeta::RegisterNamespace("http://www.audio/", "audio",nullptr);
-            SXMPMeta::RegisterNamespace("http://www.video/", "video",nullptr);
+            SXMPMeta::RegisterNamespace("http://ns.adobe.com/lightroom/1.0/", "lr",NULL);
+            SXMPMeta::RegisterNamespace("http://rs.tdwg.org/dwc/index.htm", "dwc",NULL);
+            SXMPMeta::RegisterNamespace("http://purl.org/dc/terms/", "dcterms",NULL);
+            SXMPMeta::RegisterNamespace("http://www.digikam.org/ns/1.0/", "digiKam",NULL);
+            SXMPMeta::RegisterNamespace("http://www.digikam.org/ns/kipi/1.0/", "kipi",NULL);
+            SXMPMeta::RegisterNamespace("http://ns.microsoft.com/photo/1.0/", "MicrosoftPhoto",NULL);
+            SXMPMeta::RegisterNamespace("http://ns.acdsee.com/iptc/1.0/", "acdsee",NULL);
+            SXMPMeta::RegisterNamespace("http://iptc.org/std/Iptc4xmpExt/2008-02-29/", "iptcExt",NULL);
+            SXMPMeta::RegisterNamespace("http://ns.useplus.org/ldf/xmp/1.0/", "plus",NULL);
+            SXMPMeta::RegisterNamespace("http://ns.iview-multimedia.com/mediapro/1.0/", "mediapro",NULL);
+            SXMPMeta::RegisterNamespace("http://ns.microsoft.com/expressionmedia/1.0/", "expressionmedia",NULL);
+            SXMPMeta::RegisterNamespace("http://ns.microsoft.com/photo/1.2/", "MP",NULL);
+            SXMPMeta::RegisterNamespace("http://ns.microsoft.com/photo/1.2/t/RegionInfo#", "MPRI",NULL);
+            SXMPMeta::RegisterNamespace("http://ns.microsoft.com/photo/1.2/t/Region#", "MPReg",NULL);
+            SXMPMeta::RegisterNamespace("http://ns.google.com/photos/1.0/panorama/", "GPano",NULL);
+            SXMPMeta::RegisterNamespace("http://www.metadataworkinggroup.com/schemas/regions/", "mwg-rs",NULL);
+            SXMPMeta::RegisterNamespace("http://www.metadataworkinggroup.com/schemas/keywords/", "mwg-kw",NULL);
+            SXMPMeta::RegisterNamespace("http://ns.adobe.com/xmp/sType/Area#", "stArea",NULL);
+            SXMPMeta::RegisterNamespace("http://cipa.jp/exif/1.0/", "exifEX",NULL);
+            SXMPMeta::RegisterNamespace("http://ns.adobe.com/camera-raw-saved-settings/1.0/", "crss",NULL);
+            SXMPMeta::RegisterNamespace("http://www.audio/", "audio",NULL);
+            SXMPMeta::RegisterNamespace("http://www.video/", "video",NULL);
 #else
             SXMPMeta::RegisterNamespace("http://ns.adobe.com/lightroom/1.0/", "lr");
             SXMPMeta::RegisterNamespace("http://rs.tdwg.org/dwc/index.htm", "dwc");
@@ -558,7 +557,7 @@ namespace Exiv2 {
             AutoLock autoLock(xmpLockFct_, pLockData_);
             SXMPMeta::DeleteNamespace(ns.c_str());
 #ifdef EXV_ADOBE_XMPSDK
-            SXMPMeta::RegisterNamespace(ns.c_str(), prefix.c_str(),nullptr);
+            SXMPMeta::RegisterNamespace(ns.c_str(), prefix.c_str(),NULL);
 #else
             SXMPMeta::RegisterNamespace(ns.c_str(), prefix.c_str());
 #endif
@@ -625,10 +624,10 @@ namespace Exiv2 {
                 }
                 continue;
             }
-            XmpKey::UniquePtr key = makeXmpKey(schemaNs, propPath);
+            XmpKey::AutoPtr key = makeXmpKey(schemaNs, propPath);
             if (XMP_ArrayIsAltText(opt)) {
                 // Read Lang Alt property
-                LangAltValue::UniquePtr val(new LangAltValue);
+                LangAltValue::AutoPtr val(new LangAltValue);
                 XMP_Index count = meta.CountArrayItems(schemaNs.c_str(), propPath.c_str());
                 while (count-- > 0) {
                     // Get the text
@@ -675,7 +674,7 @@ namespace Exiv2 {
                 }
                 if (simpleArray) {
                     // Read the array into an XmpArrayValue
-                    XmpArrayValue::UniquePtr val(new XmpArrayValue(arrayValueTypeId(opt)));
+                    XmpArrayValue::AutoPtr val(new XmpArrayValue(arrayValueTypeId(opt)));
                     XMP_Index count = meta.CountArrayItems(schemaNs.c_str(), propPath.c_str());
                     while (count-- > 0) {
                         iter.Next(&schemaNs, &propPath, &propValue, &opt);
@@ -686,7 +685,7 @@ namespace Exiv2 {
                     continue;
                 }
             }
-            XmpTextValue::UniquePtr val(new XmpTextValue);
+            XmpTextValue::AutoPtr val(new XmpTextValue);
             if (   XMP_PropIsStruct(opt)
                 || XMP_PropIsArray(opt)) {
                 // Create a metadatum with only XMP options
@@ -795,7 +794,7 @@ namespace Exiv2 {
                 || i->typeId() == xmpAlt) {
                 printNode(ns, i->tagName(), "", options);
                 meta.SetProperty(ns.c_str(), i->tagName().c_str(), 0, options);
-                for (long idx = 0; idx < static_cast<long>(i->count()); ++idx) {
+                for (int idx = 0; idx < i->count(); ++idx) {
                     const std::string item = i->tagName() + "[" + toString(idx + 1) + "]";
                     printNode(ns, item, i->toString(idx), 0);
                     meta.SetProperty(ns.c_str(), item.c_str(), i->toString(idx).c_str());
@@ -976,7 +975,7 @@ namespace {
     {}
 #endif // EXIV2_DEBUG_MESSAGES
 
-    Exiv2::XmpKey::UniquePtr makeXmpKey(const std::string& schemaNs,
+    Exiv2::XmpKey::AutoPtr makeXmpKey(const std::string& schemaNs,
                                       const std::string& propPath)
     {
         std::string property;
@@ -990,7 +989,7 @@ namespace {
         if (prefix.empty()) {
             throw Exiv2::Error(Exiv2::kerNoPrefixForNamespace, propPath, schemaNs);
         }
-        return Exiv2::XmpKey::UniquePtr(new Exiv2::XmpKey(prefix, property));
+        return Exiv2::XmpKey::AutoPtr(new Exiv2::XmpKey(prefix, property));
     } // makeXmpKey
 #endif // EXV_HAVE_XMP_TOOLKIT
 

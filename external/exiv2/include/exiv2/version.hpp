@@ -27,7 +27,8 @@
            <a href="mailto:ahuggel@gmx.net">ahuggel@gmx.net</a>
   @date    31-May-06, ahu: created
  */
-#pragma once
+#ifndef VERSION_HPP_
+#define VERSION_HPP_
 
 #include "exiv2lib_export.h"
 #include "exv_conf.h"
@@ -36,20 +37,35 @@
 // included header files
 // + standard includes
 #include <vector>
-#include <string>
 
-#if defined (EXV_NEED_BOOST_REGEX)
-#include <boost/regex.hpp>
-namespace re = boost;
-#else
-#include <regex>
-namespace re = std;
+#if defined(EXV_HAVE_REGEX_H)
+# include <regex.h>
+  /*!
+   @brief exv_grep_keys_t is a vector of keys to match to strings
+  */
+   typedef std::vector<regex_t> exv_grep_keys_t ;
+# else
+  /*!
+   @brief exv_grep_key_t is a simple string and the ignore flag
+  */
+   struct Exiv2_grep_key_t {
+    /*!
+    @brief Exiv2_grep_key_t constructor
+    */
+     Exiv2_grep_key_t(std::string pattern,bool bIgnoreCase)
+       :pattern_(pattern),bIgnoreCase_(bIgnoreCase) {}
+
+     //! simple string to match
+     std::string pattern_;
+
+     //! should we ignore cast in the match?
+     bool        bIgnoreCase_;
+   };
+  /*!
+   @brief exv_grep_keys_t is a vector of keys to match to strings
+  */
+   typedef std::vector<Exiv2_grep_key_t> exv_grep_keys_t ;
 #endif
-
-/*!
- @brief exv_grep_keys_t is a vector of keys to match to strings
-*/
- typedef std::vector<re::regex> exv_grep_keys_t ;
 
 /*!
   @brief Make an integer version number for comparison from a major, minor and
@@ -116,11 +132,7 @@ namespace Exiv2 {
     /*!
       @brief Return the version of %Exiv2 available at runtime as an integer.
     */
-    constexpr int versionNumber()
-    {
-        return EXIV2_MAKE_VERSION(EXIV2_MAJOR_VERSION, EXIV2_MINOR_VERSION, EXIV2_PATCH_VERSION);
-    }
-
+    EXIV2API int versionNumber();
     /*!
       @brief Return the version string Example: "0.25.0" (major.minor.patch)
     */
@@ -133,10 +145,7 @@ namespace Exiv2 {
     /*!
       @brief Return the version of %Exiv2 as "C" string eg "0.27.0.2".
     */
-    constexpr const char* version()
-    {
-        return EXV_PACKAGE_VERSION;
-    }
+    EXIV2API const char* version();
 
     /*!
       @brief Test the version of the available %Exiv2 library at runtime. Return
@@ -145,13 +154,14 @@ namespace Exiv2 {
       Versions are denoted using a triplet of integers: \em major.minor.patch .
       The fourth version number is designated a "tweak" an used by Release Candidates
     */
-    constexpr bool testVersion(int major, int minor, int patch)
-    {
-        return versionNumber() >= EXIV2_MAKE_VERSION(major, minor, patch);
-    }
+    EXIV2API bool testVersion(int major, int minor, int patch);
     /*!
       @brief dumpLibraryInfo implements the exiv2 option --version --verbose
              used by exiv2 test suite to inspect libraries loaded at run-time
      */
     EXIV2API void dumpLibraryInfo(std::ostream& os,const exv_grep_keys_t& keys);
 }                                       // namespace Exiv2
+
+
+
+#endif                                  // VERSION_HPP_

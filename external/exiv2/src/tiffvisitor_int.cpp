@@ -29,6 +29,7 @@
 #include "tiffcomposite_int.hpp" // Do not change the order of these 2 includes,
 #include "tiffvisitor_int.hpp"   // see bug #487
 #include "tiffimage_int.hpp"
+#include "image_int.hpp"
 #include "makernote_int.hpp"
 #include "exif.hpp"
 #include "enforce.hpp"
@@ -214,11 +215,11 @@ namespace Exiv2 {
         assert(object != 0);
 
         if (pHeader_->isImageTag(object->tag(), object->group(), pPrimaryGroups_)) {
-            TiffComponent::UniquePtr clone = object->clone();
+            TiffComponent::AutoPtr clone = object->clone();
             // Assumption is that the corresponding TIFF entry doesn't exist
             TiffPath tiffPath;
             TiffCreator::getPath(tiffPath, object->tag(), object->group(), root_);
-            pRoot_->addPath(object->tag(), tiffPath, pRoot_, std::move(clone));
+            pRoot_->addPath(object->tag(), tiffPath, pRoot_, clone);
 #ifdef EXIV2_DEBUG_MESSAGES
             ExifKey key(object->tag(), groupName(object->group()));
             std::cerr << "Copied " << key << "\n";
@@ -292,16 +293,19 @@ namespace Exiv2 {
     {
         assert(pRoot != 0);
 
-        exifData_.clear();
-        iptcData_.clear();
-        xmpData_.clear();
-
-        // Find camera make
-        TiffFinder finder(0x010f, ifd0Id);
-        pRoot_->accept(finder);
-        TiffEntryBase* te = dynamic_cast<TiffEntryBase*>(finder.result());
-        if (te && te->pValue()) {
-            make_ = te->pValue()->toString();
+        // #1402 Fujifilm RAF. Search for the make
+        // Find camera make in existing metadata (read from the JPEG)
+        ExifKey key("Exif.Image.Make");
+        if ( exifData_.findKey(key) != exifData_.end( ) ){
+            make_ = exifData_.findKey(key)->toString();
+        } else {
+            // Find camera make by looking for tag 0x010f in IFD0
+            TiffFinder finder(0x010f, ifd0Id);
+            pRoot_->accept(finder);
+            TiffEntryBase* te = dynamic_cast<TiffEntryBase*>(finder.result());
+            if (te && te->pValue()) {
+                make_ = te->pValue()->toString();
+            }
         }
     }
 
@@ -329,7 +333,7 @@ namespace Exiv2 {
         decodeTiffEntry(object);
     }
 
-    void TiffDecoder::visitDirectory(TiffDirectory* /*object*/)
+    void TiffDecoder::visitDirectory(TiffDirectory* /* object */ )
     {
         // Nothing to do
     }
@@ -509,7 +513,7 @@ namespace Exiv2 {
             { 0x260b , nPoints , true  }, // AFYPositions
             { 0x260c , nMasks  , false }, // AFPointsInFocus
             { 0x260d , nMasks  , false }, // AFPointsSelected
-            { 0x260e , nMasks  , false }, // AFPrimaryPoint
+            { 0x260e , nMasks  , false }, // AFPointsUnusable
             { 0xffff , 0       , true  }  // end marker
         };
         // check we have enough data!
@@ -521,7 +525,7 @@ namespace Exiv2 {
             const TagInfo* pTags = ExifTags::tagList("Canon") ;
             const TagInfo* pTag  = findTag(pTags,records[i].tag);
             if ( pTag ) {
-                auto v = Exiv2::Value::create(records[i].bSigned?Exiv2::signedShort:Exiv2::unsignedShort);
+                Exiv2::Value::AutoPtr v = Exiv2::Value::create(records[i].bSigned?Exiv2::signedShort:Exiv2::unsignedShort);
                 std::ostringstream    s;
                 if ( records[i].bSigned ) {
                     for ( int16_t k = 0 ; k < records[i].size ; k++ ) s << " " << ints.at(nStart++);
@@ -646,7 +650,7 @@ namespace Exiv2 {
             irbKey.setIdx(pos->idx());
         }
         if (rawIptc.size_ != 0 && (del || pos == exifData_.end())) {
-            Value::UniquePtr value = Value::create(unsignedLong);
+            Value::AutoPtr value = Value::create(unsignedLong);
             DataBuf buf;
             if (rawIptc.size_ % 4 != 0) {
                 // Pad the last unsignedLong value with 0s
@@ -670,7 +674,7 @@ namespace Exiv2 {
             irbBuf = Photoshop::setIptcIrb(irbBuf.pData_, irbBuf.size_, iptcData_);
             exifData_.erase(pos);
             if (irbBuf.size_ != 0) {
-                Value::UniquePtr value = Value::create(unsignedByte);
+                Value::AutoPtr value = Value::create(unsignedByte);
                 value->read(irbBuf.pData_, irbBuf.size_, invalidByteOrder);
                 Exifdatum iptcDatum(irbKey, value.get());
                 exifData_.add(iptcDatum);
@@ -700,7 +704,7 @@ namespace Exiv2 {
         }
         if (!xmpPacket.empty()) {
             // Set the XMP Exif tag to the new value
-            Value::UniquePtr value = Value::create(unsignedByte);
+            Value::AutoPtr value = Value::create(unsignedByte);
             value->read(reinterpret_cast<const byte*>(&xmpPacket[0]),
                         static_cast<long>(xmpPacket.size()),
                         invalidByteOrder);
@@ -813,8 +817,7 @@ namespace Exiv2 {
                 object->setByteOrder(bo);
                 setDirty();
             }
-            if (del_)
-                exifData_.erase(pos);
+            if (del_) exifData_.erase(pos);
         }
         if (del_) {
             // Remove remaining synthesized tags
@@ -822,9 +825,8 @@ namespace Exiv2 {
                 "Exif.MakerNote.Offset",
             };
             for (unsigned int i = 0; i < EXV_COUNTOF(synthesizedTags); ++i) {
-                pos = exifData_.findKey(ExifKey(synthesizedTags[i]));
-                if (pos != exifData_.end())
-                    exifData_.erase(pos);
+                ExifData::iterator pos = exifData_.findKey(ExifKey(synthesizedTags[i]));
+                if (pos != exifData_.end()) exifData_.erase(pos);
             }
         }
         // Modify encoder for Makernote peculiarities, byte order
@@ -851,7 +853,7 @@ namespace Exiv2 {
         assert(object != 0);
 
         if (object->cfg() == 0 || !object->decoded()) return;
-        std::uint32_t size = object->TiffEntryBase::doSize();
+        int32_t size = object->TiffEntryBase::doSize();
         if (size == 0) return;
         if (!object->initialize(pRoot_)) return;
 
@@ -865,7 +867,7 @@ namespace Exiv2 {
             DataBuf buf = cryptFct(object->tag(), pData, size, pRoot_);
             if (buf.size_ > 0) {
                 pData = buf.pData_;
-                size = static_cast<std::uint32_t>(buf.size_);
+                size = buf.size_;
             }
             if (!object->updOrigDataBuf(pData, size)) {
                 setDirty();
@@ -1001,7 +1003,7 @@ namespace Exiv2 {
     {
         encodeOffsetEntry(object, datum);
 
-        size_t sizeDataArea = object->pValue()->sizeDataArea();
+        uint32_t sizeDataArea = object->pValue()->sizeDataArea();
 
         if (sizeDataArea > 0 && writeMethod() == wmNonIntrusive) {
 #ifdef EXIV2_DEBUG_MESSAGES
@@ -1024,12 +1026,12 @@ namespace Exiv2 {
                           << " not found. Writing only one strip.\n";
 #endif
                 object->strips_.clear();
-                object->strips_.push_back(std::make_pair(zero, (uint32_t)sizeDataArea));
+                object->strips_.push_back(std::make_pair(zero, sizeDataArea));
             }
             else {
                 uint32_t sizeTotal = 0;
                 object->strips_.clear();
-                for (long i = 0; i < static_cast<long>(pos->count()); ++i) {
+                for (long i = 0; i < pos->count(); ++i) {
                     uint32_t len = pos->toLong(i);
                     object->strips_.push_back(std::make_pair(zero, len));
                     sizeTotal += len;
@@ -1093,7 +1095,7 @@ namespace Exiv2 {
 #ifdef EXIV2_DEBUG_MESSAGES
         bool tooLarge = false;
 #endif
-        size_t newSize = datum->size();
+        uint32_t newSize = datum->size();
         if (newSize > object->size_) { // value doesn't fit, encode for intrusive writing
             setDirty();
 #ifdef EXIV2_DEBUG_MESSAGES
@@ -1115,7 +1117,7 @@ namespace Exiv2 {
         assert(object != 0);
         assert(datum != 0);
 
-        size_t newSize = datum->size();
+        uint32_t newSize = datum->size();
         if (newSize > object->size_) { // value doesn't fit, encode for intrusive writing
             setDirty();
             object->updateValue(datum->getValue(), byteOrder()); // clones the value
@@ -1210,7 +1212,7 @@ namespace Exiv2 {
     } // TiffEncoder::add
 
     TiffReader::TiffReader(const byte*    pData,
-                           size_t size,
+                           uint32_t       size,
                            TiffComponent* pRoot,
                            TiffRwState    state)
         : pData_(pData),
@@ -1369,10 +1371,10 @@ namespace Exiv2 {
                 return;
             }
             uint16_t tag = getUShort(p, byteOrder());
-            TiffComponent::UniquePtr tc = TiffCreator::create(tag, object->group());
+            TiffComponent::AutoPtr tc = TiffCreator::create(tag, object->group());
             if (tc.get()) {
                 tc->setStart(p);
-                object->addChild(std::move(tc));
+                object->addChild(tc);
             } else {
                EXV_WARNING << "Unable to handle tag " << tag << ".\n";
             }
@@ -1387,7 +1389,7 @@ namespace Exiv2 {
 #endif
                 return;
             }
-            TiffComponent::UniquePtr tc;
+            TiffComponent::AutoPtr tc(0);
             uint32_t next = getLong(p, byteOrder());
             if (next) {
                 tc = TiffCreator::create(Tag::next, object->group());
@@ -1407,7 +1409,7 @@ namespace Exiv2 {
                     return;
                 }
                 tc->setStart(pData_ + baseOffset() + next);
-                object->addNext(std::move(tc));
+                object->addNext(tc);
             }
         } // object->hasNext()
 
@@ -1446,10 +1448,10 @@ namespace Exiv2 {
                     break;
                 }
                 // If there are multiple dirs, group is incremented for each
-                TiffComponent::UniquePtr td(new TiffDirectory(object->tag(),
+                TiffComponent::AutoPtr td(new TiffDirectory(object->tag(),
                                                             static_cast<IfdId>(object->newGroup_ + i)));
                 td->setStart(pData_ + baseOffset() + offset);
-                object->addChild(std::move(td));
+                object->addChild(td);
             }
         }
 #ifndef SUPPRESS_WARNINGS
@@ -1544,7 +1546,7 @@ namespace Exiv2 {
         p += 2;
         TiffType tiffType = getUShort(p, byteOrder());
         TypeId typeId = toTypeId(tiffType, object->tag(), object->group());
-        size_t typeSize = TypeInfo::typeSize(typeId);
+        long typeSize = TypeInfo::typeSize(typeId);
         if (0 == typeSize) {
 #ifndef SUPPRESS_WARNINGS
             EXV_WARNING << "Directory " << groupName(object->group())
@@ -1569,12 +1571,12 @@ namespace Exiv2 {
             return;
         }
         p += 4;
-        size_t isize= 0; // size of Exif.Sony1.PreviewImage
+        uint32_t isize= 0; // size of Exif.Sony1.PreviewImage
 
         if (count > std::numeric_limits<uint32_t>::max() / typeSize) {
             throw Error(kerArithmeticOverflow);
         }
-        size_t size = typeSize * count;
+        uint32_t size = typeSize * count;
         uint32_t offset = getLong(p, byteOrder());
         byte* pData = p;
         if (   size > 4
@@ -1628,8 +1630,8 @@ namespace Exiv2 {
                 size = 0;
             }
         }
-        Value::UniquePtr v = Value::create(typeId);
-        enforce(v.get() != nullptr, kerCorruptedMetadata);
+        Value::AutoPtr v = Value::create(typeId);
+        enforce(v.get() != NULL, kerCorruptedMetadata);
         if ( !isize ) {
             v->read(pData, size, byteOrder());
         } else {
@@ -1642,8 +1644,8 @@ namespace Exiv2 {
             ::free(buffer);
         }
 
-        object->setValue(std::move(v));
-        object->setData(pData, (int32_t)size);
+        object->setValue(v);
+        object->setData(pData, size);
         object->setOffset(offset);
         object->setIdx(nextIdx(object->group()));
 
@@ -1736,11 +1738,11 @@ namespace Exiv2 {
         ByteOrder bo = object->elByteOrder();
         if (bo == invalidByteOrder) bo = byteOrder();
         TypeId typeId = toTypeId(object->elDef()->tiffType_, object->tag(), object->group());
-        Value::UniquePtr v = Value::create(typeId);
-        enforce(v.get() != nullptr, kerCorruptedMetadata);
+        Value::AutoPtr v = Value::create(typeId);
+        enforce(v.get() != NULL, kerCorruptedMetadata);
         v->read(pData, size, bo);
 
-        object->setValue(std::move(v));
+        object->setValue(v);
         object->setOffset(0);
         object->setIdx(nextIdx(object->group()));
 

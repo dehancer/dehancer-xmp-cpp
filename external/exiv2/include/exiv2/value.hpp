@@ -26,7 +26,8 @@
            11-Feb-04, ahu: isolated as a component
            31-Jul-04, brad: added Time, Data and String values
  */
-#pragma once
+#ifndef VALUE_HPP_
+#define VALUE_HPP_
 
 // *****************************************************************************
 #include "exiv2lib_export.h"
@@ -59,7 +60,7 @@ namespace Exiv2 {
     class EXIV2API Value {
     public:
         //! Shortcut for a %Value auto pointer.
-        typedef std::unique_ptr<Value> UniquePtr;
+        typedef std::auto_ptr<Value> AutoPtr;
 
         //! @name Creators
         //@{
@@ -79,7 +80,7 @@ namespace Exiv2 {
 
           @return 0 if successful.
          */
-        virtual int read(const byte* buf, size_t len, ByteOrder byteOrder) =0;
+        virtual int read(const byte* buf, long len, ByteOrder byteOrder) =0;
         /*!
           @brief Set the value from a string buffer. The format of the string
                  corresponds to that of the write() method, i.e., a string
@@ -103,7 +104,7 @@ namespace Exiv2 {
           @param len Size of the data area
           @return Return -1 if the value has no data area, else 0.
          */
-        virtual int setDataArea(const byte* buf, size_t len);
+        virtual int setDataArea(const byte* buf, long len);
         //@}
 
         //! @name Accessors
@@ -115,7 +116,7 @@ namespace Exiv2 {
                  The caller owns this copy and the auto-pointer ensures that
                  it will be deleted.
          */
-        UniquePtr clone() const { return UniquePtr(clone_()); }
+        AutoPtr clone() const { return AutoPtr(clone_()); }
         /*!
           @brief Write value to a data buffer.
 
@@ -175,7 +176,7 @@ namespace Exiv2 {
          */
         virtual Rational toRational(long n =0) const =0;
         //! Return the size of the data area, 0 if there is none.
-        virtual size_t sizeDataArea() const;
+        virtual long sizeDataArea() const;
         /*!
           @brief Return a copy of the data area if the value has one. The
                  caller owns this copy and DataBuf ensures that it will be
@@ -232,7 +233,7 @@ namespace Exiv2 {
           @return Auto-pointer to the newly created Value. The caller owns this
                   copy and the auto-pointer ensures that it will be deleted.
          */
-        static UniquePtr create(TypeId typeId);
+        static AutoPtr create(TypeId typeId);
 
     protected:
         /*!
@@ -261,11 +262,13 @@ namespace Exiv2 {
     class EXIV2API DataValue : public Value {
     public:
         //! Shortcut for a %DataValue auto pointer.
-        typedef std::unique_ptr<DataValue> UniquePtr;
+        typedef std::auto_ptr<DataValue> AutoPtr;
 
         explicit DataValue(TypeId typeId =undefined);
 
-        DataValue(const byte* buf, size_t len, ByteOrder byteOrder = invalidByteOrder, TypeId typeId = undefined);
+        DataValue(const byte* buf,
+                  long len, ByteOrder byteOrder =invalidByteOrder,
+                  TypeId typeId =undefined);
 
         virtual ~DataValue();
 
@@ -283,15 +286,16 @@ namespace Exiv2 {
 
           @return 0 if successful.
          */
-        int read(const byte* buf, size_t len, ByteOrder byteOrder = invalidByteOrder) override;
-
+        virtual int read(const byte* buf,
+                          long len,
+                          ByteOrder byteOrder =invalidByteOrder);
         //! Set the data from a string of integer values (e.g., "0 1 2 3")
-        int read(const std::string& buf) override;
+        virtual int read(const std::string& buf);
         //@}
 
         //! @name Accessors
         //@{
-        UniquePtr clone() const { return UniquePtr(clone_()); }
+        AutoPtr clone() const { return AutoPtr(clone_()); }
         /*!
           @brief Write value to a character data buffer.
 
@@ -305,24 +309,24 @@ namespace Exiv2 {
           @param byteOrder Byte order. Not needed.
           @return Number of characters written.
         */
-        long copy(byte* buf, ByteOrder byteOrder =invalidByteOrder) const override;
-        long count() const override;
-        long size() const override;
-        std::ostream& write(std::ostream& os) const override;
+        virtual long copy(byte* buf, ByteOrder byteOrder =invalidByteOrder) const;
+        virtual long count() const;
+        virtual long size() const;
+        virtual std::ostream& write(std::ostream& os) const;
         /*!
           @brief Return the <EM>n</EM>-th component of the value as a string.
                  The behaviour of this method may be undefined if there is no
                  <EM>n</EM>-th component.
          */
-        std::string toString(long n) const override;
-        long toLong(long n =0) const override;
-        float toFloat(long n =0) const override;
-        Rational toRational(long n =0) const override;
+        virtual std::string toString(long n) const;
+        virtual long toLong(long n =0) const;
+        virtual float toFloat(long n =0) const;
+        virtual Rational toRational(long n =0) const;
         //@}
 
     private:
         //! Internal virtual copy constructor.
-        DataValue* clone_() const override;
+        virtual DataValue* clone_() const;
 
         //! Type used to store the data.
         typedef std::vector<byte> ValueType;
@@ -340,7 +344,7 @@ namespace Exiv2 {
     class EXIV2API StringValueBase : public Value {
     public:
         //! Shortcut for a %StringValueBase auto pointer.
-        typedef std::unique_ptr<StringValueBase> UniquePtr;
+        typedef std::auto_ptr<StringValueBase> AutoPtr;
 
         //! @name Creators
         //@{
@@ -357,8 +361,7 @@ namespace Exiv2 {
         //! @name Manipulators
         //@{
         //! Read the value from buf. This default implementation uses buf as it is.
-        int read(const std::string& buf) override;
-
+        virtual int read(const std::string& buf);
         /*!
           @brief Read the value from a character buffer.
 
@@ -371,13 +374,14 @@ namespace Exiv2 {
 
           @return 0 if successful.
          */
-        int read(const byte* buf, size_t len, ByteOrder byteOrder =invalidByteOrder) override;
+        virtual int read(const byte* buf,
+                         long len,
+                         ByteOrder byteOrder =invalidByteOrder);
         //@}
 
         //! @name Accessors
         //@{
-        UniquePtr clone() const { return UniquePtr(clone_()); }
-
+        AutoPtr clone() const { return AutoPtr(clone_()); }
         /*!
           @brief Write value to a character data buffer.
 
@@ -391,20 +395,20 @@ namespace Exiv2 {
           @param byteOrder Byte order. Not used.
           @return Number of characters written.
         */
-        long copy(byte* buf, ByteOrder byteOrder =invalidByteOrder) const override;
-        long count() const override;
-        long size() const override;
-        long toLong(long n =0) const override;
-        float toFloat(long n =0) const override;
-        Rational toRational(long n =0) const override;
-        std::ostream& write(std::ostream& os) const override;
+        virtual long copy(byte* buf, ByteOrder byteOrder =invalidByteOrder) const;
+        virtual long count() const;
+        virtual long size() const;
+        virtual long toLong(long n =0) const;
+        virtual float toFloat(long n =0) const;
+        virtual Rational toRational(long n =0) const;
+        virtual std::ostream& write(std::ostream& os) const;
         //@}
 
     protected:
         //! Assignment operator.
         StringValueBase& operator=(const StringValueBase& rhs);
         //! Internal virtual copy constructor.
-        StringValueBase* clone_() const override =0;
+        virtual StringValueBase* clone_() const =0;
 
     public:
         // DATA
@@ -422,7 +426,7 @@ namespace Exiv2 {
     class EXIV2API StringValue : public StringValueBase {
     public:
         //! Shortcut for a %StringValue auto pointer.
-        typedef std::unique_ptr<StringValue> UniquePtr;
+        typedef std::auto_ptr<StringValue> AutoPtr;
 
         //! @name Creators
         //@{
@@ -436,12 +440,12 @@ namespace Exiv2 {
 
         //! @name Accessors
         //@{
-        UniquePtr clone() const { return UniquePtr(clone_()); }
+        AutoPtr clone() const { return AutoPtr(clone_()); }
         //@}
 
     private:
         //! Internal virtual copy constructor.
-        StringValue* clone_() const override;
+        virtual StringValue* clone_() const;
 
     }; // class StringValue
 
@@ -454,7 +458,7 @@ namespace Exiv2 {
     class EXIV2API AsciiValue : public StringValueBase {
     public:
         //! Shortcut for a %AsciiValue auto pointer.
-        typedef std::unique_ptr<AsciiValue> UniquePtr;
+        typedef std::auto_ptr<AsciiValue> AutoPtr;
 
         //! @name Creators
         //@{
@@ -474,23 +478,24 @@ namespace Exiv2 {
                  to append a terminating '\\0' character if buf doesn't end
                  with '\\0'.
          */
-        int read(const std::string& buf) override;
+        virtual int read(const std::string& buf);
         //@}
 
         //! @name Accessors
         //@{
-        UniquePtr clone() const { return UniquePtr(clone_()); }
+        AutoPtr clone() const { return AutoPtr(clone_()); }
         /*!
           @brief Write the ASCII value up to the the first '\\0' character to an
                  output stream.  Any further characters are ignored and not
                  written to the output stream.
         */
-        std::ostream& write(std::ostream& os) const override;
+        virtual std::ostream& write(std::ostream& os) const;
         //@}
 
     private:
         //! Internal virtual copy constructor.
-        AsciiValue* clone_() const override;
+        virtual AsciiValue* clone_() const;
+
     }; // class AsciiValue
 
     /*!
@@ -504,16 +509,8 @@ namespace Exiv2 {
     class EXIV2API CommentValue : public StringValueBase {
     public:
         //! Character set identifiers for the character sets defined by %Exif
-        enum CharsetId
-        {
-            ascii,
-            jis,
-            unicode,
-            undefined,
-            invalidCharsetId,
-            lastCharsetId
-        };
-
+        enum CharsetId { ascii, jis, unicode, undefined,
+                         invalidCharsetId, lastCharsetId };
         //! Information pertaining to the defined character sets
         struct CharsetTable {
             //! Constructor
@@ -527,13 +524,14 @@ namespace Exiv2 {
 
         //! Charset information lookup functions. Implemented as a static class.
         class EXIV2API CharsetInfo {
-        public:
-            CharsetInfo() = delete;
-            CharsetInfo& operator=(const CharsetInfo& rhs) = delete;
-            CharsetInfo& operator=(const CharsetInfo&& rhs) = delete;
-            CharsetInfo(const CharsetInfo& rhs) = delete;
-            CharsetInfo(const CharsetInfo&& rhs) = delete;
+            //! Prevent construction: not implemented.
+            CharsetInfo() {}
+            //! Prevent copy-construction: not implemented.
+            CharsetInfo(const CharsetInfo&);
+            //! Prevent assignment: not implemented.
+            CharsetInfo& operator=(const CharsetInfo&);
 
+        public:
             //! Return the name for a charset id
             static const char* name(CharsetId charsetId);
             //! Return the code for a charset id
@@ -548,18 +546,16 @@ namespace Exiv2 {
         }; // class CharsetInfo
 
         //! Shortcut for a %CommentValue auto pointer.
-        typedef std::unique_ptr<CommentValue> UniquePtr;
+        typedef std::auto_ptr<CommentValue> AutoPtr;
 
         //! @name Creators
         //@{
         //! Default constructor.
         CommentValue();
-
         //! Constructor, uses read(const std::string& comment)
         explicit CommentValue(const std::string& comment);
-
         //! Virtual destructor.
-        ~CommentValue() override;
+        virtual ~CommentValue();
         //@}
 
         //! @name Manipulators
@@ -576,22 +572,22 @@ namespace Exiv2 {
           @return 0 if successful<BR>
                   1 if an invalid character set is encountered
         */
-        int read(const std::string& comment) override;
+        int read(const std::string& comment);
         /*!
           @brief Read the comment from a byte buffer.
          */
-        int read(const byte* buf, size_t len, ByteOrder byteOrder) override;
+        int read(const byte* buf, long len, ByteOrder byteOrder);
         //@}
 
         //! @name Accessors
         //@{
-        UniquePtr clone() const { return UniquePtr(clone_()); }
-        long copy(byte* buf, ByteOrder byteOrder) const override;
+        AutoPtr clone() const { return AutoPtr(clone_()); }
+        long copy(byte* buf, ByteOrder byteOrder) const;
         /*!
           @brief Write the comment in a format which can be read by
           read(const std::string& comment).
          */
-        std::ostream& write(std::ostream& os) const override;
+        std::ostream& write(std::ostream& os) const;
         /*!
           @brief Return the comment (without a charset="..." prefix)
 
@@ -623,7 +619,7 @@ namespace Exiv2 {
 
     private:
         //! Internal virtual copy constructor.
-        CommentValue* clone_() const override;
+        virtual CommentValue* clone_() const;
 
     public:
         // DATA
@@ -637,7 +633,7 @@ namespace Exiv2 {
     class EXIV2API XmpValue : public Value {
     public:
         //! Shortcut for a %XmpValue auto pointer.
-        typedef std::unique_ptr<XmpValue> UniquePtr;
+        typedef std::auto_ptr<XmpValue> AutoPtr;
 
         //! XMP array types.
         enum XmpArrayType { xaNone, xaAlt, xaBag, xaSeq };
@@ -655,8 +651,7 @@ namespace Exiv2 {
         XmpArrayType xmpArrayType() const;
         //! Return XMP struct, indicates if an XMP value is a structure.
         XmpStruct xmpStruct() const;
-        long size() const override;
-
+        virtual long size() const;
         /*!
           @brief Write value to a character data buffer.
 
@@ -670,7 +665,7 @@ namespace Exiv2 {
           @param byteOrder Byte order. Not used.
           @return Number of characters written.
         */
-        long copy(byte* buf, ByteOrder byteOrder =invalidByteOrder) const override;
+        virtual long copy(byte* buf, ByteOrder byteOrder =invalidByteOrder) const;
         //@}
 
         //! @name Manipulators
@@ -679,7 +674,6 @@ namespace Exiv2 {
         void setXmpArrayType(XmpArrayType xmpArrayType);
         //! Set the XMP struct type to indicate that an XMP value is a structure.
         void setXmpStruct(XmpStruct xmpStruct =xsStruct);
-
         /*!
           @brief Read the value from a character buffer.
 
@@ -694,9 +688,10 @@ namespace Exiv2 {
 
           @return 0 if successful.
          */
-        int read(const byte* buf, size_t len, ByteOrder byteOrder =invalidByteOrder) override;
-
-        int read(const std::string& buf) override =0;
+        virtual int read(const byte* buf,
+                         long len,
+                         ByteOrder byteOrder =invalidByteOrder);
+        virtual int read(const std::string& buf) =0;
         //@}
 
         /*!
@@ -729,7 +724,7 @@ namespace Exiv2 {
     class EXIV2API XmpTextValue : public XmpValue {
     public:
         //! Shortcut for a %XmpTextValue auto pointer.
-        typedef std::unique_ptr<XmpTextValue> UniquePtr;
+        typedef std::auto_ptr<XmpTextValue> AutoPtr;
 
         //! @name Creators
         //@{
@@ -742,7 +737,6 @@ namespace Exiv2 {
         //! @name Manipulators
         //@{
         using XmpValue::read;
-
         /*!
           @brief Read a simple property value from \em buf to set the value.
 
@@ -757,32 +751,42 @@ namespace Exiv2 {
 
           @return 0 if successful.
          */
-        int read(const std::string& buf) override;
+
+        virtual int read(const std::string& buf);
         //@}
 
         //! @name Accessors
         //@{
-        UniquePtr clone() const;
-        long size() const override;
-        long count() const override;
+        AutoPtr clone() const;
+        long size() const;
+        virtual long count() const;
+        /*!
+          @brief Convert the value to a long.
+                 The optional parameter \em n is not used and is ignored.
 
-        /// @brief Convert the value to a long. The optional parameter \em n is not used and is ignored.
-        /// @return The converted value.
-        long toLong(long n =0) const override;
+          @return The converted value.
+         */
+        virtual long toLong(long n =0) const;
+        /*!
+          @brief Convert the value to a float.
+                 The optional parameter \em n is not used and is ignored.
 
-        /// @brief Convert the value to a float. The optional parameter \em n is not used and is ignored.
-        /// @return The converted value.
-        float toFloat(long n =0) const override;
+          @return The converted value.
+         */
+        virtual float toFloat(long n =0) const;
+        /*!
+          @brief Convert the value to a Rational.
+                 The optional parameter \em n is not used and is ignored.
 
-        /// @brief Convert the value to a Rational. The optional parameter \em n is not used and is ignored.
-        /// @return The converted value.
-        Rational toRational(long n =0) const override;
-        std::ostream& write(std::ostream& os) const override;
+          @return The converted value.
+         */
+        virtual Rational toRational(long n =0) const;
+        virtual std::ostream& write(std::ostream& os) const;
         //@}
 
     private:
         //! Internal virtual copy constructor.
-        XmpTextValue* clone_() const override;
+        virtual XmpTextValue* clone_() const;
 
     public:
         // DATA
@@ -802,7 +806,7 @@ namespace Exiv2 {
     class EXIV2API XmpArrayValue : public XmpValue {
     public:
         //! Shortcut for a %XmpArrayValue auto pointer.
-        typedef std::unique_ptr<XmpArrayValue> UniquePtr;
+        typedef std::auto_ptr<XmpArrayValue> AutoPtr;
 
         //! @name Creators
         //@{
@@ -823,32 +827,34 @@ namespace Exiv2 {
 
           @return 0 if successful.
          */
-        int read(const std::string& buf) override;
+        virtual int read(const std::string& buf);
         //@}
 
         //! @name Accessors
         //@{
-        UniquePtr clone() const;
-        long count() const override;
-
+        AutoPtr clone() const;
+        virtual long count() const;
         /*!
           @brief Return the <EM>n</EM>-th component of the value as a string.
                  The behaviour of this method may be undefined if there is no
                  <EM>n</EM>-th component.
          */
-        std::string toString(long n) const override;
-        long toLong(long n =0) const override;
-        float toFloat(long n =0) const override;
-        Rational toRational(long n =0) const override;
+        virtual std::string toString(long n) const;
+        virtual long toLong(long n =0) const;
+        virtual float toFloat(long n =0) const;
+        virtual Rational toRational(long n =0) const;
+        /*!
+          @brief Write all elements of the value to \em os, separated by commas.
 
-        /// @brief Write all elements of the value to \em os, separated by commas.
-        /// @note The output of this method cannot directly be used as the parameter for read().
-        std::ostream& write(std::ostream& os) const override;
+          @note The output of this method cannot directly be used as the parameter
+                for read().
+         */
+        virtual std::ostream& write(std::ostream& os) const;
         //@}
 
     private:
         //! Internal virtual copy constructor.
-        XmpArrayValue* clone_() const override;
+        virtual XmpArrayValue* clone_() const;
 
         std::vector<std::string> value_;        //!< Stores the string values.
 
@@ -893,7 +899,7 @@ namespace Exiv2 {
     class EXIV2API LangAltValue : public XmpValue {
     public:
         //! Shortcut for a %LangAltValue auto pointer.
-        typedef std::unique_ptr<LangAltValue> UniquePtr;
+        typedef std::auto_ptr<LangAltValue> AutoPtr;
 
         //! @name Creators
         //@{
@@ -923,14 +929,13 @@ namespace Exiv2 {
 
           @return 0 if successful.
          */
-        int read(const std::string& buf) override;
+        virtual int read(const std::string& buf);
         //@}
 
         //! @name Accessors
         //@{
-        UniquePtr clone() const;
-        long count() const override;
-
+        AutoPtr clone() const;
+        virtual long count() const;
         /*!
           @brief Return the text value associated with the default language
                  qualifier \c x-default. The parameter \em n is not used, but
@@ -938,26 +943,28 @@ namespace Exiv2 {
                  string and sets the ok-flag to \c false if there is no
                  default value.
          */
-        std::string toString(long n) const override;
-
+        virtual std::string toString(long n) const;
         /*!
           @brief Return the text value associated with the language qualifier
                  \em qualifier. Returns an empty string and sets the ok-flag
                  to \c false if there is no entry for the language qualifier.
          */
         std::string toString(const std::string& qualifier) const;
-        long toLong(long n =0) const override;
-        float toFloat(long n =0) const override;
-        Rational toRational(long n =0) const override;
+        virtual long toLong(long n =0) const;
+        virtual float toFloat(long n =0) const;
+        virtual Rational toRational(long n =0) const;
+        /*!
+          @brief Write all elements of the value to \em os, separated by commas.
 
-        /// @brief Write all elements of the value to \em os, separated by commas.
-        /// @note The output of this method cannot directly be used as the parameter for read().
-        std::ostream& write(std::ostream& os) const override;
+          @note The output of this method cannot directly be used as the parameter
+                for read().
+         */
+        virtual std::ostream& write(std::ostream& os) const;
         //@}
 
     private:
         //! Internal virtual copy constructor.
-        LangAltValue* clone_() const override;
+        virtual LangAltValue* clone_() const;
 
     public:
         //! Type used to store language alternative arrays.
@@ -980,7 +987,7 @@ namespace Exiv2 {
     class EXIV2API DateValue : public Value {
     public:
         //! Shortcut for a %DateValue auto pointer.
-        typedef std::unique_ptr<DateValue> UniquePtr;
+        typedef std::auto_ptr<DateValue> AutoPtr;
 
         //! @name Creators
         //@{
@@ -1015,8 +1022,9 @@ namespace Exiv2 {
           @return 0 if successful<BR>
                   1 in case of an unsupported date format
          */
-        int read(const byte* buf, size_t len, ByteOrder byteOrder =invalidByteOrder) override;
-
+        virtual int read(const byte* buf,
+                         long len,
+                         ByteOrder byteOrder =invalidByteOrder);
         /*!
           @brief Set the value to that of the string buf.
 
@@ -1025,15 +1033,14 @@ namespace Exiv2 {
           @return 0 if successful<BR>
                   1 in case of an unsupported date format
          */
-        int read(const std::string& buf) override;
-
+        virtual int read(const std::string& buf);
         //! Set the date
         void setDate(const Date& src);
         //@}
 
         //! @name Accessors
         //@{
-        UniquePtr clone() const { return UniquePtr(clone_()); }
+        AutoPtr clone() const { return AutoPtr(clone_()); }
         /*!
           @brief Write value to a character data buffer.
 
@@ -1047,27 +1054,23 @@ namespace Exiv2 {
           @param byteOrder Byte order. Not used.
           @return Number of characters written.
         */
-        long copy(byte* buf, ByteOrder byteOrder =invalidByteOrder) const override;
-
+        virtual long copy(byte* buf, ByteOrder byteOrder =invalidByteOrder) const;
         //! Return date struct containing date information
-        const Date& getDate() const;
-        long count() const override;
-        long size() const override;
-        std::ostream& write(std::ostream& os) const override;
-
+        virtual const Date& getDate() const;
+        virtual long count() const;
+        virtual long size() const;
+        virtual std::ostream& write(std::ostream& os) const;
         //! Return the value as a UNIX calender time converted to long.
-        long toLong(long n =0) const override;
-
+        virtual long toLong(long n =0) const;
         //! Return the value as a UNIX calender time converted to float.
-        float toFloat(long n =0) const override;
-
+        virtual float toFloat(long n =0) const;
         //! Return the value as a UNIX calender time  converted to Rational.
-        Rational toRational(long n =0) const override;
+        virtual Rational toRational(long n =0) const;
         //@}
 
     private:
         //! Internal virtual copy constructor.
-        DateValue* clone_() const override;
+        virtual DateValue* clone_() const;
 
         // DATA
         Date date_;
@@ -1085,7 +1088,7 @@ namespace Exiv2 {
     class EXIV2API TimeValue : public Value {
     public:
         //! Shortcut for a %TimeValue auto pointer.
-        typedef std::unique_ptr<TimeValue> UniquePtr;
+        typedef std::auto_ptr<TimeValue> AutoPtr;
 
         //! @name Creators
         //@{
@@ -1126,8 +1129,9 @@ namespace Exiv2 {
           @return 0 if successful<BR>
                   1 in case of an unsupported time format
          */
-        int read(const byte* buf, size_t len, ByteOrder byteOrder =invalidByteOrder) override;
-
+        virtual int read(const byte* buf,
+                         long len,
+                         ByteOrder byteOrder =invalidByteOrder);
         /*!
           @brief Set the value to that of the string buf.
 
@@ -1136,15 +1140,14 @@ namespace Exiv2 {
           @return 0 if successful<BR>
                   1 in case of an unsupported time format
          */
-        int read(const std::string& buf) override;
-
+        virtual int read(const std::string& buf);
         //! Set the time
         void setTime(const Time& src);
         //@}
 
         //! @name Accessors
         //@{
-        UniquePtr clone() const { return UniquePtr(clone_()); }
+        AutoPtr clone() const { return AutoPtr(clone_()); }
         /*!
           @brief Write value to a character data buffer.
 
@@ -1158,21 +1161,18 @@ namespace Exiv2 {
           @param byteOrder Byte order. Not used.
           @return Number of characters written.
         */
-        long copy(byte* buf, ByteOrder byteOrder =invalidByteOrder) const override;
+        virtual long copy(byte* buf, ByteOrder byteOrder =invalidByteOrder) const;
         //! Return time struct containing time information
-        const Time& getTime() const;
-        long count() const override;
-        long size() const override;
-        std::ostream& write(std::ostream& os) const override;
-
+        virtual const Time& getTime() const;
+        virtual long count() const;
+        virtual long size() const;
+        virtual std::ostream& write(std::ostream& os) const;
         //! Returns number of seconds in the day in UTC.
-        long toLong(long n =0) const override;
-
+        virtual long toLong(long n =0) const;
         //! Returns number of seconds in the day in UTC converted to float.
-        float toFloat(long n =0) const override;
-
+        virtual float toFloat(long n =0) const;
         //! Returns number of seconds in the day in UTC converted to Rational.
-        Rational toRational(long n =0) const override;
+        virtual Rational toRational(long n =0) const;
         //@}
 
     private:
@@ -1205,7 +1205,7 @@ namespace Exiv2 {
         //! @name Accessors
         //@{
         //! Internal virtual copy constructor.
-        TimeValue* clone_() const override;
+        virtual TimeValue* clone_() const;
         //@}
 
         // DATA
@@ -1244,7 +1244,7 @@ namespace Exiv2 {
     class ValueType : public Value {
     public:
         //! Shortcut for a %ValueType\<T\> auto pointer.
-        typedef std::unique_ptr<ValueType<T> > UniquePtr;
+        typedef std::auto_ptr<ValueType<T> > AutoPtr;
 
         //! @name Creators
         //@{
@@ -1267,45 +1267,45 @@ namespace Exiv2 {
         //@{
         //! Assignment operator.
         ValueType<T>& operator=(const ValueType<T>& rhs);
-        int read(const byte* buf, size_t len, ByteOrder byteOrder) override;
+        virtual int read(const byte* buf, long len, ByteOrder byteOrder);
         /*!
           @brief Set the data from a string of values of type T (e.g.,
                  "0 1 2 3" or "1/2 1/3 1/4" depending on what T is).
                  Generally, the accepted input format is the same as that
                  produced by the write() method.
          */
-        int read(const std::string& buf) override;
+        virtual int read(const std::string& buf);
         /*!
           @brief Set the data area. This method copies (clones) the buffer
                  pointed to by buf.
          */
-        int setDataArea(const byte* buf, size_t len) override;
+        virtual int setDataArea(const byte* buf, long len);
         //@}
 
         //! @name Accessors
         //@{
-        UniquePtr clone() const { return UniquePtr(clone_()); }
-        long copy(byte* buf, ByteOrder byteOrder) const override;
-        long count() const override;
-        long size() const override;
-        std::ostream& write(std::ostream& os) const override;
+        AutoPtr clone() const { return AutoPtr(clone_()); }
+        virtual long copy(byte* buf, ByteOrder byteOrder) const;
+        virtual long count() const;
+        virtual long size() const;
+        virtual std::ostream& write(std::ostream& os) const;
         /*!
           @brief Return the <EM>n</EM>-th component of the value as a string.
                  The behaviour of this method may be undefined if there is no
                  <EM>n</EM>-th
                  component.
          */
-        std::string toString(long n) const override;
-        long toLong(long n =0) const override;
-        float toFloat(long n =0) const override;
-        Rational toRational(long n =0) const override;
+        virtual std::string toString(long n) const;
+        virtual long toLong(long n =0) const;
+        virtual float toFloat(long n =0) const;
+        virtual Rational toRational(long n =0) const;
         //! Return the size of the data area.
-        size_t sizeDataArea() const override;
+        virtual long sizeDataArea() const;
         /*!
           @brief Return a copy of the data area in a DataBuf. The caller owns
                  this copy and DataBuf ensures that it will be deleted.
          */
-        DataBuf dataArea() const override;
+        virtual DataBuf dataArea() const;
         //@}
 
         //! Container for values
@@ -1326,13 +1326,13 @@ namespace Exiv2 {
 
     private:
         //! Internal virtual copy constructor.
-        ValueType<T>* clone_() const override;
+        virtual ValueType<T>* clone_() const;
 
         // DATA
         //! Pointer to the buffer, 0 if none has been allocated
         byte* pDataArea_;
         //! The current size of the buffer
-        size_t sizeDataArea_;
+        long sizeDataArea_;
     }; // class ValueType
 
     //! Unsigned short value type
@@ -1565,13 +1565,13 @@ namespace Exiv2 {
     }
 
     template<typename T>
-    int ValueType<T>::read(const byte* buf, size_t len, ByteOrder byteOrder)
+    int ValueType<T>::read(const byte* buf, long len, ByteOrder byteOrder)
     {
         value_.clear();
-        size_t ts = TypeInfo::typeSize(typeId());
+        long ts = TypeInfo::typeSize(typeId());
         if (ts != 0)
             if (len % ts != 0) len = (len / ts) * ts;
-        for (size_t i = 0; i < len; i += ts) {
+        for (long i = 0; i < len; i += ts) {
             value_.push_back(getValue<T>(buf + i, byteOrder));
         }
         return 0;
@@ -1727,7 +1727,7 @@ namespace Exiv2 {
     }
 
     template<typename T>
-    size_t ValueType<T>::sizeDataArea() const
+    long ValueType<T>::sizeDataArea() const
     {
         return sizeDataArea_;
     }
@@ -1739,7 +1739,7 @@ namespace Exiv2 {
     }
 
     template<typename T>
-    int ValueType<T>::setDataArea(const byte* buf, size_t len)
+    int ValueType<T>::setDataArea(const byte* buf, long len)
     {
         byte* tmp = 0;
         if (len > 0) {
@@ -1752,3 +1752,5 @@ namespace Exiv2 {
         return 0;
     }
 }                                       // namespace Exiv2
+
+#endif                                  // #ifndef VALUE_HPP_

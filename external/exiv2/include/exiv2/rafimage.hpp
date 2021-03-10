@@ -24,7 +24,8 @@
            <a href="mailto:ahuggel@gmx.net">ahuggel@gmx.net</a>
   @date    05-Feb-07, ahu: created
  */
-#pragma once
+#ifndef RAFIMAGE_HPP_
+#define RAFIMAGE_HPP_
 
 // *****************************************************************************
 #include "exiv2lib_export.h"
@@ -43,6 +44,11 @@ namespace Exiv2 {
 
 // *****************************************************************************
 // class definitions
+
+    // Add RAF to the supported image formats
+    namespace ImageType {
+        const int raf = 8;          //!< RAF image type (see class RafImage)
+    }
 
     /*!
       @brief Class to access raw Fujifilm RAF images. Exif metadata is
@@ -67,47 +73,52 @@ namespace Exiv2 {
           @param create Specifies if an existing image should be read (false)
               or if a new file should be created (true).
          */
-        RafImage(BasicIo::UniquePtr io, bool create);
+        RafImage(BasicIo::AutoPtr io, bool create);
         //@}
 
         //! @name Manipulators
         //@{
-        void printStructure(std::ostream& out, PrintStructureOption option,int depth) override;
-        void readMetadata() override;
+        void printStructure(std::ostream& out, PrintStructureOption option,int depth);
+        void readMetadata();
         /*!
           @brief Todo: Write metadata back to the image. This method is not
               yet implemented. Calling it will throw an Error(kerWritingImageFormatUnsupported).
          */
-        void writeMetadata() override;
+        void writeMetadata();
         /*!
           @brief Todo: Not supported yet, requires writeMetadata(). Calling
               this function will throw an Error(kerInvalidSettingForImage).
          */
-        void setExifData(const ExifData& exifData) override;
+        void setExifData(const ExifData& exifData);
         /*!
           @brief Todo: Not supported yet, requires writeMetadata(). Calling
               this function will throw an Error(kerInvalidSettingForImage).
          */
-        void setIptcData(const IptcData& iptcData) override;
+        void setIptcData(const IptcData& iptcData);
         /*!
           @brief Not supported. RAF format does not contain a comment.
               Calling this function will throw an Error(kerInvalidSettingForImage).
          */
-        void setComment(const std::string& comment) override;
+        void setComment(const std::string& comment);
         //@}
 
         //! @name Accessors
         //@{
-        std::string mimeType() const override;
-        int pixelWidth() const override;
-        int pixelHeight() const override;
+        std::string mimeType() const;
+        int pixelWidth() const;
+        int pixelHeight() const;
         //@}
 
-        RafImage& operator=(const RafImage& rhs) = delete;
-        RafImage& operator=(const RafImage&& rhs) = delete;
-        RafImage(const RafImage& rhs) = delete;
-        RafImage(const RafImage&& rhs) = delete;
-    };  // class RafImage
+    private:
+        //! @name NOT implemented
+        //@{
+        //! Copy constructor
+        RafImage(const RafImage& rhs);
+        //! Assignment operator
+        RafImage& operator=(const RafImage& rhs);
+        //@}
+
+    }; // class RafImage
 
 // *****************************************************************************
 // template, inline and free functions
@@ -119,9 +130,11 @@ namespace Exiv2 {
              Caller owns the returned object and the auto-pointer ensures that
              it will be deleted.
      */
-    EXIV2API Image::UniquePtr newRafInstance(BasicIo::UniquePtr io, bool create);
+    EXIV2API Image::AutoPtr newRafInstance(BasicIo::AutoPtr io, bool create);
 
     //! Check if the file iIo is a RAF image.
     EXIV2API bool isRafType(BasicIo& iIo, bool advance);
 
 }                                       // namespace Exiv2
+
+#endif                                  // #ifndef RAFIMAGE_HPP_

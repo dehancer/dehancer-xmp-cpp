@@ -26,7 +26,8 @@
            <a href="mailto:ahuggel@gmx.net">ahuggel@gmx.net</a>
   @date    02-Apr-04, ahu: created
  */
-#pragma once
+#ifndef SIGMAMN_INT_HPP_
+#define SIGMAMN_INT_HPP_
 
 // *****************************************************************************
 // included header files
@@ -69,3 +70,5 @@ namespace Exiv2 {
     }; // class SigmaMakerNote
 
 }}                                      // namespace Internal, Exiv2
+
+#endif                                  // #ifndef SIGMAMN_INT_HPP_

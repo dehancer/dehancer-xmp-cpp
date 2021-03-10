@@ -31,7 +31,8 @@
            <a href="mailto:caulier dot gilles at gmail dot com">caulier dot gilles at gmail dot com</a>
   @date    06-May-06, gc: submitted
  */
-#pragma once
+#ifndef MINOLTAMN_INT_HPP_
+#define MINOLTAMN_INT_HPP_
 
 // *****************************************************************************
 // included header files
@@ -155,3 +156,5 @@ namespace Exiv2 {
     // TODO: Added shared methods here.
 
 }}                                      // namespace Internal, Exiv2
+
+#endif                                  // #ifndef MINOLTAMN_INT_HPP_

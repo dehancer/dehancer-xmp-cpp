@@ -29,7 +29,8 @@ Email communication with <a href="mailto:caulier dot gilles at gmail dot com">ca
            <a href="mailto:caulier dot gilles at gmail dot com">caulier dot gilles at gmail dot com</a>
   @date    18-Apr-05, ahu: created
  */
-#pragma once
+#ifndef SONYMN_INT_HPP_
+#define SONYMN_INT_HPP_
 
 // *****************************************************************************
 // included header files
@@ -61,6 +62,8 @@ namespace Exiv2 {
         //! Return read-only list of built-in Sony FocusPosition tags
         static const TagInfo* tagListFp();
 
+        static const TagInfo* tagList2010e();
+
         //! @name Print functions for Sony %MakerNote tags
         //@{
         //! Print Sony Camera Model
@@ -74,10 +77,12 @@ namespace Exiv2 {
         static const TagInfo tagInfoCs_[];
         static const TagInfo tagInfoCs2_[];
         static const TagInfo tagInfoFp_[];
-
+        static const TagInfo tagInfo2010e_[];
     }; // class SonyMakerNote
 
     DataBuf sonyTagDecipher(uint16_t, const byte*, uint32_t, TiffComponent* const);
     DataBuf sonyTagEncipher(uint16_t, const byte*, uint32_t, TiffComponent* const);
 
 }}                                      // namespace Internal, Exiv2
+
+#endif                                  // #ifndef SONYMN_INT_HPP_

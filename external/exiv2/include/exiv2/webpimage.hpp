@@ -24,7 +24,8 @@
            <a href="mailto:draekko.software+exiv2@gmail.com">draekko.software+exiv2@gmail.com</a>
   @date    29-Jul-16
  */
-#pragma once
+#ifndef WEBPIMAGE_HPP
+#define WEBPIMAGE_HPP
 
 // *****************************************************************************
 #include "exiv2lib_export.h"
@@ -38,6 +39,11 @@ namespace Exiv2 {
 
 // *****************************************************************************
 // class definitions
+
+    // Add WEBP to the supported image formats
+    namespace ImageType {
+        const int webp = 23; //!< Treating webp as an image type>
+    }
 
     /*!
       @brief Class to access WEBP video files.
@@ -58,43 +64,44 @@ namespace Exiv2 {
               instance after it is passed to this method. Use the Image::io()
               method to get a temporary reference.
          */
-        explicit WebPImage(BasicIo::UniquePtr io);
+        WebPImage(BasicIo::AutoPtr io);
         //@}
 
         //! @name Manipulators
         //@{
-        void readMetadata() override;
-        void writeMetadata() override;
-        void printStructure(std::ostream& out, PrintStructureOption option,int depth) override;
+        void readMetadata();
+        void writeMetadata();
+        void printStructure(std::ostream& out, PrintStructureOption option,int depth);
         //@}
 
         /*!
           @brief Not supported. Calling this function will throw an Error(kerInvalidSettingForImage).
          */
-        void setComment(const std::string& comment) override;
-        void setIptcData(const IptcData& /*iptcData*/) override;
+        void setComment(const std::string& comment);
+        void setIptcData(const IptcData& /*iptcData*/);
 
         //! @name Accessors
         //@{
-        std::string mimeType() const override;
+        std::string mimeType() const;
         //@}
-
-        WebPImage& operator=(const WebPImage& rhs) = delete;
-        WebPImage& operator=(const WebPImage&& rhs) = delete;
-        WebPImage(const WebPImage& rhs) = delete;
-        WebPImage(const WebPImage&& rhs) = delete;
 
     private:
         void doWriteMetadata(BasicIo& outIo);
         //! @name NOT Implemented
         //@{
-        long getHeaderOffset(byte* data, size_t data_size, byte* header, size_t header_size);
-        bool equalsWebPTag(Exiv2::DataBuf& buf, const char* str);
+        long getHeaderOffset(byte *data, long data_size,
+                             byte *header, long header_size);
+        bool equalsWebPTag(Exiv2::DataBuf& buf ,const char* str);
         void debugPrintHex(byte *data, long size);
         void decodeChunks(long filesize);
         void inject_VP8X(BasicIo& iIo, bool has_xmp, bool has_exif,
                          bool has_alpha, bool has_icc, int width,
                          int height);
+
+        //! Copy constructor
+        WebPImage(const WebPImage& rhs);
+        //! Assignment operator
+        WebPImage& operator=(const WebPImage& rhs);
         //@}
 
     private:
@@ -126,9 +133,11 @@ namespace Exiv2 {
           Caller owns the returned object and the auto-pointer ensures that
           it will be deleted.
      */
-    EXIV2API Image::UniquePtr newWebPInstance(BasicIo::UniquePtr io, bool create);
+    EXIV2API Image::AutoPtr newWebPInstance(BasicIo::AutoPtr io, bool create);
 
     //! Check if the file iIo is a WebP Video.
     EXIV2API bool isWebPType(BasicIo& iIo, bool advance);
 
 }                                       // namespace Exiv2
+
+#endif                                  // WEBPIMAGE_HPP

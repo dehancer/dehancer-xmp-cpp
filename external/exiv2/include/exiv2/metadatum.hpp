@@ -28,7 +28,8 @@
            31-Jul-04, brad: isolated as a component<BR>
            23-Aug-04, ahu: added Key
  */
-#pragma once
+#ifndef METADATUM_HPP_
+#define METADATUM_HPP_
 
 // *****************************************************************************
 #include "exiv2lib_export.h"
@@ -54,7 +55,7 @@ namespace Exiv2 {
     class EXIV2API Key {
     public:
         //! Shortcut for a %Key auto pointer.
-        typedef std::unique_ptr<Key> UniquePtr;
+        typedef std::auto_ptr<Key> AutoPtr;
 
         //! @name Creators
         //@{
@@ -86,7 +87,7 @@ namespace Exiv2 {
                  The caller owns this copy and the auto-pointer ensures that it
                  will be deleted.
          */
-        UniquePtr clone() const;
+        AutoPtr clone() const;
         /*!
           @brief Write the key to an output stream. You do not usually have
                  to use this function; it is used for the implementation of
@@ -217,11 +218,11 @@ namespace Exiv2 {
         //! Return the name of the type
         virtual const char* typeName() const =0;
         //! Return the size in bytes of one component of this type
-        virtual size_t typeSize() const =0;
+        virtual long typeSize() const =0;
         //! Return the number of components in the value
-        virtual size_t count() const =0;
+        virtual long count() const =0;
         //! Return the size of the value in bytes
-        virtual size_t size() const =0;
+        virtual long size() const =0;
         //! Return the value as a string.
         virtual std::string toString() const =0;
         /*!
@@ -261,7 +262,7 @@ namespace Exiv2 {
           @return An auto-pointer containing a pointer to a copy (clone) of the
                   value, 0 if the value is not set.
          */
-        virtual Value::UniquePtr getValue() const =0;
+        virtual Value::AutoPtr getValue() const =0;
         /*!
           @brief Return a constant reference to the value.
 
@@ -311,3 +312,5 @@ namespace Exiv2 {
     EXIV2API bool cmpMetadataByKey(const Metadatum& lhs, const Metadatum& rhs);
 
 }                                       // namespace Exiv2
+
+#endif                                  // #ifndef METADATUM_HPP_

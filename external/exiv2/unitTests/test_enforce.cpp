@@ -1,6 +1,7 @@
+#include <exiv2/exiv2.hpp>
 #include <enforce.hpp>
 
-#include <gtest/gtest.h>
+#include "gtestwrapper.h"
 
 #include <stdexcept>
 

@@ -22,6 +22,7 @@ namespace dehancer {
     public:
 
         using CLutBuffer = std::vector<std::uint8_t>;
+        using exiv2_ptr_t = Exiv2::Value::AutoPtr;
 
     public:
 
@@ -53,8 +54,8 @@ namespace dehancer {
                 bool purge_cache = false
         );
         static dehancer::expected<CameraLutXmp,Error> Open(const std::string &path);
-
-        Exiv2::Value::UniquePtr get_value(const std::string &key) const ;
+    
+        exiv2_ptr_t get_value(const std::string &key) const ;
         const std::vector<std::string> & get_key_list() const;
 
         time_t get_datetime() const ;
@@ -81,7 +82,7 @@ namespace dehancer {
         CameraLutXmp():path_(),cache_dir_(){};
         std::string path_;
         std::string cache_dir_;
-        std::map<std::string, Exiv2::Value::UniquePtr> meta_;
+        std::map<std::string, exiv2_ptr_t> meta_;
         CLutBuffer clut_;
         std::vector<dehancer::License::Type> license_matrix_;
 

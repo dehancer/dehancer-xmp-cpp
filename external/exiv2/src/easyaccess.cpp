@@ -161,6 +161,7 @@ namespace Exiv2 {
             // pick up list of ISO tags, and check for at least one of
             // them available.
             const SensKeyNameList *sensKeys = &sensitivityKey[st_val - 1];
+            md_st = ed.end();
             for (int idx = 0; idx < sensKeys->count; md_st = ed.end()) {
                 md_st = findMetadatum(ed, const_cast<const char**>(sensKeys->keys), sensKeys->count);
                 if (md_st == ed.end())
@@ -180,6 +181,15 @@ namespace Exiv2 {
         }
 
         return md;
+    }
+
+    ExifData::const_iterator dateTimeOriginal(const ExifData& ed)
+    {
+        static const char* keys[] = {
+            "Exif.Photo.DateTimeOriginal",
+            "Exif.Image.DateTimeOriginal"
+        };
+        return findMetadatum(ed, keys, EXV_COUNTOF(keys));
     }
 
     ExifData::const_iterator flashBias(const ExifData& ed)
@@ -460,6 +470,51 @@ namespace Exiv2 {
         return findMetadatum(ed, keys, EXV_COUNTOF(keys));
     }
 
+    ExifData::const_iterator shutterSpeedValue(const ExifData& ed)
+    {
+        static const char* keys[] = {
+            "Exif.Photo.ShutterSpeedValue",
+            "Exif.Image.ShutterSpeedValue"
+        };
+        return findMetadatum(ed, keys, EXV_COUNTOF(keys));
+    }
+
+    ExifData::const_iterator apertureValue(const ExifData& ed)
+    {
+        static const char* keys[] = {
+            "Exif.Photo.ApertureValue",
+            "Exif.Image.ApertureValue"
+        };
+        return findMetadatum(ed, keys, EXV_COUNTOF(keys));
+    }
+
+    ExifData::const_iterator brightnessValue(const ExifData& ed)
+    {
+        static const char* keys[] = {
+            "Exif.Photo.BrightnessValue",
+            "Exif.Image.BrightnessValue"
+        };
+        return findMetadatum(ed, keys, EXV_COUNTOF(keys));
+    }
+
+    ExifData::const_iterator exposureBiasValue(const ExifData& ed)
+    {
+        static const char* keys[] = {
+            "Exif.Photo.ExposureBiasValue",
+            "Exif.Image.ExposureBiasValue"
+        };
+        return findMetadatum(ed, keys, EXV_COUNTOF(keys));
+    }
+
+    ExifData::const_iterator maxApertureValue(const ExifData& ed)
+    {
+        static const char* keys[] = {
+            "Exif.Photo.MaxApertureValue",
+            "Exif.Image.MaxApertureValue"
+        };
+        return findMetadatum(ed, keys, EXV_COUNTOF(keys));
+    }
+
     ExifData::const_iterator subjectDistance(const ExifData& ed)
     {
         static const char* keys[] = {
@@ -477,6 +532,24 @@ namespace Exiv2 {
             "Exif.OlympusFi.FocusDistance",
             "Exif.Casio.ObjectDistance",
             "Exif.Casio2.ObjectDistance"
+        };
+        return findMetadatum(ed, keys, EXV_COUNTOF(keys));
+    }
+
+    ExifData::const_iterator lightSource(const ExifData& ed)
+    {
+        static const char* keys[] = {
+            "Exif.Photo.LightSource",
+            "Exif.Image.LightSource"
+        };
+        return findMetadatum(ed, keys, EXV_COUNTOF(keys));
+    }
+
+    ExifData::const_iterator flash(const ExifData& ed)
+    {
+        static const char* keys[] = {
+            "Exif.Photo.Flash",
+            "Exif.Image.Flash"
         };
         return findMetadatum(ed, keys, EXV_COUNTOF(keys));
     }
@@ -507,6 +580,42 @@ namespace Exiv2 {
             "Exif.Pentax.FocalLength",
             "Exif.PentaxDng.FocalLength",
             "Exif.Casio2.FocalLength"
+        };
+        return findMetadatum(ed, keys, EXV_COUNTOF(keys));
+    }
+
+    ExifData::const_iterator subjectArea(const ExifData& ed)
+    {
+        static const char* keys[] = {
+            "Exif.Photo.SubjectArea",
+            "Exif.Image.SubjectLocation"
+        };
+        return findMetadatum(ed, keys, EXV_COUNTOF(keys));
+    }
+
+    ExifData::const_iterator flashEnergy(const ExifData& ed)
+    {
+        static const char* keys[] = {
+            "Exif.Photo.FlashEnergy",
+            "Exif.Image.FlashEnergy"
+        };
+        return findMetadatum(ed, keys, EXV_COUNTOF(keys));
+    }
+
+    ExifData::const_iterator exposureIndex(const ExifData& ed)
+    {
+        static const char* keys[] = {
+            "Exif.Photo.ExposureIndex",
+            "Exif.Image.ExposureIndex"
+        };
+        return findMetadatum(ed, keys, EXV_COUNTOF(keys));
+    }
+
+    ExifData::const_iterator sensingMethod(const ExifData& ed)
+    {
+        static const char* keys[] = {
+            "Exif.Photo.SensingMethod",
+            "Exif.Image.SensingMethod"
         };
         return findMetadatum(ed, keys, EXV_COUNTOF(keys));
     }

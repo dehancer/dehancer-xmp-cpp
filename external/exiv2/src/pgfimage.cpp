@@ -82,8 +82,8 @@ namespace Exiv2 {
         return result;
     }
 
-    PgfImage::PgfImage(BasicIo::UniquePtr io, bool create)
-            : Image(ImageType::pgf, mdExif | mdIptc| mdXmp | mdComment, std::move(io))
+    PgfImage::PgfImage(BasicIo::AutoPtr io, bool create)
+            : Image(ImageType::pgf, mdExif | mdIptc| mdXmp | mdComment, io)
             , bSwap_(isBigEndianPlatform())
     {
         if (create)
@@ -134,7 +134,7 @@ namespace Exiv2 {
         enforce(headerSize + 8 <= static_cast<uint32_t>(std::numeric_limits<long>::max()),
                 kerCorruptedMetadata);
 #endif
-        int64 size = static_cast<int64>(headerSize) + 8 - io_->tell();
+        long size = static_cast<long>(headerSize) + 8 - io_->tell();
 
 #ifdef EXIV2_DEBUG_MESSAGES
         std::cout << "Exiv2::PgfImage::readMetadata: Found Image data (" << size << " bytes)\n";
@@ -145,11 +145,11 @@ namespace Exiv2 {
 
         DataBuf imgData(size);
         std::memset(imgData.pData_, 0x0, imgData.size_);
-        size_t bufRead = io_->read(imgData.pData_, imgData.size_);
+        long bufRead = io_->read(imgData.pData_, imgData.size_);
         if (io_->error()) throw Error(kerFailedToReadImageData);
         if (bufRead != imgData.size_) throw Error(kerInputDataReadFailed);
 
-        Image::UniquePtr image = Exiv2::ImageFactory::open(imgData.pData_, imgData.size_);
+        Image::AutoPtr image = Exiv2::ImageFactory::open(imgData.pData_, imgData.size_);
         image->readMetadata();
         exifData() = image->exifData();
         iptcData() = image->iptcData();
@@ -164,7 +164,7 @@ namespace Exiv2 {
             throw Error(kerDataSourceOpenFailed, io_->path(), strError());
         }
         IoCloser closer(*io_);
-        BasicIo::UniquePtr tempIo(new MemIo);
+        BasicIo::AutoPtr tempIo(new MemIo);
         assert (tempIo.get() != 0);
 
         doWriteMetadata(*tempIo); // may throw
@@ -198,14 +198,14 @@ namespace Exiv2 {
         int w, h;
         DataBuf header      = readPgfHeaderStructure(*io_, w, h);
 
-        Image::UniquePtr img  = ImageFactory::create(ImageType::png);
+        Image::AutoPtr img  = ImageFactory::create(ImageType::png);
 
         img->setExifData(exifData_);
         img->setIptcData(iptcData_);
         img->setXmpData(xmpData_);
         img->writeMetadata();
-        size_t imgSize = img->io().size();
-        DataBuf imgBuf = img->io().read((long)imgSize);
+        long    imgSize  = (long) img->io().size();
+        DataBuf imgBuf   = img->io().read(imgSize);
 
 #ifdef EXIV2_DEBUG_MESSAGES
         std::cout << "Exiv2::PgfImage::doWriteMetadata: Creating image to host metadata (" << imgSize << " bytes)\n";
@@ -220,7 +220,7 @@ namespace Exiv2 {
         if (outIo.putb(mnb) == EOF) throw Error(kerImageWriteFailed);
 
         // Write new Header size.
-        size_t newHeaderSize = header.size_ + imgSize;
+        uint32_t newHeaderSize = header.size_ + imgSize;
         DataBuf buffer(4);
         memcpy (buffer.pData_, &newHeaderSize, 4);
         byteSwap_(buffer,0,bSwap_);
@@ -244,7 +244,7 @@ namespace Exiv2 {
         // Copy the rest of PGF image data.
 
         DataBuf buf(4096);
-        size_t readSize = 0;
+        long readSize = 0;
         while ((readSize=io_->read(buf.pData_, buf.size_)))
         {
             if (outIo.write(buf.pData_, readSize) != readSize) throw Error(kerImageWriteFailed);
@@ -272,7 +272,7 @@ namespace Exiv2 {
     uint32_t PgfImage::readPgfHeaderSize(BasicIo& iIo)
     {
         DataBuf buffer(4);
-        size_t bufRead = iIo.read(buffer.pData_, buffer.size_);
+        long bufRead = iIo.read(buffer.pData_, buffer.size_);
         if (iIo.error()) throw Error(kerFailedToReadImageData);
         if (bufRead != buffer.size_) throw Error(kerInputDataReadFailed);
 
@@ -289,7 +289,7 @@ namespace Exiv2 {
     DataBuf PgfImage::readPgfHeaderStructure(BasicIo& iIo, int& width, int& height)
     {
         DataBuf header(16);
-        size_t bufRead = iIo.read(header.pData_, header.size_);
+        long bufRead = iIo.read(header.pData_, header.size_);
         if (iIo.error()) throw Error(kerFailedToReadImageData);
         if (bufRead != header.size_) throw Error(kerInputDataReadFailed);
 
@@ -320,9 +320,9 @@ namespace Exiv2 {
 
     // *************************************************************************
     // free functions
-    Image::UniquePtr newPgfInstance(BasicIo::UniquePtr io, bool create)
+    Image::AutoPtr newPgfInstance(BasicIo::AutoPtr io, bool create)
     {
-        Image::UniquePtr image(new PgfImage(std::move(io), create));
+        Image::AutoPtr image(new PgfImage(io, create));
         if (!image->good())
         {
             image.reset();

@@ -30,7 +30,8 @@
            <a href="mailto:caulier dot gilles at gmail dot com">caulier dot gilles at gmail dot com</a>
   @date    11-Feb-04, ahu: created
  */
-#pragma once
+#ifndef FUJIMN_INT_HPP_
+#define FUJIMN_INT_HPP_
 
 // *****************************************************************************
 // included header files
@@ -58,3 +59,5 @@ namespace Exiv2 {
     }; // class FujiMakerNote
 
 }}                                      // namespace Internal, Exiv2
+
+#endif                                  // #ifndef FUJIMN_INT_HPP_

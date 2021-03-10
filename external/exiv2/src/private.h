@@ -2,7 +2,9 @@
   @file    private.h
   @brief   This file is from the tz distribution at ftp://elsie.nci.nih.gov/pub/
 */
-#pragma once
+#ifndef PRIVATE_H
+
+#define PRIVATE_H
 
 /*
 ** This file is in the public domain, so clarified as of
@@ -45,7 +47,7 @@ static char	privatehid[] = "@(#)private.h	7.53";
 #include "string.h"
 #include "limits.h"	/* for CHAR_BIT */
 #include "time.h"
-#include <stdlib.h>
+#include "stdlib.h"
 
 /* ahu: added io.h for MSVC */
 #ifdef _MSC_VER
@@ -203,3 +205,5 @@ char *ctime_r P((time_t const *, char *));
 /*
 ** UNIX was a registered trademark of The Open Group in 2003.
 */
+
+#endif /* !defined PRIVATE_H */

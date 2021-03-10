@@ -23,7 +23,8 @@
   Author(s): Gilles Caulier (gc) <caulier.gilles@kdemail.net>
   History:   01-Nov-06, gc: created
  */
-#pragma once
+#ifndef I18N_H_
+#define I18N_H_
 
 #include "config.h"
 
@@ -43,3 +44,5 @@ EXIV2API const char* _exvGettext(const char* str);
 # define N_(String) String
 
 #endif /* EXV_ENABLE_NLS */
+
+#endif /* I18N_H_ */

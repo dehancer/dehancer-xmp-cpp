@@ -1,6 +1,6 @@
 #include <safe_op.hpp>
 
-#include <gtest/gtest.h>
+#include "gtestwrapper.h"
 
 namespace si = Safe::Internal;
 

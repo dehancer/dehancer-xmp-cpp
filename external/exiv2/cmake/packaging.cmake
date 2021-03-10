@@ -1,5 +1,5 @@
 set(CPACK_PACKAGE_NAME "${PROJECT_NAME}")
-set(CPACK_PACKAGE_CONTACT "Luis Díaz Más <piponazo@gmail.com>")
+set(CPACK_PACKAGE_CONTACT "Luis DÃ­az MÃ¡s <piponazo@gmail.com>")
 set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
 
 set(CPACK_SOURCE_GENERATOR TGZ)
@@ -9,7 +9,7 @@ set(CPACK_SOURCE_IGNORE_FILES $(CPACK_SOURCE_IGNORE_FILES) "/.git/" "/build/" "\
 if ( MSVC )
     set(CPACK_GENERATOR ZIP)  # use .zip - less likely to damage bin/exiv2.dll permissions
 else()
-    set(CPACK_GENERATOR TGZ)  # MinGW/Cygwin/Linux/macOS etc. use .tar.gz
+    set(CPACK_GENERATOR TGZ)  # MinGW/Cygwin/Linux/macOS etc use .tar.gz
 endif()
 
 set (BS "") # Bit Size
@@ -41,14 +41,14 @@ elseif ( APPLE )
     set (PACKDIR Darwin)
 elseif ( LINUX )
     set (PACKDIR Linux)
-elseif ( CMAKE_SYSTEM_NAME STREQUAL "NetBSD" OR CMAKE_SYSTEM_NAME STREQUAL "FreeBSD" )
+elseif ( CMAKE_SYSTEM_NAME STREQUAL "NetBSD" OR CMAKE_SYSTEM_NAME STREQUAL "FreeBSD" OR CMAKE_HOST_SOLARIS)
     set (PACKDIR Unix)
 else()
     set (PACKDIR Linux) # Linux and unsupported systems
 endif()
 
 set (BUNDLE_NAME ${PACKDIR})
-if ( CMAKE_SYSTEM_NAME STREQUAL "NetBSD" OR CMAKE_SYSTEM_NAME STREQUAL "FreeBSD" )
+if ( CMAKE_SYSTEM_NAME STREQUAL "NetBSD" OR CMAKE_SYSTEM_NAME STREQUAL "FreeBSD" OR CMAKE_HOST_SOLARIS )
     set (BUNDLE_NAME ${CMAKE_SYSTEM_NAME})
 endif()
 
@@ -57,6 +57,11 @@ if ( NOT APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL "FreeBSD" )
   if (${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
     set (CC Clang)
   endif()
+endif()
+
+set (VI "") # Video
+if ( EXIV2_ENABLE_VIDEO )
+    set (VI Video)
 endif()
 
 set (WR "") # WebReady
@@ -84,17 +89,46 @@ if ( MSVC )
     endif()
 endif()
 
+# Set RC = Release Candidate from TWEAK
+if ( PROJECT_VERSION_TWEAK STREQUAL "" )
+	set(RC "GM For Release")
+else()
+	string(FIND "${PROJECT_VERSION_TWEAK}" 0 PREVIEW_RELEASE ) # 0.27.3.10 => RC1 Preview
+	string(FIND "${PROJECT_VERSION_TWEAK}" 9 NOT_FOR_RELEASE ) # 0.27.3.19 => RC1 Not for release
+	string(SUBSTRING ${PROJECT_VERSION_TWEAK} 0 1 RC)
+	if ( RC STREQUAL "0" )
+	    set(RC,"")
+	else()
+	   set (RC "RC${RC}")
+	endif()
+	if ( PREVIEW_RELEASE STREQUAL "1" )
+		set (RC "${RC} Preview")
+		set (PREVIEW_RELEASE 1)
+	else()
+		set (PREVIEW_RELEASE 0)
+	endif()
+	if ( NOT_FOR_RELEASE STREQUAL "1" )
+		set (RC "${RC} Not for release")
+		set (NOT_FOR_RELEASE 1)
+	else()
+		set (NOT_FOR_RELEASE 0)
+	endif()
+endif()
+
+# Set RV = Release Version
+set(RV "Exiv2 v${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
+
 set(CPACK_PACKAGE_FILE_NAME ${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${VS}${BUNDLE_NAME}${BS}${CC}${LT}${BT}${VI}${WR})
 
 # https://stackoverflow.com/questions/17495906/copying-files-and-including-them-in-a-cpack-archive
 install(FILES     "${PROJECT_SOURCE_DIR}/samples/exifprint.cpp" DESTINATION "samples")
-install(DIRECTORY "${PROJECT_SOURCE_DIR}/contrib/"              DESTINATION "contrib")
 
 # Copy top level documents (eg README.md)
 # https://stackoverflow.com/questions/21541707/cpack-embed-text-files
 set( DOCS
      README.md
      README-CONAN.md
+     README-SAMPLES.md
      COPYING
      exiv2.png
 )
@@ -102,16 +136,24 @@ foreach(doc ${DOCS})
     install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/${doc} DESTINATION .)
 endforeach()
 
-# copy build/test logs which are only present on Jenkins builds
+# copy build/log which which is present if built by build.sh
 if(EXISTS ${PROJECT_SOURCE_DIR}/build/logs/build.txt)
     install(FILES ${PROJECT_SOURCE_DIR}/build/logs/build.txt DESTINATION "logs")
 endif()
-if(EXISTS ${PROJECT_SOURCE_DIR}/build/logs/test.txt)
-    install(FILES ${PROJECT_SOURCE_DIR}/build/logs/test.txt  DESTINATION "logs")
-endif()
 
 # Copy releasenotes.txt and appropriate ReadMe.txt (eg releasenotes/${PACKDIR}/ReadMe.txt)
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/releasenotes/${PACKDIR}/ReadMe.txt DESTINATION .)
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/releasenotes/releasenotes.txt      DESTINATION .)
+set(VM   ${PROJECT_VERSION_MAJOR})           # Version Major  0
+set(VN   ${PROJECT_VERSION_MINOR})           # Version Minor 27
+set(VD   ${PROJECT_VERSION_PATCH})           # Version Dot    3
+set(VR  .${PROJECT_VERSION_TWEAK})           # Version RC    .1
+if (     PREVIEW_RELEASE )
+    set(VR " Preview")
+elseif ( NOT_FOR_RELEASE )
+    set(VR " Not for release")
+endif()
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/releasenotes/${PACKDIR}/ReadMe.txt ReadMe.txt       @ONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/releasenotes/releasenotes.txt      releasenotes.txt @ONLY)
+install       (FILES  ${CMAKE_CURRENT_BINARY_DIR}/ReadMe.txt ${CMAKE_CURRENT_BINARY_DIR}/releasenotes.txt DESTINATION .)
 
 include (CPack)

@@ -25,7 +25,8 @@
   @date    15-Jan-04, ahu: created<BR>
            11-Feb-04, ahu: isolated as a component
  */
-#pragma once
+#ifndef TAGS_INT_HPP_
+#define TAGS_INT_HPP_
 
 // *****************************************************************************
 // included header files
@@ -73,14 +74,40 @@ namespace Exiv2 {
         panaRawId,
         mnId,
         canonId,
+        canonAf2Id,
+        canonAf3Id,
+        canonAfCId,
+        canonAfMiAdjId,
+        canonAmId,
+        canonAsId,
+        canonCbId,
+        canonCiId,
         canonCsId,
+        canonFilId,
+        canonFlId,
+        canonHdrId,
+        canonLeId,
+        canonMeId,
+        canonMoID,
+        canonMvId,
+        canonRawBId,
         canonSiId,
-        canonCfId,
+        canonCfId,             
+        canonContrastId,
+        canonFcd1Id,
+        canonFcd2Id,
+        canonFcd3Id,
+        canonLiOpId,
+        canonMyColorID,
         canonPiId,
         canonPaId,
         canonTiId,
         canonFiId,
         canonPrId,
+        canonPreID,
+        canonVigCorId,
+        canonVigCor2Id,
+        canonWbId,
         casioId,
         casio2Id,
         fujiId,
@@ -115,6 +142,7 @@ namespace Exiv2 {
         nikonLd1Id,
         nikonLd2Id,
         nikonLd3Id,
+        nikonLd4Id,
         nikonCb1Id,
         nikonCb2Id,
         nikonCb2aId,
@@ -154,10 +182,12 @@ namespace Exiv2 {
         sony2CsId,
         sony2Cs2Id,
         sony2FpId,
+        sony2010eId,
         sony1MltCs7DId,
         sony1MltCsOldId,
         sony1MltCsNewId,
         sony1MltCsA100Id,
+        tagInfoMvId,
         lastId,
         ignoreId = lastId
     };
@@ -167,10 +197,26 @@ namespace Exiv2 {
              of nothing more than a name, based on the Exif standard.
      */
     enum SectionId { sectionIdNotSet,
-                     imgStruct, recOffset, imgCharacter, otherTags, exifFormat,
-                     exifVersion, imgConfig, userInfo, relatedFile, dateTime,
-                     captureCond, gpsTags, iopTags, mpfTags, makerTags, dngTags, panaRaw,
-                     tiffEp, tiffPm6, adobeOpi,
+                     imgStruct,     // 4.6.4 A
+                     recOffset,     // 4.6.4 B
+                     imgCharacter,  // 4.6.4 C
+                     otherTags,     // 4.6.4 D
+                     exifFormat,    // 4.6.3
+                     exifVersion,   // 4.6.5 A
+                     imgConfig,     // 4.6.5 C
+                     userInfo,      // 4.6.5 D
+                     relatedFile,   // 4.6.5 E
+                     dateTime,      // 4.6.5 F
+                     captureCond,   // 4.6.5 G
+                     gpsTags,       // 4.6.6
+                     iopTags,       // 4.6.7
+                     mpfTags,
+                     makerTags,     // MakerNote
+                     dngTags,       // DNG Spec
+                     panaRaw,
+                     tiffEp,        // TIFF-EP Spec
+                     tiffPm6,
+                     adobeOpi,
                      lastSectionId };
 
     //! The details of a section.
@@ -402,8 +448,6 @@ namespace Exiv2 {
     std::ostream& print0x9208(std::ostream& os, const Value& value, const ExifData*);
     //! Print the actual focal length of the lens
     std::ostream& print0x920a(std::ostream& os, const Value& value, const ExifData*);
-    //! Print the user comment
-    std::ostream& print0x9286(std::ostream& os, const Value& value, const ExifData*);
     //! Print color space
     std::ostream& print0xa001(std::ostream& os, const Value& value, const ExifData*);
     //! Print sensing method
@@ -451,3 +495,5 @@ namespace Exiv2 {
     URational exposureTime(float shutterSpeedValue);
 
 }}                                      // namespace Internal, Exiv2
+
+#endif                                  // #ifndef TAGS_INT_HPP_

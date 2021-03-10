@@ -25,7 +25,8 @@
   @date    31-Jul-07, costlow: created
            23-Apr-08, ahu: Moved to _int file
  */
-#pragma once
+#ifndef ORFIMAGE_INT_HPP_
+#define ORFIMAGE_INT_HPP_
 
 // *****************************************************************************
 // included header files
@@ -55,12 +56,12 @@ namespace Exiv2 {
 
         //! @name Manipulators
         //@{
-        bool read(const byte* pData, size_t size) override;
+        bool read(const byte* pData, uint32_t size);
         //@}
 
         //! @name Accessors
         //@{
-        DataBuf write() const override;
+        DataBuf write() const;
         //@}
     private:
         // DATA
@@ -68,3 +69,5 @@ namespace Exiv2 {
     }; // class OrfHeader
 
 }}                                      // namespace Internal, Exiv2
+
+#endif                                  // #ifndef ORFIMAGE_INT_HPP_

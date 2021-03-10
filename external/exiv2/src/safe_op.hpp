@@ -25,7 +25,8 @@
   @date    14-Dec-17, D4N: created
  */
 
-#pragma once
+#ifndef SAFE_OP_HPP_
+#define SAFE_OP_HPP_
 
 #include <limits>
 #include <stdexcept>
@@ -323,7 +324,7 @@ namespace Safe
      *          when `num == std::numeric_limits<T>::min()`.
      */
     template <typename T>
-    typename Internal::enable_if<Internal::is_signed<T>::VALUE, T>::type abs(T num) noexcept
+    typename Internal::enable_if<Internal::is_signed<T>::VALUE, T>::type abs(T num) throw()
     {
         if (num == std::numeric_limits<T>::min()) {
             return std::numeric_limits<T>::max();
@@ -332,3 +333,5 @@ namespace Safe
     }
 
 }  // namespace Safe
+
+#endif  // SAFE_OP_HPP_

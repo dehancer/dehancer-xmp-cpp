@@ -33,7 +33,7 @@ try {
     }
     std::string file(argv[1]);
 
-    Exiv2::Image::UniquePtr image = Exiv2::ImageFactory::open(file);
+    Exiv2::Image::AutoPtr image = Exiv2::ImageFactory::open(file);
     assert (image.get() != 0);
     image->readMetadata();
 
@@ -106,7 +106,7 @@ catch (Exiv2::AnyError& e) {
 
 void write(const std::string& file, Exiv2::ExifData& ed)
 {
-    Exiv2::Image::UniquePtr image = Exiv2::ImageFactory::open(file);
+    Exiv2::Image::AutoPtr image = Exiv2::ImageFactory::open(file);
     assert (image.get() != 0);
     image->setExifData(ed);
     image->writeMetadata();
@@ -114,7 +114,7 @@ void write(const std::string& file, Exiv2::ExifData& ed)
 
 void print(const std::string& file)
 {
-    Exiv2::Image::UniquePtr image = Exiv2::ImageFactory::open(file);
+    Exiv2::Image::AutoPtr image = Exiv2::ImageFactory::open(file);
     assert (image.get() != 0);
     image->readMetadata();
 
@@ -132,7 +132,7 @@ void print(const std::string& file)
                   << std::dec << std::setw(3)
                   << std::setfill(' ') << std::right
                   << i->count() << " "
-                  << std::dec << i->value()
+                  << std::dec << i->toString()
                   << "\n";
     }
 }

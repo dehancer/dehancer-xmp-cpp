@@ -24,7 +24,8 @@
            <a href="mailto:ahuggel@gmx.net">ahuggel@gmx.net</a>
   @date    24-Jun-06, ahu: created
  */
-#pragma once
+#ifndef TIFFFWD_INT_HPP_
+#define TIFFFWD_INT_HPP_
 
 // *****************************************************************************
 // included header files
@@ -101,10 +102,10 @@ namespace Exiv2 {
     );
     /*!
       @brief Type for a function pointer for a function to create a TIFF component.
-             Use TiffComponent::UniquePtr, it is not used in this declaration only
+             Use TiffComponent::AutoPtr, it is not used in this declaration only
              to reduce dependencies.
      */
-    typedef std::unique_ptr<TiffComponent> (*NewTiffCompFct)(uint16_t tag, IfdId group);
+    typedef std::auto_ptr<TiffComponent> (*NewTiffCompFct)(uint16_t tag, IfdId group);
 
     //! Stack to hold a path from the TIFF root element to a TIFF entry
     typedef std::stack<TiffPathItem> TiffPath;
@@ -113,3 +114,5 @@ namespace Exiv2 {
     typedef std::vector<IfdId> PrimaryGroups;
 
 }}                                      // namespace Internal, Exiv2
+
+#endif                                  // #ifndef TIFFFWD_INT_HPP_

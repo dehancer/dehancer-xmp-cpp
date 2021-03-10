@@ -24,7 +24,8 @@
            <a href="mailto:ahuggel@gmx.net">ahuggel@gmx.net</a>
   @date    22-Apr-06, ahu: created
  */
-#pragma once
+#ifndef CR2IMAGE_HPP_
+#define CR2IMAGE_HPP_
 
 // *****************************************************************************
 #include "exiv2lib_export.h"
@@ -38,6 +39,11 @@ namespace Exiv2 {
 
 // *****************************************************************************
 // class definitions
+
+    // Add CR2 to the supported image formats
+    namespace ImageType {
+        const int cr2 = 7;          //!< CR2 image type (see class Cr2Image)
+    }
 
     /*!
       @brief Class to access raw Canon CR2 images.  Exif metadata
@@ -62,38 +68,43 @@ namespace Exiv2 {
           @param create Specifies if an existing image should be read (false)
               or if a new file should be created (true).
          */
-        Cr2Image(BasicIo::UniquePtr io, bool create);
+        Cr2Image(BasicIo::AutoPtr io, bool create);
         //@}
 
         //! @name Manipulators
         //@{
-        void readMetadata() override;
-        void writeMetadata() override;
+        void readMetadata();
+        void writeMetadata();
         /*!
           @brief Print out the structure of image file.
           @throw Error if reading of the file fails or the image data is
                 not valid (does not look like data of the specific image type).
           @warning This function is not thread safe and intended for exiv2 -pS for debugging.
          */
-        void printStructure(std::ostream& out, PrintStructureOption option,int depth) override;
+        void printStructure(std::ostream& out, PrintStructureOption option,int depth);
         /*!
           @brief Not supported. CR2 format does not contain a comment.
               Calling this function will throw an Error(kerInvalidSettingForImage).
          */
-        void setComment(const std::string& comment) override;
+        void setComment(const std::string& comment);
         //@}
 
         //! @name Accessors
         //@{
-        std::string mimeType() const override;
-        int pixelWidth() const override;
-        int pixelHeight() const override;
+        std::string mimeType() const;
+        int pixelWidth() const;
+        int pixelHeight() const;
         //@}
 
-        Cr2Image& operator=(const Cr2Image& rhs) = delete;
-        Cr2Image& operator=(const Cr2Image&& rhs) = delete;
-        Cr2Image(const Cr2Image& rhs) = delete;
-        Cr2Image(const Cr2Image&& rhs) = delete;
+    private:
+        //! @name NOT implemented
+        //@{
+        //! Copy constructor
+        Cr2Image(const Cr2Image& rhs);
+        //! Assignment operator
+        Cr2Image& operator=(const Cr2Image& rhs);
+        //@}
+
     }; // class Cr2Image
 
     /*!
@@ -141,9 +152,11 @@ namespace Exiv2 {
              Caller owns the returned object and the auto-pointer ensures that
              it will be deleted.
      */
-    EXIV2API Image::UniquePtr newCr2Instance(BasicIo::UniquePtr io, bool create);
+    EXIV2API Image::AutoPtr newCr2Instance(BasicIo::AutoPtr io, bool create);
 
     //! Check if the file iIo is a CR2 image.
     EXIV2API bool isCr2Type(BasicIo& iIo, bool advance);
 
 }                                       // namespace Exiv2
+
+#endif                                  // #ifndef CR2IMAGE_HPP_

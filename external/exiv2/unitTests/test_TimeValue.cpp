@@ -1,6 +1,6 @@
 #include "value.hpp"
 
-#include <gtest/gtest.h>
+#include "gtestwrapper.h"
 
 using namespace Exiv2;
 

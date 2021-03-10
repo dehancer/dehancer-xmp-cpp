@@ -1,4 +1,5 @@
-#pragma once
+#ifndef HTTP_HPP_
+#define HTTP_HPP_
 
 #include "exiv2lib_export.h"
 
@@ -17,3 +18,5 @@ namespace Exiv2 {
     */
     EXIV2API int http(Exiv2::Dictionary& request,Exiv2::Dictionary& response,std::string& errors);
 }
+
+#endif

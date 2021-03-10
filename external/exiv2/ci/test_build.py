@@ -40,8 +40,8 @@ def matrix_build(shared_libs, ccs, build_types, cmake_bin, cmake_options,
         )
         os.mkdir(cwd)
 
-        cmake = "{cmake_bin} {!s} -DCMAKE_BUILD_TYPE={build_type} " \
-            "-DBUILD_SHARED_LIBS={lib_type} -DEXIV2_BUILD_UNIT_TESTS={tests} "\
+        cmake = "{cmake_bin} {!s} -DCMAKE_BUILD_TYPE={build_type} -DCMAKE_CXX_FLAGS=-Wno-deprecated " \
+            "-DBUILD_SHARED_LIBS={lib_type} -DEXIV2_BUILD_UNIT_TESTS={tests} -DCMAKE_CXX_STANDARD=98 "\
             "../..".format(
                 cmake_options, cmake_bin=cmake_bin, build_type=build_type,
                 lib_type=lib_type, tests="ON" if tests else "OFF"
@@ -49,7 +49,6 @@ def matrix_build(shared_libs, ccs, build_types, cmake_bin, cmake_options,
         make = "make -j " + str(NCPUS)
         make_tests = "make tests"
         unit_test_binary = os.path.join(cwd, "bin", "unit_tests")
-        ccache_summary = "ccache -s"
 
         # set compiler via environment only when requested
         env_copy = os.environ.copy()
@@ -71,8 +70,6 @@ def matrix_build(shared_libs, ccs, build_types, cmake_bin, cmake_options,
         if tests:
             run(make_tests)
             run(unit_test_binary)
-        if '-DBUILD_WITH_CCACHE=ON' in cmake:
-            run(ccache_summary)
 
 
 if __name__ == '__main__':
@@ -119,8 +116,9 @@ if __name__ == '__main__':
         help="Additional flags for cmake",
         type=str,
         nargs='?',
-        default="-DEXIV2_TEAM_EXTRA_WARNINGS=ON -DEXIV2_ENABLE_WEBREADY=ON"
-        " -DBUILD_WITH_CCACHE=ON -DEXIV2_ENABLE_CURL=ON"
+        default="-DEXIV2_TEAM_EXTRA_WARNINGS=ON -DEXIV2_ENABLE_VIDEO=ON "
+        "-DEXIV2_ENABLE_WEBREADY=ON -DEXIV2_BUILD_UNIT_TESTS=ON -DEXIV2_ENABLE_BMFF=ON "
+        "-DBUILD_WITH_CCACHE=ON -DEXIV2_ENABLE_CURL=ON"
     )
 
     args = parser.parse_args()
