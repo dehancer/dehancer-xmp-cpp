@@ -32,11 +32,13 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DPRINT_DEBUG -DDEBUG_BUILD=1")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ObjC++ -fvisibility=hidden -Wno-unused-command-line-argument")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ObjC++ -Wno-unused-command-line-argument")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -Wno-unused-command-line-argument")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-command-line-argument")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Ofast -ffast-math")
 
-set(CMAKE_LINK_LIBRARY_FILE_FLAG "${CMAKE_LINK_LIBRARY_FILE_FLAG} -Wl")
+if (APPLE)
+    set(CMAKE_LINK_LIBRARY_FILE_FLAG "${CMAKE_LINK_LIBRARY_FILE_FLAG} -Wl")
+endif ()
 
 # googletes, etc
 set (EXTERNAL_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/external)
@@ -129,32 +131,48 @@ include(ExternalProject)
 #
 # External project dependencies
 #
-set(COMMON_DEPENDECIES)
+set(COMMON_DEPENDENCIES)
 set(COMMON_LIBRARIES
-        ${BLAS_LIBRARIES};
-        ${LAPACK_LIBRARIES};
         ${CMAKE_THREAD_LIBS_INIT};
-        ${MKL_LIBRARIES};
         ${EXPAT_LIBRARIES};
         ${ZLIB_LIBRARIES};
-        ${Iconv_LIBRARIES}; )
+        ${Iconv_LIBRARIES};
+        )
 
 #
-# Google Test
+# Google TEST
 #
 find_package(GTest)
 if (NOT GTEST_FOUND)
     ExternalProject_Add(googletest
             GIT_REPOSITORY https://github.com/google/googletest
             CMAKE_ARGS
+            -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+            -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
             -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
+            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
+            -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
+            -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
             )
-    set(COMMON_DEPENDECIES googletest)
-endif ()
+    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};googletest)
+
+    include_directories(
+            ./
+            ../include
+            ${CMAKE_BINARY_DIR}/external/include
+    )
+
+    link_directories(
+            ${CMAKE_BINARY_DIR}/external/lib
+    )
+
+endif()
 
 ExternalProject_Add(ed25519cpplib
         GIT_REPOSITORY https://github.com/dnevera/ed25519cpp
         CMAKE_ARGS
+        -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
         -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
         -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
         -DBUILD_TESTING=OFF
@@ -163,11 +181,12 @@ ExternalProject_Add(ed25519cpplib
         INSTALL_COMMAND make install
         PREFIX=${CMAKE_BINARY_DIR}/ed25519cpplib
         )
-set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES};ed25519cpplib)
+set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};ed25519cpplib)
 
 ExternalProject_Add(base64cpplib
         GIT_REPOSITORY https://github.com/dnevera/base64cpp
         CMAKE_ARGS
+        -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
         -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
         -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
         -DBUILD_TESTING=OFF
@@ -175,11 +194,12 @@ ExternalProject_Add(base64cpplib
         -DDEHANCER_TARGET_ARCH=${DEHANCER_TARGET_ARCH}
         INSTALL_COMMAND make install
         )
-set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES};base64cpplib)
+set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};base64cpplib)
 
 ExternalProject_Add(exiv2_lib
         SOURCE_DIR ${EXIVEDK_DB_DIR}
         CMAKE_ARGS
+        -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
         -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
         -DBUILD_SHARED_LIBS=OFF
         -DCMAKE_POSITION_INDEPENDENT_CODE=ON
@@ -197,7 +217,7 @@ ExternalProject_Add(exiv2_lib
         #LOG_INSTALL ON
         #LOG_OUTPUT_ON_FAILURE ON
 )
-set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES};exiv2_lib)
+set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};exiv2_lib)
 
 ExternalProject_Add(dehancer_common_cpplib
         GIT_REPOSITORY https://github.com/dehancer/dehancer-common-cpp
@@ -207,11 +227,14 @@ ExternalProject_Add(dehancer_common_cpplib
         -DBUILD_TESTING=OFF
         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
         -DDEHANCER_TARGET_ARCH=${DEHANCER_TARGET_ARCH}
+        -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
         INSTALL_COMMAND make install
         )
-set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES};dehancer_common_cpplib)
+set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dehancer_common_cpplib)
 
-set(COMMON_LIBRARIES ${COMMON_LIBRARIES};dehancer_common_cpp;ed25519cpp;base64cpp;exiv2;exiv2-xmp)
+set(COMMON_LIBRARIES dehancer_common_cpp;ed25519cpp;base64cpp;exiv2;exiv2-xmp;${COMMON_LIBRARIES})
+
+message("COMMON_LIBRARIES  ${COMMON_LIBRARIES}")
 
 #
 # Details

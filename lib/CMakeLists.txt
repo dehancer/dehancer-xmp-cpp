@@ -11,8 +11,8 @@ file (GLOB COMMON_SRC ${COMMON_SRC}
 
 add_library(${PROJECT_NAME} ${COMMON_SRC})
 
-if (COMMON_DEPENDECIES)
-    add_dependencies(${PROJECT_LIB} ${COMMON_DEPENDECIES})
+if (COMMON_DEPENDENCIES)
+    add_dependencies(${PROJECT_LIB} ${COMMON_DEPENDENCIES})
 else()
     add_dependencies(${PROJECT_LIB} exiv2_lib)
 endif()
