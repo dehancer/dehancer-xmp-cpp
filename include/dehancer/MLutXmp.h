@@ -31,6 +31,7 @@ namespace dehancer {
         };
 
         using CLutBuffer = std::vector<std::uint8_t>;
+        using exiv2_ptr_t = Exiv2::Value::UniquePtr;
 
     public:
 
@@ -64,30 +65,30 @@ namespace dehancer {
 
 
         static dehancer::expected<MLutXmp,Error> Open(const std::string &path);
+    
+        [[nodiscard]] exiv2_ptr_t get_value(const std::string &key) const ;
+        [[nodiscard]] const std::vector<std::string> & get_key_list() const;
 
-        Exiv2::Value::UniquePtr get_value(const std::string &key) const ;
-        const std::vector<std::string> & get_key_list() const;
+        [[nodiscard]] time_t get_datetime() const ;
+        [[nodiscard]] int get_revision() const ;
+        [[nodiscard]] std::string get_id() const ;
+        [[nodiscard]] std::string get_name() const ;
+        [[nodiscard]] std::string get_caption() const ;
+        [[nodiscard]] bool is_photo_enabled() const ;
+        [[nodiscard]] bool is_video_enabled() const ;
+        [[nodiscard]] std::string get_description() const ;
+        [[nodiscard]] std::string get_tags() const ;
+        [[nodiscard]] std::string get_author() const ;
+        [[nodiscard]] std::string get_maintainer() const ;
+        [[nodiscard]] int   get_ISO_index() const ;
+        [[nodiscard]] int   get_expand_mode() const;
+        [[nodiscard]] float get_expand_impact() const;
+    
+        [[nodiscard]] FilmType  get_film_type() const ;
+        [[nodiscard]] ColorType get_color_type() const;
 
-        time_t get_datetime() const ;
-        int get_revision() const ;
-        std::string get_id() const ;
-        std::string get_name() const ;
-        std::string get_caption() const ;
-        bool is_photo_enabled() const ;
-        bool is_video_enabled() const ;
-        std::string get_description() const ;
-        std::string get_tags() const ;
-        std::string get_author() const ;
-        std::string get_maintainer() const ;
-        int   get_ISO_index() const ;
-        int   get_expand_mode() const;
-        float get_expand_impact() const;
-
-        FilmType  get_film_type() const ;
-        ColorType get_color_type() const;
-
-        const std::vector<dehancer::License::Type>& get_license_matrix() const ;
-        const std::vector<CLutBuffer>& get_cluts() const ;
+        [[nodiscard]] const std::vector<dehancer::License::Type>& get_license_matrix() const ;
+        [[nodiscard]] const std::vector<CLutBuffer>& get_cluts() const ;
 
         MLutXmp(const MLutXmp& other);
         ~MLutXmp();
@@ -96,13 +97,13 @@ namespace dehancer {
         MLutXmp();
         std::string path_;
         std::string cache_dir_;
-        std::map<std::string, Exiv2::Value::UniquePtr> meta_;
+        std::map<std::string, exiv2_ptr_t> meta_;
         std::vector<CLutBuffer> cluts_;
         std::vector<dehancer::License::Type> license_matrix_;
 
-        std::string get_cache_path() const ;
-        std::string get_cache_meta_path() const ;
-        std::string get_cache_clut_path(int index) const ;
+        [[nodiscard]] std::string get_cache_path() const ;
+        [[nodiscard]] std::string get_cache_meta_path() const ;
+        [[nodiscard]] std::string get_cache_clut_path(int index) const ;
 
     private:
         static dehancer::expected<MLutXmp,Error> parse(const std::string &metaBuffer,

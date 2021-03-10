@@ -81,10 +81,10 @@ int main() { return 0; }
   set(CMAKE_REQUIRED_FLAGS "")
 
   if( NOT BUILTIN_REGEX_WORKING )
-    set( EXV_NEED_BOOST_REGEX ON
-      CACHE
-      BOOL
-      "Need Boost::regex as this version of gcc ships a broken implementation of <regex>")
-    find_package(Boost REQUIRED COMPONENTS regex)
+#    set( EXV_NEED_BOOST_REGEX ON
+#      CACHE
+#      BOOL
+#      "Need Boost::regex as this version of gcc ships a broken implementation of <regex>")
+#    find_package(Boost REQUIRED COMPONENTS regex)
   endif()
 endif()

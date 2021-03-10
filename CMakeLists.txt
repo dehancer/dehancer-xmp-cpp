@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.12)
 # Project
 #
 set(PROJECT_LIB dehancer_xmp_cpp)
-project(${PROJECT_LIB} VERSION 0.6.1)
+project(${PROJECT_LIB} VERSION 0.7.4)
 
 #
 # Options
@@ -32,11 +32,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DPRINT_DEBUG -DDEBUG_BUILD=1")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ObjC++ -fvisibility=hidden -Wno-unused-command-line-argument")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ObjC++ -Wno-unused-command-line-argument")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -Wno-unused-command-line-argument")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-command-line-argument")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Ofast -ffast-math")
-
-set(CMAKE_LINK_LIBRARY_FILE_FLAG "${CMAKE_LINK_LIBRARY_FILE_FLAG} -Wl")
 
 # googletes, etc
 set (EXTERNAL_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/external)
@@ -54,18 +52,37 @@ configure_file(include/dehancer/version.h.in ${CMAKE_BINARY_DIR}/generated/versi
 # Packages
 #
 find_package (PkgConfig QUIET)
-find_package (Threads REQUIRED)
-find_package (EXPAT REQUIRED)
-find_package (ZLIB REQUIRED)
-find_package (Iconv REQUIRED)
-
 if(NOT PKG_CONFIG_FOUND)
     message(FATAL_ERROR "pkg-config not found!" )
     message(FATAL_ERROR "sudo apt-get install pkg-config, or brew install pkg-config")
 endif()
 
+find_package (Threads REQUIRED)
+find_package (EXPAT REQUIRED)
+#find_package (ZLIB REQUIRED)
+find_package (Iconv REQUIRED)
+
+if (${DEHANCER_TARGET_ARCH} MATCHES "arm64.*")
+    find_package (ZLIB REQUIRED)
+elseif (${DEHANCER_TARGET_ARCH} MATCHES "x86_64.*")
+    SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+    set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:/usr/local/x86_64")
+    pkg_check_modules(ZLIB ZLIB)
+    if(ZLIB_FOUND)
+        MESSAGE(FATAL "x86_64 zlib not found")
+    endif()
+
+    include_directories(
+            ${ZLIB_INCLUDE_DIRS}
+    )
+    link_directories(
+            ${ZLIB_LIBRARY_DIRS}
+    )
+endif()
+
+
 #
-# Programms
+# Programs
 #
 find_program(CCACHE_FOUND ccache)
 #find_program(MAKE_EXE NAMES gmake nmake make)
@@ -89,7 +106,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" ST
 
     message(STATUS "Using Clang" )
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wc++17-extensions")
-    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility-inlines-hidden")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility-inlines-hidden")
 
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 
@@ -129,7 +146,7 @@ include(ExternalProject)
 #
 # External project dependencies
 #
-set(COMMON_DEPENDECIES)
+set(COMMON_DEPENDENCIES)
 set(COMMON_LIBRARIES
         ${BLAS_LIBRARIES};
         ${LAPACK_LIBRARIES};
@@ -140,53 +157,50 @@ set(COMMON_LIBRARIES
         ${Iconv_LIBRARIES}; )
 
 #
-# Google Test
+# Google TEST
 #
 find_package(GTest)
 if (NOT GTEST_FOUND)
     ExternalProject_Add(googletest
             GIT_REPOSITORY https://github.com/google/googletest
             CMAKE_ARGS
+            -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
             -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
+            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
+            -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
+            -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
             )
-    set(COMMON_DEPENDECIES googletest)
-endif ()
+    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};googletest)
 
-ExternalProject_Add(ed25519cpplib
-        GIT_REPOSITORY https://github.com/dnevera/ed25519cpp
-        CMAKE_ARGS
-        -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
-        -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
-        -DBUILD_TESTING=OFF
-        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-        -DDEHANCER_TARGET_ARCH=${DEHANCER_TARGET_ARCH}
-        INSTALL_COMMAND make install
-        PREFIX=${CMAKE_BINARY_DIR}/ed25519cpplib
-        )
-set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES};ed25519cpplib)
+    include_directories(
+            ./
+            ../include
+            ${CMAKE_BINARY_DIR}/external/include
+    )
 
-ExternalProject_Add(base64cpplib
-        GIT_REPOSITORY https://github.com/dnevera/base64cpp
-        CMAKE_ARGS
-        -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
-        -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
-        -DBUILD_TESTING=OFF
-        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-        -DDEHANCER_TARGET_ARCH=${DEHANCER_TARGET_ARCH}
-        INSTALL_COMMAND make install
-        )
-set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES};base64cpplib)
+    link_directories(
+            ${CMAKE_BINARY_DIR}/external/lib
+    )
+
+endif()
 
 ExternalProject_Add(exiv2_lib
         SOURCE_DIR ${EXIVEDK_DB_DIR}
         CMAKE_ARGS
+        -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+        -DCMAKE_CXX_FLAGS="-fvisibility=hidden"
+        -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
+        -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
+        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+        -DDEHANCER_TARGET_ARCH=${DEHANCER_TARGET_ARCH}
         -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
         -DBUILD_SHARED_LIBS=OFF
         -DCMAKE_POSITION_INDEPENDENT_CODE=ON
         -DEXIV2_BUILD_SAMPLES=OFF
-        -DEXIV2_BUILD_EXIV2_COMMAND=ON
+        -DEXIV2_BUILD_EXIV2_COMMAND=OFF
         -DEXIV2_ENABLE_XMP=ON
-        #-DBUILD_WITH_CCACHE=ON
+        -DBUILD_WITH_CCACHE=OFF
         -DDEHANCER_TARGET_ARCH=${DEHANCER_TARGET_ARCH}
         #BUILD_COMMAND make
         #INSTALL_COMMAND make install
@@ -196,20 +210,54 @@ ExternalProject_Add(exiv2_lib
         #LOG_BUILD ON
         #LOG_INSTALL ON
         #LOG_OUTPUT_ON_FAILURE ON
-)
-set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES};exiv2_lib)
+        )
+set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};exiv2_lib)
 
 ExternalProject_Add(dehancer_common_cpplib
         GIT_REPOSITORY https://github.com/dehancer/dehancer-common-cpp
         CMAKE_ARGS
+        -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+        -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
+        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+        -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
+        -DDEHANCER_TARGET_ARCH=${DEHANCER_TARGET_ARCH}
         -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
-        -DCMAKE_OSX_DEPLOYMENT_TARGET=${DCMAKE_OSX_DEPLOYMENT_TARGET}
+        -DBUILD_TESTING=OFF
+        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+        INSTALL_COMMAND make install
+        )
+set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dehancer_common_cpplib)
+
+ExternalProject_Add(ed25519cpplib
+        GIT_REPOSITORY https://github.com/dnevera/ed25519cpp
+        CMAKE_ARGS
+        -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+        -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
+        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+        -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
+        -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
         -DBUILD_TESTING=OFF
         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
         -DDEHANCER_TARGET_ARCH=${DEHANCER_TARGET_ARCH}
         INSTALL_COMMAND make install
+        PREFIX=${CMAKE_BINARY_DIR}/ed25519cpplib
         )
-set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES};dehancer_common_cpplib)
+set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};ed25519cpplib)
+
+ExternalProject_Add(base64cpplib
+        GIT_REPOSITORY https://github.com/dnevera/base64cpp
+        CMAKE_ARGS
+        -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+        -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
+        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+        -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
+        -DDEHANCER_TARGET_ARCH=${DEHANCER_TARGET_ARCH}
+        -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
+        -DBUILD_TESTING=OFF
+        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+        INSTALL_COMMAND make install
+        )
+set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};base64cpplib)
 
 set(COMMON_LIBRARIES ${COMMON_LIBRARIES};dehancer_common_cpp;ed25519cpp;base64cpp;exiv2;exiv2-xmp)
 

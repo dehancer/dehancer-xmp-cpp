@@ -280,8 +280,8 @@ namespace dehancer {
       }
       license_matrix_ = other.license_matrix_;
     };
-
-    Exiv2::Value::UniquePtr MLutXmp::get_value(const std::string &name) const {
+    
+    MLutXmp::exiv2_ptr_t MLutXmp::get_value(const std::string &name) const {
       try {
         std::string key = xmp_meta_prefix;
         key.append(name);
