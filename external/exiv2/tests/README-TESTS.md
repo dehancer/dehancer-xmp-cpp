@@ -1,9 +1,31 @@
-# TL;DR
+<div id="TOC"/>
 
-If you just want to write a simple test case, check out the file
-`writing_tests.md`.
+- [README-TESTS](#README-TESTS)
+  - [Running the test suite](#running-the-test-suite)
+  - [Writing new tests](#writing-new-tests)
+  - [Test suite](#test-suite)
+    - [Configuration](#configuration)
+      - [INI style](#ini-style)
+      - [Parameters](#parameters)
+    - [Test cases](#test-cases)
+    - [Multiline strings](#multiline-strings)
+    - [Paths](#paths)
+  - [Advanced test cases](#advanced-test-cases)
+    - [Providing standard input to commands](#providing-standard-input-to-commands)
+    - [Using a different output encoding](#using-a-different-output-encoding)
+    - [Working with binary output](#working-with-binary-output)
+    - [Setting and modifying environment variables](#setting-and-modifying-environment-variables)
+    - [Creating file copies](#creating-file-copies)
+    - [Customizing the output check](#customizing-the-output-check)
+    - [Running all commands under valgrind](#running-all-commands-under-valgrind)
+    - [Manually expanding variables in strings](#manually-expanding-variables)
+    - [Hooks](#hooks)
+    - [Possible pitfalls](#possible-pitfalls)
+  - [Bash test cases](#bash-test-cases)
 
-# Introduction
+
+<div id="README-TESTS"/>
+# README-TESTS
 
 This test suite is intended for system tests, i.e. for running a binary with
 certain parameters and comparing the output against an expected value. This is
@@ -11,10 +33,111 @@ especially useful for a regression test suite, but can be also used for testing
 of new features where unit testing is not feasible, e.g. to test new command
 line parameters.
 
+<div id="running-the-test-suite"/>
+## Running the test suite
+
+The test suite is written for Python 3 and is not compatible with Python 2, thus
+it must be run with `python3` and not with `python` (which is usually an alias
+for Python 2).
+
+Then navigate to the `tests/` subdirectory and run:
+
+```bash
+python3 -m pip install -r requirements.txt
+python3 runner.py
+```
+
+One can supply the script with a directory where the suite should look for the
+tests (it will search the directory recursively). If omitted, the runner will
+look in the directory where the configuration file is located. It is also
+possible to instead pass a file as the parameter, the test suite will then only
+run the tests from this file.
+
+The runner script also supports the optional arguments `--config_file` which
+allows to provide a different test suite configuration file than the default
+`suite.conf`. It also forwards the verbosity setting via the `-v`/`--verbose`
+flags to Python's unittest module.
+
+Optionally one can provide the `--debug` flag which will instruct test suite to
+print all command invocations and all expected and obtained outputs to the
+standard output.
+
+[TOC](#TOC)
+
+<div id="writing-new-tests"/>
+## Writing new tests
+
+The test suite is intended to run a binary and compare its standard output,
+standard error and return value against provided values. This is implemented
+using Python's [unittest](https://docs.python.org/3/library/unittest.html) module and thus all test files are Python files.
+
+The simplest test has the following structure:
+
+```python
+# -*- coding: utf-8 -*-
+
+import system_tests
+
+
+class GoodTestName(metaclass=system_tests.CaseMeta):
+
+    filename = "$data_path/test_file"
+    commands = ["$exiv2 $filename", "$exiv2 $filename" + '_2']
+    stdout = [""] * 2
+    stderr = ["""$exiv2_exception_msg $filename:
+$kerFailedToReadImageData
+"""] * 2
+    retval = [1] * 2
+```
+
+The test suite will run the provided commands in `commands` and compare them to
+the output in `stdout` and `stderr` and it will compare the return values.
+
+The strings after a `$` are variables either defined in this test's class or are
+taken from the suite's configuration file (see `doc.md` for a complete
+explanation).
+
+When creating new tests, follow roughly these steps:
+
+1. Choose an appropriate subdirectory where the test belongs. If none fits
+   create a new one and put an empty `__init__.py` file there.
+
+2. Create a new file with a name matching `test_*.py`. Copy the class definition
+   from the above example and choose an appropriate class name.
+
+3. Run the test suite via `python3 runner.py` and ensure that your test case is
+   actually run! Either run the suite with the `-v` option which will output all
+   test cases that were run or simply add an error and check if errors occur.
+
+[TOC](#TOC)
+
+<div id="test-suite"/>
+## Test suite
+
+The test suite itself uses the builtin `unittest` module of Python to discover
+and run the individual test cases. The test cases themselves are implemented in
+Python source files, but the required Python knowledge is minimal.
+
+The test suite is configured via one configuration file whose location
+automatically sets the root directory of the test suite. The `unittest` module
+then recursively searches all sub-directories with a `__init__.py` file for
+files of the form `test_*.py`, which it automatically interprets as test cases
+(more about these in the next section). Python will automatically interpret each
+directory as a module and use this to format the output, e.g. the test case
+`regression/crashes/test_bug_15.py` will be interpreted as the module
+`regression.crashes.test_bug_15`. Thus one can use the directory structure to
+group test cases.
+
+### Configuration
+
+<div id="ini-style"/>
+#### INI style
+
 The test suite is configured via `INI` style files using Python's builtin
 [ConfigParser](https://docs.python.org/3/library/configparser.html)
 module. Such a configuration file looks roughly like this:
-``` ini
+
+```ini
 [DEFAULT]
 some_var: some_val
 
@@ -47,33 +170,22 @@ documentation. The `ConfigParser` module is used with the following defaults:
 Please keep in mind that leading and trailing whitespaces are **stripped** from
 strings when extracting variable values. So this:
 
-``` ini
+```ini
 some_var:     some value with whitespaces before and after    
 ```
 is equivalent to this:
-``` ini
+```ini
 some_var:some value with whitespaces before and after
 ```
 
-The test suite itself uses the builtin `unittest` module of Python to discover
-and run the individual test cases. The test cases themselves are implemented in
-Python source files, but the required Python knowledge is minimal.
+[TOC](#TOC)
 
-## Test suite
-
-The test suite is configured via one configuration file whose location
-automatically sets the root directory of the test suite. The `unittest` module
-then recursively searches all sub-directories with a `__init__.py` file for
-files of the form `test_*.py`, which it automatically interprets as test cases
-(more about these in the next section). Python will automatically interpret each
-directory as a module and use this to format the output, e.g. the test case
-`regression/crashes/test_bug_15.py` will be interpreted as the module
-`regression.crashes.test_bug_15`. Thus one can use the directory structure to
-group test cases.
+<div id="parameters"/>
+#### Parameters
 
 The test suite's configuration file should have the following form:
 
-``` ini
+```ini
 [General]
 timeout: 0.1
 
@@ -112,7 +224,7 @@ extensions). For this, the test suite supports the `ENV` and `ENV fallback`
 sections. In conjunction with the extended interpolation of the `ConfigParser`
 module, these can be quite useful. Consider the following example:
 
-``` ini
+```ini
 [General]
 timeout: 0.1
 
@@ -161,7 +273,10 @@ Please note that while the `INI` file allows for variables with whitespaces or
 variable names in Python.
 
 
-## Test cases
+[TOC](#TOC)
+
+<div id="test-cases"/>
+### Test cases
 
 The test cases are defined in Python source files utilizing the unittest module,
 thus every file must also be a valid Python file. Each file defining a test case
@@ -178,7 +293,7 @@ user.
 
 An example test case file would look like this:
 
-``` python
+```python
 # -*- coding: utf-8 -*-
 
 import system_tests
@@ -228,7 +343,7 @@ possible to access `abort_exit_value` via `system_tests.abort_exit_value`
 The substitution of values is performed using the template module from Python's
 string library via `safe_substitute`. In the above example the command would
 thus expand to:
-``` shell
+```bash
 /path/to/the/dir/build/bin/binary -c /path/to/the/dir/conf/main.cfg -i invalid_input_file
 ```
 and similarly for `stdout` and `stderr`.
@@ -245,6 +360,9 @@ should be run and all return 0, one can write `retval = 10 * [0]` instead of
 writing 0 ten times. The same is of course possible for strings.
 
 
+[TOC](#TOC)
+
+<div id="multiline-strings"/>
 ### Multiline strings
 
 It is generally recommended to use Python's multiline strings (strings starting
@@ -258,7 +376,7 @@ strings start and end with a single `"` but multiline strings start with three
 `"`. Also, while the variable names must be indented, new lines in multiline
 strings must not or additional whitespaces will be added. E.g.:
 
-``` python
+```python
     stderr = [
         """something
         else"""
@@ -280,6 +398,9 @@ as the indentation might have suggested.
 Also note that in this example the string will not be terminated with a newline
 character. To achieve that put the `"""` on the following line.
 
+[TOC](#TOC)
+
+<div id="paths"/>
 ### Paths
 
 Some test cases require the specification of paths (e.g. to the location of test
@@ -292,7 +413,7 @@ quite verbose. A slightly simpler alternative is the function `path` from
 `system_tests` which converts all `/` inside your string into the platform's
 default path separator:
 
-``` python
+```python
 # -*- coding: utf-8 -*-
 
 from system_tests import CaseMeta, path
@@ -306,12 +427,16 @@ class AnInformativeName(metaclass=CaseMeta):
 ```
 
 
+[TOC](#TOC)
+
+<div id="advanced-test-cases"/>
 ## Advanced test cases
 
 This section describes more advanced features that are probably not necessary
 the "standard" usage of the test suite.
 
 
+<div id="providing-standard-input-to-commands"/>
 ### Providing standard input to commands
 
 The test suite supports providing a standard input to commands in a similar
@@ -319,7 +444,8 @@ fashion as the standard output and error are specified: it expects a list (with
 the length equal to the number of commands) of standard inputs (either strings
 or `bytes`). For commands that expect no standard input, simply set the
 respective entry to `None`:
-``` python
+
+```python
 # -*- coding: utf-8 -*-
 
 import system_tests
@@ -354,6 +480,9 @@ If all commands don't expect any standard input, omit the attribute `stdin`, the
 test suite will implicitly assume `None` for every command.
 
 
+[TOC](#TOC)
+
+<div id="using-a-different-output-encoding"/>
 ### Using a different output encoding
 
 The test suite will try to interpret the program's output as utf-8 encoded
@@ -362,7 +491,8 @@ strings and if that fails it will try the `iso-8859-1` encoding (also know as
 
 If the tested program outputs characters in another encoding then it can be
 supplied as the `encodings` parameter in each test case:
-``` python
+
+```python
 # -*- coding: utf-8 -*-
 
 import system_tests
@@ -393,6 +523,9 @@ encodings can be found
 [here](https://docs.python.org/3/library/codecs.html#standard-encodings).
 
 
+[TOC](#TOC)
+
+<div id="working-with-binary-output"/>
 ### Working with binary output
 
 Some programs output binary data directly to stdout or stderr. Such programs can
@@ -401,7 +534,8 @@ be also tested by specifying the type `bytes` as the only member in the
 string.
 
 An example test case would look like this:
-``` python
+
+```python
 # -*- coding: utf-8 -*-
 
 import system_tests
@@ -428,7 +562,8 @@ Using the bytes encoding has the following limitations:
 The test suite supports setting or modifying environment variables for
 individual test cases. This can be accomplished by adding a member dictionary
 named `env` with the appropriate variable names and keys:
-``` python
+
+```python
 # -*- coding: utf-8 -*-
 
 from system_tests import CaseMeta, path
@@ -457,6 +592,9 @@ overridden). If no variables should be inherited set `inherit_env` to `False`
 and your test case will get only the specified environment variables.
 
 
+[TOC](#TOC)
+
+<div id="creating-file-copies"/>
 ### Creating file copies
 
 For tests that modify their input file it is useful to run these with a
@@ -466,7 +604,7 @@ and deletes the copies after the test ran.
 
 Example:
 
-``` python
+```python
 # -*- coding: utf-8 -*-
 
 import system_tests
@@ -495,6 +633,9 @@ course expanded too) named `invalid_input_file_copy` and
 deleted. Please note that variable expansion in the filenames is possible.
 
 
+[TOC](#TOC)
+
+<div id="customizing-the-output-check"/>
 ### Customizing the output check
 
 Some tests do not require a "brute-force" comparison of the whole output of a
@@ -504,7 +645,7 @@ cases, one can customize how stdout and stderr checked for errors.
 The `system_tests.Case` class has two public functions for the check of stdout &
 stderr: `compare_stdout` & `compare_stderr`. They have the following interface:
 
-``` python
+```python
 compare_stdout(self, i, command, got_stdout, expected_stdout)
 compare_stderr(self, i, command, got_stderr, expected_stderr)
 ```
@@ -530,7 +671,7 @@ the obtained output to standard error **and nothing else**. This is useful for
 test cases where stderr is filled with warnings that are not worth being tracked
 by the test suite. It can be used in the following way:
 
-``` python
+```python
 # -*- coding: utf-8 -*-
 
 import system_tests
@@ -550,6 +691,9 @@ class AnInformativeName(metaclass=system_tests.CaseMeta):
 ```
 
 
+[TOC](#TOC)
+
+<div id="running-all-commands-under-valgrind"/>
 ### Running all commands under valgrind
 
 The test suite can run all commands under a memory checker like
@@ -560,11 +704,13 @@ checking tool. The test suite will then prefix **all** commands with the
 specified command.
 
 For example this configuration file:
-``` ini
+
+```ini
 [General]
 timeout: 0.1
 memcheck: valgrind --quiet
 ```
+
 will result in every command specified in the test cases being run as `valgrind
 --quiet $command`.
 
@@ -587,6 +733,9 @@ into account:
   collect test coverage).
 
 
+[TOC](#TOC)
+
+<div id="manually-expanding-variables"/>
 ### Manually expanding variables in strings
 
 In case completely custom checks have to be run but one still wants to access
@@ -597,7 +746,7 @@ variable substitution using the test suite's configuration file.
 Unfortunately, it has to run in a class member function. The `setUp()` function
 can be used for this, as it is run before each test. For example like this:
 
-``` python
+```python
 class SomeName(metaclass=system_tests.CaseMeta):
 
 	def setUp(self):
@@ -612,7 +761,7 @@ This example will work, as the test runner reads the data for `commands`,
 work is creating a new member in `setUp()` and trying to use it as a variable
 for expansion, like this:
 
-``` python
+```python
 class SomeName(metaclass=system_tests.CaseMeta):
 
 	def setUp(self):
@@ -625,7 +774,8 @@ static class members (which `new_var` is not). Also, if you modify a static
 class member in `setUp()` the changed version will **not** be used for variable
 expansion, as the variables are saved in a new dictionary **before** `setUp()`
 runs. Thus this:
-``` python
+
+```python
 class SomeName(metaclass=system_tests.CaseMeta):
 
 	new_var = "foo"
@@ -638,13 +788,16 @@ class SomeName(metaclass=system_tests.CaseMeta):
 will result in `another_string` being "foo" and not "bar".
 
 
+[TOC](#TOC)
+
+<div id="hooks"/>
 ### Hooks
 
 The `Case` class provides two hooks that are run after each command and after
 all commands, respectively. The hook which is run after each successful command
 has the following signature:
 
-``` Python
+```python
 post_command_hook(self, i, command)
 ```
 with the following parameters:
@@ -653,7 +806,7 @@ with the following parameters:
 
 The hook which is run after all test takes no parameters except `self`:
 
-``` Python
+```python
 post_tests_hook(self)
 ```
 
@@ -661,7 +814,7 @@ By default, these hooks do nothing. They can be used to implement custom checks
 after certain commands, e.g. to check if a file was created. Such a test can be
 implemented as follows:
 
-``` Python
+```python
 # -*- coding: utf-8 -*-
 
 import system_tests
@@ -692,28 +845,12 @@ class AnInformativeName(metaclass=system_tests.CaseMeta):
   for expansion.
 
 
-## Running the test suite
+[TOC](#TOC)
 
-The test suite is written for Python 3 and is not compatible with Python 2, thus
-it must be run with `python3` and not with `python` (which is usually an alias
-for Python 2).
+<div id="bash-test-cases"/>
+## Bash test cases
 
-Then navigate to the `tests/` subdirectory and run:
-``` shell
-python3 runner.py
-```
+- Previously, Exiv2 had some bash test scripts, which were saved as the file `EXIV2_DIR/test/*.sh`. We're going to rewrite them as Python test scripts and save them to the directory `EXIV2_DIR/tests/bash_tests`.
+- These Python test scripts are based on [unittest](https://docs.python.org/3/library/unittest.html) and written in a common format, which is different from the format described in [Writing new tests](#writing-new-tests), but can be executed compatibly by `python3 runner.py`.
 
-One can supply the script with a directory where the suite should look for the
-tests (it will search the directory recursively). If omitted, the runner will
-look in the directory where the configuration file is located. It is also
-possible to instead pass a file as the parameter, the test suite will then only
-run the tests from this file.
-
-The runner script also supports the optional arguments `--config_file` which
-allows to provide a different test suite configuration file than the default
-`suite.conf`. It also forwards the verbosity setting via the `-v`/`--verbose`
-flags to Python's unittest module.
-
-Optionally one can provide the `--debug` flag which will instruct test suite to
-print all command invocations and all expected and obtained outputs to the
-standard output.
+[TOC](#TOC)
