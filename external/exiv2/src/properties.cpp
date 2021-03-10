@@ -33,7 +33,6 @@
 #include "metadatum.hpp"
 #include "i18n.h"                // NLS support.
 #include "xmp_exiv2.hpp"
-#include "rwlock.hpp"
 
 #include <iostream>
 #include <iomanip>
@@ -2483,11 +2482,11 @@ namespace Exiv2 {
     }
 
     XmpProperties::NsRegistry XmpProperties::nsRegistry_;
-    Exiv2::RWLock XmpProperties::rwLock_;
+    std::mutex XmpProperties::mutex_;
 
     const XmpNsInfo* XmpProperties::lookupNsRegistry(const XmpNsInfo::Prefix& prefix)
     {
-        ScopedReadLock srl(rwLock_);
+        std::lock_guard<std::mutex> scoped_read_lock(mutex_);
         return lookupNsRegistryUnsafe(prefix);
     }
 
@@ -2503,8 +2502,7 @@ namespace Exiv2 {
     void XmpProperties::registerNs(const std::string& ns,
                                    const std::string& prefix)
     {
-        ScopedWriteLock swl(rwLock_);
-
+        std::lock_guard<std::mutex> scoped_write_lock(mutex_);
         std::string ns2 = ns;
         if (   ns2.substr(ns2.size() - 1, 1) != "/"
             && ns2.substr(ns2.size() - 1, 1) != "#") ns2 += "/";
@@ -2536,7 +2534,7 @@ namespace Exiv2 {
 
     void XmpProperties::unregisterNs(const std::string& ns)
     {
-        ScopedWriteLock swl(rwLock_);
+        std::lock_guard<std::mutex> scoped_write_lock(mutex_);
         unregisterNsUnsafe(ns);
     }
 
@@ -2552,8 +2550,7 @@ namespace Exiv2 {
 
     void XmpProperties::unregisterNs()
     {
-        ScopedWriteLock swl(rwLock_);
-
+        std::lock_guard<std::mutex> scoped_write_lock(mutex_);
         NsRegistry::iterator i = nsRegistry_.begin();
         while (i != nsRegistry_.end()) {
             NsRegistry::iterator kill = i++;
@@ -2563,7 +2560,7 @@ namespace Exiv2 {
 
     std::string XmpProperties::prefix(const std::string& ns)
     {
-        ScopedReadLock srl(rwLock_);
+        std::lock_guard<std::mutex> scoped_read_lock(mutex_);
         std::string ns2 = ns;
         if (   ns2.substr(ns2.size() - 1, 1) != "/"
             && ns2.substr(ns2.size() - 1, 1) != "#") ns2 += "/";
@@ -2581,7 +2578,7 @@ namespace Exiv2 {
 
     std::string XmpProperties::ns(const std::string& prefix)
     {
-        ScopedReadLock srl(rwLock_);
+        std::lock_guard<std::mutex> scoped_read_lock(mutex_);
         const XmpNsInfo* xn = lookupNsRegistryUnsafe(XmpNsInfo::Prefix(prefix));
         if (xn != 0) return xn->ns_;
         return nsInfoUnsafe(prefix)->ns_;
@@ -2648,7 +2645,7 @@ namespace Exiv2 {
 
     const XmpNsInfo* XmpProperties::nsInfo(const std::string& prefix)
     {
-        ScopedReadLock srl(rwLock_);
+        std::lock_guard<std::mutex> scoped_read_lock(mutex_);
         return nsInfoUnsafe(prefix);
     }
 
@@ -2755,9 +2752,9 @@ namespace Exiv2 {
         return *this;
     }
 
-    XmpKey::AutoPtr XmpKey::clone() const
+    XmpKey::UniquePtr XmpKey::clone() const
     {
-        return AutoPtr(clone_());
+        return UniquePtr(clone_());
     }
 
     XmpKey* XmpKey::clone_() const
@@ -2839,25 +2836,14 @@ namespace Exiv2 {
 
     // *************************************************************************
     // free functions
-    // *************************************************************************
-    // free functions
     std::ostream& operator<<(std::ostream& os, const XmpPropertyInfo& property)
     {
-        os << property.name_                       << ","
-           << property.title_                      << ","
-           << property.xmpValueType_               << ","
-           << TypeInfo::typeName(property.typeId_) << ","
-           << ( property.xmpCategory_ == xmpExternal ? "External" : "Internal" ) << ",";
-        // CSV encoded I am \"dead\" beat" => "I am ""dead"" beat"
-        char Q = '"';
-        os << Q;
-        for ( size_t i = 0 ; i < ::strlen(property.desc_) ; i++ ) {
-            char c = property.desc_[i];
-            if ( c == Q ) os << Q;
-            os << c;
-        }
-        os << Q << std::endl;
-        return os;
+        return os << property.name_                       << ",\t"
+                  << property.title_                      << ",\t"
+                  << property.xmpValueType_               << ",\t"
+                  << TypeInfo::typeName(property.typeId_) << ",\t"
+                  << ( property.xmpCategory_ == xmpExternal ? "External" : "Internal" ) << ",\t"
+                  << property.desc_                       << "\n";
     }
     //! @endcond
 

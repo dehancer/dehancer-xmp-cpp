@@ -47,7 +47,7 @@ all: test
 top_srcdir = ..
 
 # Initialisations
-SHELL = /bin/bash
+SHELL = /bin/sh
 
 .SUFFIXES:
 
@@ -59,86 +59,48 @@ SHELL = /bin/bash
 # to save download time for simple build/test, we download video and eps data on demand
 SVN    = svn://dev.exiv2.org/svn/testdata/trunk
 
-#  ## Sadly on SunOS make terminates saying "unexpected end of line"
-#  # determine the test platform
-#  UNAME := $(shell uname)
-#  UNIX=FALSE
-#  ifeq ($(UNAME),SunOS)
-#  UNIX=TRUE
-#  endif
-#  ifeq ($(UNAME),FreeBSD)
-#  UNIX=TRUE
-#  endif
-
 ##
 # Add test drivers to this list
-TESTS =  addmoddel.sh         \
+TESTS  = addmoddel.sh         \
          conversions.sh       \
-         crw-test.sh          \
          exifdata-test.sh     \
          exiv2-test.sh        \
          geotag-test.sh       \
-         icc-test.sh          \
          imagetest.sh         \
+         icc-test.sh          \
          iotest.sh            \
          iptctest.sh          \
          iso65k-test.sh       \
-         nls-test.sh          \
          modify-test.sh       \
          path-test.sh         \
-         png-test.sh          \
          preview-test.sh      \
-         stdin-test.sh        \
          stringto-test.sh     \
          tiff-test.sh         \
          webp-test.sh         \
          write-test.sh        \
          write2-test.sh       \
-         xmpparser-test.sh
+         xmpparser-test.sh    \
+         version-test.sh
 
-addmoddel     \
-conversions   \
-crw-test      \
-geotag-test   \
-icc-test      \
-iso65k-test   \
-modify-test   \
-path-test     \
-png-test      \
-stringto-test \
-webp-test     \
-write2-test   \
-exifdata-test \
-exiv2-test    \
-imagetest     \
-iotest        \
-iptctest      \
-nls-test      \
-preview-test  \
-tiff-test     \
-write-test    \
-xmpparser-test:
-	@echo
-	@echo ---- Running test: $@.sh ----
-	@echo
-	./$@.sh
+# video tests
+TESTV  = video-test.sh
+TESTVW = write-video-test.sh
 
-version_test \
-unit_test    :
-	@echo
-	@echo ---- Running $@ ----
-	@echo
-	-@./$@.sh
+# EPS tests
+TESTE  = eps-test.sh          \
+         eps-preview-test.sh
+
+# webready tests
+TESTX  = httpiotest.sh        \
+         curliotest.sh        \
+         sshiotest.sh
 
 tests:
-	make unit_test  bash_tests  python_tests version_test
+	cd .. ; make tests
 
-bash_tests:
-	@echo
-	@echo ---- Running bash_tests ----
-	@echo
-	@mkdir -p tmp
-	@rm -rf tmp/test-failed
+test:
+	mkdir -p tmp
+	rm -rf tmp/test-failed
 	@list='$(TESTS)'; for p in $$list; do \
 	    echo Running $$p ...; \
 	    ./$$p;  \
@@ -146,25 +108,66 @@ bash_tests:
 	    if [ $$rc -ne 0 ]; then echo '***' ; echo '***' $$p result = $$rc ; echo '***'       ; fi ; \
 	    if [ $$rc -ne 0 ]; then              echo '***' $$p result = $$rc >> tmp/test-failed ; fi ; \
 	done
-	@if [ -e tmp/test-failed ]; then echo ; echo '***' FAILED ; cat tmp/test-failed ; echo '***' ; fi
+	make newtests
+	@if [ -e tmp/test-failed ]; then echo '***' FAILED ; cat tmp/test-failed ; echo '***' ; exit 255; fi
 
+newtests:
+	( cd ../tests ; python3 runner.py --verbose )
 
-python_tests:
-	@echo
-	@echo ---- Running python_tests ----
-	@echo
-	@echo bash -c 'cd ../tests; python3 runner.py'
-	@bash      -c 'cd ../tests; python3 runner.py'
+testv:
+	@for t in /video ; do \
+		if [ ! -e data/$$t ]; then \
+	echo svn export '$(SVN)'$$t data$$t -r 3100 ; \
+	     svn export '$(SVN)'$$t data$$t -r 3100 ; \
+	fi ; done
+	@list='$(TESTV)'; for p in $$list; do \
+	    echo Running $$p ...; \
+	    ./$$p; \
+	done
+
+testvw:
+	@for t in /video ; do \
+		if [ ! -e data/$$t ]; then \
+	echo svn export '$(SVN)'$$t data$$t ; \
+	     svn export '$(SVN)'$$t data$$t ; \
+	fi ; done
+	@list='$(TESTVW)'; for p in $$list; do \
+	    echo Running $$p ...; \
+	    ./$$p; \
+	done
+
+teste:
+	@for t in /eps ; do \
+		if [ ! -e data/$$t ]; then \
+	echo svn export '$(SVN)'$$t data$$t ; \
+	     svn export '$(SVN)'$$t data$$t ; \
+	fi ; done
+	@list='$(TESTE)'; for p in $$list; do \
+	    echo Running $$p ...; \
+	    ./$$p; \
+	    rc=$$?; \
+	    if [ $$rc -ne 0 ]; then \
+		echo result = $$rc ; \
+		exit $$rc ; \
+		fi ; \
+	done
+
+testx:
+	@list='$(TESTX)'; for p in $$list; do \
+	    echo Running $$p ...; \
+	    ./$$p; \
+	done
 
 mostlyclean clean:
 	rm -rf $(top_srcdir)/test/tmp/*
 
 distclean: clean
-	$(RM) *~ *.bak $(top_srcdir)/data/tmp
+	$(RM) *~ *.bak *#
 
-# This command is intended for maintainers
+# This command is intended for maintainers to use; it deletes files
+# that may need special tools to rebuild.
 maintainer-clean: distclean
-	rm -rf $(top_srcdir)/data/tmp
+	rm -rf $(top_srcdir)/data/video $(top_srcdir)/test/data/eps
 
 # That's all Folks!
 ##

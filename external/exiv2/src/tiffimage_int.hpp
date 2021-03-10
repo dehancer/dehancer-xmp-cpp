@@ -24,8 +24,7 @@
            <a href="mailto:ahuggel@gmx.net">ahuggel@gmx.net</a>
   @date    23-Apr-08, ahu: created
  */
-#ifndef TIFFIMAGE_INT_HPP_
-#define TIFFIMAGE_INT_HPP_
+#pragma once
 
 // *****************************************************************************
 // included header files
@@ -81,7 +80,7 @@ namespace Exiv2 {
           @return True if the TIFF header was read successfully. False if the
                  data buffer does not contain a valid TIFF header.
          */
-        virtual bool read(const byte* pData, uint32_t size);
+        virtual bool read(const byte* pData, size_t size);
         //! Set the byte order.
         virtual void setByteOrder(ByteOrder byteOrder);
         //! Set the offset to the start of the root directory.
@@ -159,9 +158,7 @@ namespace Exiv2 {
         //@}
         //@{
         //! @name Accessors
-        bool isImageTag(      uint16_t       tag,
-                              IfdId          group,
-                        const PrimaryGroups* pPrimaryGroups) const;
+        bool isImageTag(uint16_t tag, IfdId group, const PrimaryGroups* pPrimaryGroups) const override;
         //@}
 
     private:
@@ -256,7 +253,7 @@ namespace Exiv2 {
                  component creation function. If the pointer that is returned
                  is 0, then the TIFF entry should be ignored.
         */
-        static std::auto_ptr<TiffComponent> create(uint32_t extendedTag,
+        static std::unique_ptr<TiffComponent> create(uint32_t extendedTag,
                                                    IfdId    group);
         /*!
           @brief Get the path, i.e., a list of extended tag and group pairs, from
@@ -302,12 +299,11 @@ namespace Exiv2 {
           @return Byte order in which the data is encoded, invalidByteOrder if
                   decoding failed.
         */
-        static ByteOrder decode(
-                  ExifData&          exifData,
+        static ByteOrder decode(ExifData&          exifData,
                   IptcData&          iptcData,
                   XmpData&           xmpData,
             const byte*              pData,
-                  uint32_t           size,
+                  size_t size,
                   uint32_t           root,
                   FindDecoderFct     findDecoderFct,
                   TiffHeaderBase*    pHeader =0
@@ -325,7 +321,7 @@ namespace Exiv2 {
         static WriteMethod encode(
                   BasicIo&           io,
             const byte*              pData,
-                  uint32_t           size,
+                  size_t             size,
             const ExifData&          exifData,
             const IptcData&          iptcData,
             const XmpData&           xmpData,
@@ -349,9 +345,9 @@ namespace Exiv2 {
                            composite structure. If \em pData is 0 or \em size
                            is 0, the return value is a 0 pointer.
          */
-        static std::auto_ptr<TiffComponent> parse(
+        static std::unique_ptr<TiffComponent> parse(
             const byte*              pData,
-                  uint32_t           size,
+                  size_t             size,
                   uint32_t           root,
                   TiffHeaderBase*    pHeader
         );
@@ -486,5 +482,3 @@ namespace Exiv2 {
     }; // class FindExifdatum
 
 }}                                      // namespace Internal, Exiv2
-
-#endif                                  // #ifndef TIFFIMAGE_INT_HPP_

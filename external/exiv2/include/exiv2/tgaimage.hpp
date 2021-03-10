@@ -26,8 +26,7 @@
            <a href="mailto:marco.piovanelli@pobox.com">marco.piovanelli@pobox.com</a>
   @date    05-Mar-2007, marco: created
  */
-#ifndef TGAIMAGE_HPP_
-#define TGAIMAGE_HPP_
+#pragma once
 
 // *****************************************************************************
 #include "exiv2lib_export.h"
@@ -42,25 +41,17 @@ namespace Exiv2 {
 // *****************************************************************************
 // class definitions
 
-    // Add TARGA to the supported image formats
-    namespace ImageType {
-        const int tga = 13; //!< Truevision TARGA (tga) image type (see class TgaImage)
-    }
-
     /*!
       @brief Class to access raw TARGA images. This is just a stub - we only
           read width and height.
      */
     class EXIV2API TgaImage : public Image {
-        //! @name NOT Implemented
-        //@{
-        //! Copy constructor
-        TgaImage(const TgaImage& rhs);
-        //! Assignment operator
-        TgaImage& operator=(const TgaImage& rhs);
-        //@}
-
     public:
+        TgaImage& operator=(const TgaImage& rhs) = delete;
+        TgaImage& operator=(const TgaImage&& rhs) = delete;
+        TgaImage(const TgaImage& rhs) = delete;
+        TgaImage(const TgaImage&& rhs) = delete;
+
         //! @name Creators
         //@{
         /*!
@@ -75,37 +66,37 @@ namespace Exiv2 {
               instance after it is passed to this method.  Use the Image::io()
               method to get a temporary reference.
          */
-        explicit TgaImage(BasicIo::AutoPtr io);
+        explicit TgaImage(BasicIo::UniquePtr io);
         //@}
 
         //! @name Manipulators
         //@{
-        void readMetadata();
+        void readMetadata() override;
         /*!
           @brief Todo: Write metadata back to the image. This method is not
               yet(?) implemented. Calling it will throw an Error(kerWritingImageFormatUnsupported).
          */
-        void writeMetadata();
+        void writeMetadata() override;
         /*!
           @brief Todo: Not supported yet(?). Calling this function will throw
               an instance of Error(kerInvalidSettingForImage).
          */
-        void setExifData(const ExifData& exifData);
+        void setExifData(const ExifData& exifData) override;
         /*!
           @brief Todo: Not supported yet(?). Calling this function will throw
               an instance of Error(kerInvalidSettingForImage).
          */
-        void setIptcData(const IptcData& iptcData);
+        void setIptcData(const IptcData& iptcData) override;
         /*!
           @brief Not supported. Calling this function will throw an instance
               of Error(kerInvalidSettingForImage).
          */
-        void setComment(const std::string& comment);
+        void setComment(const std::string& comment) override;
         //@}
 
         //! @name Accessors
         //@{
-        std::string mimeType() const;
+        std::string mimeType() const override;
         //@}
 
     }; // class TgaImage
@@ -120,11 +111,9 @@ namespace Exiv2 {
              Caller owns the returned object and the auto-pointer ensures that
              it will be deleted.
      */
-    EXIV2API Image::AutoPtr newTgaInstance(BasicIo::AutoPtr io, bool create);
+    EXIV2API Image::UniquePtr newTgaInstance(BasicIo::UniquePtr io, bool create);
 
     //! Check if the file iIo is a Targa v2 image.
     EXIV2API bool isTgaType(BasicIo& iIo, bool advance);
 
 }                                       // namespace Exiv2
-
-#endif                                  // #ifndef TGAIMAGE_HPP_

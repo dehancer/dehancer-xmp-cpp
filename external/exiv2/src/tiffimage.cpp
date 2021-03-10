@@ -70,8 +70,8 @@ namespace Exiv2 {
 
     using namespace Internal;
 
-    TiffImage::TiffImage(BasicIo::AutoPtr io, bool /*create*/)
-        : Image(ImageType::tiff, mdExif | mdIptc | mdXmp, io),
+    TiffImage::TiffImage(BasicIo::UniquePtr io, bool /*create*/)
+        : Image(ImageType::tiff, mdExif | mdIptc | mdXmp, std::move(io)),
           pixelWidth_(0), pixelHeight_(0)
     {
     } // TiffImage::TiffImage
@@ -195,7 +195,7 @@ namespace Exiv2 {
         Exiv2::ExifKey            key("Exif.Image.InterColorProfile");
         Exiv2::ExifData::iterator pos   = exifData_.findKey(key);
         if ( pos != exifData_.end() ) {
-            long size = pos->count() * pos->typeSize();
+            const size_t size = pos->count() * pos->typeSize();
             if (size == 0) {
                 throw Error(kerFailedToReadImageData);
             }
@@ -235,9 +235,11 @@ namespace Exiv2 {
         Exiv2::ExifData::iterator pos   = exifData_.findKey(key);
         bool                      found = pos != exifData_.end();
         if ( iccProfileDefined() ) {
-            Exiv2::DataValue value(iccProfile_.pData_,iccProfile_.size_);
-            if ( found ) pos->setValue(&value);
-            else     exifData_.add(key,&value);
+            Exiv2::DataValue value(iccProfile_.pData_, (long)iccProfile_.size_);
+            if (found)
+                pos->setValue(&value);
+            else
+                exifData_.add(key, &value);
         } else {
             if ( found ) exifData_.erase(pos);
         }
@@ -248,37 +250,25 @@ namespace Exiv2 {
         TiffParser::encode(*io_, pData, size, bo, exifData_, iptcData_, xmpData_); // may throw
     } // TiffImage::writeMetadata
 
-    ByteOrder TiffParser::decode(
-              ExifData& exifData,
+    ByteOrder TiffParser::decode(ExifData& exifData,
               IptcData& iptcData,
               XmpData&  xmpData,
         const byte*     pData,
-              uint32_t  size
+              size_t size
     )
     {
-        uint32_t root = Tag::root;
-
-        // #1402  Fujifilm RAF. Change root when parsing embedded tiff
-        Exiv2::ExifKey key("Exif.Image.Make");
-        if (exifData.findKey(key) != exifData.end()) {
-            if ( exifData.findKey(key)->toString() == "FUJIFILM" ) {
-                root = Tag::fuji;
-            }
-        }
-
         return TiffParserWorker::decode(exifData,
                                         iptcData,
                                         xmpData,
                                         pData,
                                         size,
-                                        root,
+                                        Tag::root,
                                         TiffMapping::findDecoder);
     } // TiffParser::decode
 
-    WriteMethod TiffParser::encode(
-              BasicIo&  io,
+    WriteMethod TiffParser::encode(BasicIo&  io,
         const byte*     pData,
-              uint32_t  size,
+              size_t size,
               ByteOrder byteOrder,
         const ExifData& exifData,
         const IptcData& iptcData,
@@ -302,7 +292,7 @@ namespace Exiv2 {
                      ed.end());
         }
 
-        std::auto_ptr<TiffHeaderBase> header(new TiffHeader(byteOrder));
+        std::unique_ptr<TiffHeaderBase> header(new TiffHeader(byteOrder));
         return TiffParserWorker::encode(io,
                                         pData,
                                         size,
@@ -317,9 +307,9 @@ namespace Exiv2 {
 
     // *************************************************************************
     // free functions
-    Image::AutoPtr newTiffInstance(BasicIo::AutoPtr io, bool create)
+    Image::UniquePtr newTiffInstance(BasicIo::UniquePtr io, bool create)
     {
-        Image::AutoPtr image(new TiffImage(io, create));
+        Image::UniquePtr image(new TiffImage(std::move(io), create));
         if (!image->good()) {
             image.reset();
         }

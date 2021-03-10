@@ -1,6 +1,7 @@
 #include <tiffimage_int.hpp>
 
-#include "gtestwrapper.h"
+#include <gtest/gtest.h>
+
 #include <sstream>
 
 using namespace Exiv2;
@@ -35,13 +36,13 @@ TEST_F(ATiffHeader, readDataFromBufferWithCorrectSize)
 
 TEST_F(ATiffHeader, failToReadDataFromBufferWithCorrectSizeButNull)
 {
-    ASSERT_FALSE(header.read(NULL, 8));
+    ASSERT_FALSE(header.read(nullptr, 8));
 }
 
 TEST_F(ATiffHeader, failToReadDataFromBufferWithSizeDifferentThan8)
 {
-    ASSERT_FALSE(header.read(NULL, 7));
-    ASSERT_FALSE(header.read(NULL, 9));
+    ASSERT_FALSE(header.read(nullptr, 7));
+    ASSERT_FALSE(header.read(nullptr, 9));
 }
 
 TEST_F(ATiffHeader, failToReadDataFromBufferWithInvalidByteOrder)

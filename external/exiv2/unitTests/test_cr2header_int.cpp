@@ -1,6 +1,6 @@
 #include "cr2header_int.hpp"
 
-#include "gtestwrapper.h"
+#include <gtest/gtest.h>
 
 using namespace Exiv2;
 
@@ -33,7 +33,7 @@ TEST(ACr2Header, readDataFromBufferWithCorrectSize)
 TEST(ACr2Header, failToReadDataFromBufferWithCorrectSizeButNull)
 {
     Internal::Cr2Header header;
-    ASSERT_FALSE(header.read(NULL, 16));
+    ASSERT_FALSE(header.read(nullptr, 16));
 }
 
 TEST(ACr2Header, failToReadDataFromBufferWithSizeDifferentThan16)

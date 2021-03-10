@@ -25,8 +25,7 @@
            <a href="mailto:marco.piovanelli@pobox.com">marco.piovanelli@pobox.com</a>
   @date    26-Feb-2007, marco: created
  */
-#ifndef GIFIMAGE_HPP_
-#define GIFIMAGE_HPP_
+#pragma once
 
 // *****************************************************************************
 #include "exiv2lib_export.h"
@@ -41,25 +40,17 @@ namespace Exiv2 {
 // *****************************************************************************
 // class definitions
 
-    // Add GIF to the supported image formats
-    namespace ImageType {
-        const int gif = 11;          //!< GIF image type (see class GifImage)
-    }
-
     /*!
       @brief Class to access raw GIF images. Exif/IPTC metadata are supported
              directly.
      */
     class EXIV2API GifImage : public Image {
-        //! @name NOT Implemented
-        //@{
-        //! Copy constructor
-        GifImage(const GifImage& rhs);
-        //! Assignment operator
-        GifImage& operator=(const GifImage& rhs);
-        //@}
-
     public:
+        GifImage& operator=(const GifImage& rhs) = delete;
+        GifImage& operator=(const GifImage&& rhs) = delete;
+        GifImage(const GifImage& rhs) = delete;
+        GifImage(const GifImage&& rhs) = delete;
+
         //! @name Creators
         //@{
         /*!
@@ -74,37 +65,37 @@ namespace Exiv2 {
               instance after it is passed to this method.  Use the Image::io()
               method to get a temporary reference.
          */
-        explicit GifImage(BasicIo::AutoPtr io);
+        explicit GifImage(BasicIo::UniquePtr io);
         //@}
 
         //! @name Manipulators
         //@{
-        void readMetadata();
+        void readMetadata() override;
         /*!
           @brief Todo: Write metadata back to the image. This method is not
               yet(?) implemented. Calling it will throw an Error(kerWritingImageFormatUnsupported).
          */
-        void writeMetadata();
+        void writeMetadata() override;
         /*!
           @brief Todo: Not supported yet(?). Calling this function will throw
               an instance of Error(kerInvalidSettingForImage).
          */
-        void setExifData(const ExifData& exifData);
+        void setExifData(const ExifData& exifData) override;
         /*!
           @brief Todo: Not supported yet(?). Calling this function will throw
               an instance of Error(kerInvalidSettingForImage).
          */
-        void setIptcData(const IptcData& iptcData);
+        void setIptcData(const IptcData& iptcData) override;
         /*!
           @brief Not supported. Calling this function will throw an instance
               of Error(kerInvalidSettingForImage).
          */
-        void setComment(const std::string& comment);
+        void setComment(const std::string& comment) override;
         //@}
 
         //! @name Accessors
         //@{
-        std::string mimeType() const;
+        std::string mimeType() const override;
         //@}
 
     }; // class GifImage
@@ -119,11 +110,9 @@ namespace Exiv2 {
              Caller owns the returned object and the auto-pointer ensures that
              it will be deleted.
      */
-    EXIV2API Image::AutoPtr newGifInstance(BasicIo::AutoPtr io, bool create);
+    EXIV2API Image::UniquePtr newGifInstance(BasicIo::UniquePtr io, bool create);
 
     //! Check if the file iIo is a GIF image.
     EXIV2API bool isGifType(BasicIo& iIo, bool advance);
 
 }                                       // namespace Exiv2
-
-#endif                                  // #ifndef GIFIMAGE_HPP_

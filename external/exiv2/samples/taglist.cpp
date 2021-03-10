@@ -21,8 +21,7 @@ int main(int argc, char* argv[])
     Exiv2::XmpParser::initialize();
     ::atexit(Exiv2::XmpParser::terminate);
 
-    int rc = EXIT_SUCCESS;
-    std::ostringstream out;
+    int rc = 0;
     try {
         bool bHelp     = false;
 
@@ -83,7 +82,6 @@ int main(int argc, char* argv[])
 
                 try {
                     XmpProperties::printProperties(std::cout, item);
-                    break;
                 } catch (const AnyError&) {
                     rc = 2;
                 }

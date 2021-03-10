@@ -24,8 +24,7 @@
            <a href="mailto:ahuggel@gmx.net">ahuggel@gmx.net</a>
   @date    13-Jul-07, ahu: created
  */
-#ifndef XMP_HPP_
-#define XMP_HPP_
+#pragma once
 
 // *****************************************************************************
 #include "exiv2lib_export.h"
@@ -103,7 +102,7 @@ namespace Exiv2 {
                  Calls setValue(const Value*).
          */
         Xmpdatum& operator=(const Value& value);
-        void setValue(const Value* pValue);
+        void setValue(const Value* pValue) override;
         /*!
           @brief Set the value to the string \em value. Uses Value::read(const
                  std::string&).  If the %Xmpdatum does not have a Value yet,
@@ -111,49 +110,49 @@ namespace Exiv2 {
                  created. If the key is unknown, a XmpTextValue is used as
                  default. Return 0 if the value was read successfully.
          */
-        int setValue(const std::string& value);
+        int setValue(const std::string& value) override;
         //@}
 
         //! @name Accessors
         //@{
         //! Not implemented. Calling this method will raise an exception.
-        long copy(byte* buf, ByteOrder byteOrder) const;
-        std::ostream& write(std::ostream& os, const ExifData* pMetadata =0) const;
+        long copy(byte* buf, ByteOrder byteOrder) const override;
+        std::ostream& write(std::ostream& os, const ExifData* pMetadata =0) const override;
         /*!
           @brief Return the key of the Xmpdatum. The key is of the form
                  '<b>Xmp</b>.prefix.property'. Note however that the
                  key is not necessarily unique, i.e., an XmpData object may
                  contain multiple metadata with the same key.
          */
-        std::string key() const;
-        const char* familyName() const;
+        std::string key() const override;
+        const char* familyName() const override;
         //! Return the (preferred) schema namespace prefix.
-        std::string groupName() const;
+        std::string groupName() const override;
         //! Return the property name.
-        std::string tagName() const;
-        std::string tagLabel() const;
+        std::string tagName() const override;
+        std::string tagLabel() const override;
         //! Properties don't have a tag number. Return 0.
-        uint16_t tag() const;
-        TypeId typeId() const;
-        const char* typeName() const;
+        uint16_t tag() const override;
+        TypeId typeId() const override;
+        const char* typeName() const override;
         // Todo: Remove this method from the baseclass
         //! The Exif typeSize doesn't make sense here. Return 0.
-        long typeSize() const;
-        long count() const;
-        long size() const;
-        std::string toString() const;
-        std::string toString(long n) const;
-        long toLong(long n =0) const;
-        float toFloat(long n =0) const;
-        Rational toRational(long n =0) const;
-        Value::AutoPtr getValue() const;
-        const Value& value() const;
+        size_t typeSize() const override;
+        size_t count() const override;
+        size_t size() const override;
+        std::string toString() const override;
+        std::string toString(long n) const override;
+        long toLong(long n =0) const override;
+        float toFloat(long n =0) const override;
+        Rational toRational(long n =0) const override;
+        Value::UniquePtr getValue() const override;
+        const Value& value() const override;
         //@}
 
     private:
         // Pimpl idiom
         struct Impl;
-        std::auto_ptr<Impl> p_;
+        std::unique_ptr<Impl> p_;
 
     }; // class Xmpdatum
 
@@ -254,7 +253,11 @@ namespace Exiv2 {
         //! set usePacket_
         bool usePacket(bool b) { bool r = usePacket_; usePacket_=b ; return r; };
         //! setPacket
-        void setPacket(const std::string& xmpPacket) { xmpPacket_ = xmpPacket ; usePacket(false); };
+        void setPacket(const std::string& xmpPacket)
+        {
+            xmpPacket_ = xmpPacket;
+            usePacket(false);
+        }
         // ! getPacket
         const std::string& xmpPacket() const { return xmpPacket_ ; };
 
@@ -439,5 +442,3 @@ namespace Exiv2 {
     }
 
 }                                       // namespace Exiv2
-
-#endif                                  // #ifndef XMP_HPP_

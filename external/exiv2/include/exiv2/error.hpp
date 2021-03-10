@@ -25,8 +25,7 @@
   @date    15-Jan-04, ahu: created<BR>
            11-Feb-04, ahu: isolated as a component
  */
-#ifndef ERROR_HPP_
-#define ERROR_HPP_
+#pragma once
 
 // *****************************************************************************
 #include "exiv2lib_export.h"
@@ -73,11 +72,12 @@ namespace Exiv2 {
              make that call any logic that always needs to be executed.
      */
     class EXIV2API LogMsg {
-        //! Prevent copy-construction: not implemented.
-        LogMsg(const LogMsg&);
-        //! Prevent assignment: not implemented.
-        LogMsg& operator=(const LogMsg&);
     public:
+        LogMsg& operator=(const LogMsg& rhs) = delete;
+        LogMsg& operator=(const LogMsg&& rhs) = delete;
+        LogMsg(const LogMsg& rhs) = delete;
+        LogMsg(const LogMsg&& rhs) = delete;
+
         /*!
           @brief Defined log levels. To suppress all log messages, either set the
                  log level to \c mute or set the log message handler to 0.
@@ -176,9 +176,9 @@ namespace Exiv2 {
         AnyError();
         AnyError(const AnyError& o);
 
-        virtual ~AnyError() throw();
+        virtual ~AnyError() noexcept;
         ///@brief  Return the error code.
-        virtual int code() const throw() =0;
+        virtual int code() const noexcept =0;
     };
 
     //! %AnyError output operator
@@ -249,7 +249,6 @@ namespace Exiv2 {
         kerInvalidXMP,
         kerTiffDirectoryTooLarge,
         kerInvalidTypeValue,
-        kerInvalidLangAltValue,
         kerInvalidMalloc,
         kerCorruptedMetadata,
         kerArithmeticOverflow,
@@ -261,43 +260,43 @@ namespace Exiv2 {
              provided to print errors to a stream.
      */
     template<typename charT>
-    class EXIV2API BasicError : public AnyError {
+    class BasicError : public AnyError {
     public:
         //! @name Creators
         //@{
         //! Constructor taking only an error code
-        explicit inline BasicError(ErrorCode code);
+        explicit BasicError(ErrorCode code);
 
         //! Constructor taking an error code and one argument
         template<typename A>
-        inline BasicError(ErrorCode code, const A& arg1);
+        BasicError(ErrorCode code, const A& arg1);
 
         //! Constructor taking an error code and two arguments
         template<typename A, typename B>
-        inline BasicError(ErrorCode code, const A& arg1, const B& arg2);
+        BasicError(ErrorCode code, const A& arg1, const B& arg2);
 
         //! Constructor taking an error code and three arguments
         template<typename A, typename B, typename C>
-        inline BasicError(ErrorCode code, const A& arg1, const B& arg2, const C& arg3);
+        BasicError(ErrorCode code, const A& arg1, const B& arg2, const C& arg3);
 
-        //! Virtual destructor. (Needed because of throw())
-        virtual inline ~BasicError() throw();
+        //! Virtual destructor. (Needed because of noexcept)
+        virtual ~BasicError() noexcept;
         //@}
 
         //! @name Accessors
         //@{
-        virtual inline int code() const throw();
+        int code() const noexcept override;
         /*!
           @brief Return the error message as a C-string. The pointer returned by what()
                  is valid only as long as the BasicError object exists.
          */
-        virtual inline const char* what() const throw();
+        const char* what() const noexcept override;
 #ifdef EXV_UNICODE_PATH
         /*!
           @brief Return the error message as a wchar_t-string. The pointer returned by
                  wwhat() is valid only as long as the BasicError object exists.
          */
-        virtual inline const wchar_t* wwhat() const throw();
+        const wchar_t* wwhat() const noexcept;
 #endif
         //@}
 
@@ -305,7 +304,7 @@ namespace Exiv2 {
         //! @name Manipulators
         //@{
         //! Assemble the error message from the arguments
-        void setMsg();
+        EXIV2API void setMsg();
         //@}
 
         // DATA
@@ -367,25 +366,25 @@ namespace Exiv2 {
     }
 
     template<typename charT>
-    BasicError<charT>::~BasicError() throw()
+    BasicError<charT>::~BasicError() noexcept
     {
     }
 
     template<typename charT>
-    int BasicError<charT>::code() const throw()
+    int BasicError<charT>::code() const noexcept
     {
         return code_;
     }
 
     template<typename charT>
-    const char* BasicError<charT>::what() const throw()
+    const char* BasicError<charT>::what() const noexcept
     {
         return msg_.c_str();
     }
 
 #ifdef EXV_UNICODE_PATH
     template<typename charT>
-    const wchar_t* BasicError<charT>::wwhat() const throw()
+    const wchar_t* BasicError<charT>::wwhat() const noexcept
     {
         return wmsg_.c_str();
     }
@@ -396,4 +395,3 @@ namespace Exiv2 {
 #endif
 
 }                                       // namespace Exiv2
-#endif                                  // #ifndef ERROR_HPP_

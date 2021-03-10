@@ -1,7 +1,7 @@
 #include <exiv2/error.hpp>
 #include <exiv2/properties.hpp>
 
-#include "gtestwrapper.h"
+#include <gtest/gtest.h>
 
 using namespace Exiv2;
 
@@ -71,7 +71,7 @@ TEST_F(AXmpKey, canBeCopied)
 TEST_F(AXmpKey, canBeCloned)
 {
     XmpKey key(expectedPrefix, expectedProperty);
-    XmpKey::AutoPtr clonedKey = key.clone();
+    XmpKey::UniquePtr clonedKey = key.clone();
     checkValidity(*clonedKey);
 }
 

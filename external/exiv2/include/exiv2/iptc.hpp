@@ -24,8 +24,7 @@
            <a href="mailto:brad@robotbattle.com">brad@robotbattle.com</a>
   @date    31-Jul-04, brad: created
  */
-#ifndef IPTC_HPP_
-#define IPTC_HPP_
+#pragma once
 
 // *****************************************************************************
 #include "exiv2lib_export.h"
@@ -92,7 +91,7 @@ namespace Exiv2 {
                  Calls setValue(const Value*).
          */
         Iptcdatum& operator=(const Value& value);
-        void setValue(const Value* pValue);
+        void setValue(const Value* pValue) override;
         /*!
           @brief Set the value to the string \em value, using
                  Value::read(const std::string&).
@@ -101,20 +100,20 @@ namespace Exiv2 {
                  fails (because of an unknown dataset), a StringValue is
                  created. Return 0 if the value was read successfully.
          */
-        int setValue(const std::string& value);
+        int setValue(const std::string& value) override;
         //@}
 
         //! @name Accessors
         //@{
-        long copy(byte* buf, ByteOrder byteOrder) const;
-        std::ostream& write(std::ostream& os, const ExifData* pMetadata =0) const;
+        long copy(byte* buf, ByteOrder byteOrder) const override;
+        std::ostream& write(std::ostream& os, const ExifData* pMetadata =0) const override;
         /*!
           @brief Return the key of the Iptcdatum. The key is of the form
                  '<b>Iptc</b>.recordName.datasetName'. Note however that the key
                  is not necessarily unique, i.e., an IptcData object may contain
                  multiple metadata with the same key.
          */
-        std::string key() const;
+        std::string key() const override;
         /*!
            @brief Return the name of the record (deprecated)
            @return record name
@@ -125,34 +124,34 @@ namespace Exiv2 {
            @return record id
          */
         uint16_t record() const;
-        const char* familyName() const;
-        std::string groupName() const;
+        const char* familyName() const override;
+        std::string groupName() const override;
         /*!
            @brief Return the name of the tag (aka dataset)
            @return tag name
          */
-        std::string tagName() const;
-        std::string tagLabel() const;
+        std::string tagName() const override;
+        std::string tagLabel() const override;
         //! Return the tag (aka dataset) number
-        uint16_t tag() const;
-        TypeId typeId() const;
-        const char* typeName() const;
-        long typeSize() const;
-        long count() const;
-        long size() const;
-        std::string toString() const;
-        std::string toString(long n) const;
-        long toLong(long n =0) const;
-        float toFloat(long n =0) const;
-        Rational toRational(long n =0) const;
-        Value::AutoPtr getValue() const;
-        const Value& value() const;
+        uint16_t tag() const override;
+        TypeId typeId() const override;
+        const char* typeName() const override;
+        size_t typeSize() const override;
+        size_t count() const override;
+        size_t size() const override;
+        std::string toString() const override;
+        std::string toString(long n) const override;
+        long toLong(long n =0) const override;
+        float toFloat(long n =0) const override;
+        Rational toRational(long n =0) const override;
+        Value::UniquePtr getValue() const override;
+        const Value& value() const override;
         //@}
 
     private:
         // DATA
-        IptcKey::AutoPtr key_;                  //!< Key
-        Value::AutoPtr   value_;                //!< Value
+        IptcKey::UniquePtr key_;                  //!< Key
+        Value::UniquePtr   value_;                //!< Value
 
     }; // class Iptcdatum
 
@@ -294,11 +293,7 @@ namespace Exiv2 {
           @return 0 if successful;<BR>
                   5 if the binary IPTC data is invalid or corrupt
          */
-        static int decode(
-                  IptcData& iptcData,
-            const byte*     pData,
-                  uint32_t  size
-        );
+        static int decode(IptcData& iptcData, const byte* pData, size_t size);
         /*!
           @brief Encode the IPTC datasets from \em iptcData to a binary
                  representation in IPTC IIM4 format.
@@ -308,9 +303,7 @@ namespace Exiv2 {
 
           @return Data buffer containing the binary IPTC data in IPTC IIM4 format.
          */
-        static DataBuf encode(
-            const IptcData& iptcData
-        );
+        static DataBuf encode(const IptcData& iptcData);
 
     private:
         // Constant data
@@ -319,5 +312,3 @@ namespace Exiv2 {
     }; // class IptcParser
 
 }                                       // namespace Exiv2
-
-#endif                                  // #ifndef IPTC_HPP_

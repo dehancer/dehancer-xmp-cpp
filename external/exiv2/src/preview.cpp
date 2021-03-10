@@ -57,8 +57,8 @@ namespace {
         const PreviewProperties& rhs
     )
     {
-        uint32_t l = lhs.width_ * lhs.height_;
-        uint32_t r = rhs.width_ * rhs.height_;
+        size_t l = lhs.width_ * lhs.height_;
+        size_t r = rhs.width_ * rhs.height_;
 
         return l < r;
     }
@@ -93,10 +93,10 @@ namespace {
         virtual ~Loader() {}
 
         //! Loader auto pointer
-        typedef std::auto_ptr<Loader> AutoPtr;
+        typedef std::unique_ptr<Loader> UniquePtr;
 
         //! Create a Loader subclass for requested id
-        static AutoPtr create(PreviewId id, const Image &image);
+        static UniquePtr create(PreviewId id, const Image &image);
 
         //! Check if a preview image with given params exists in the image
         virtual bool valid() const { return valid_; }
@@ -118,7 +118,7 @@ namespace {
         Loader(PreviewId id, const Image &image);
 
         //! Functions that creates a loader from given parameters
-        typedef AutoPtr (*CreateFunc)(PreviewId id, const Image &image, int parIdx);
+        typedef UniquePtr (*CreateFunc)(PreviewId id, const Image &image, int parIdx);
 
         //! Structure to list possible loaders
         struct LoaderList {
@@ -143,7 +143,7 @@ namespace {
         uint32_t height_;
 
         //! Preview image size in bytes
-        uint32_t size_;
+        size_t size_;
 
         //! True if the source image contains a preview image of given type
         bool valid_;
@@ -156,13 +156,13 @@ namespace {
         LoaderNative(PreviewId id, const Image &image, int parIdx);
 
         //! Get properties of a preview image with given params
-        virtual PreviewProperties getProperties() const;
+        PreviewProperties getProperties() const override;
 
         //! Get a buffer that contains the preview image
-        virtual DataBuf getData() const;
+        DataBuf getData() const override;
 
         //! Read preview image dimensions
-        virtual bool readDimensions();
+        bool readDimensions() override;
 
     protected:
         //! Native preview information
@@ -170,7 +170,7 @@ namespace {
     };
 
     //! Function to create new LoaderNative
-    Loader::AutoPtr createLoaderNative(PreviewId id, const Image &image, int parIdx);
+    Loader::UniquePtr createLoaderNative(PreviewId id, const Image &image, int parIdx);
 
     //! Loader for Jpeg previews that are not read into ExifData directly
     class LoaderExifJpeg : public Loader {
@@ -180,13 +180,13 @@ namespace {
         LoaderExifJpeg(PreviewId id, const Image &image, int parIdx);
 
         //! Get properties of a preview image with given params
-        virtual PreviewProperties getProperties() const;
+        PreviewProperties getProperties() const override;
 
         //! Get a buffer that contains the preview image
-        virtual DataBuf getData() const;
+        DataBuf getData() const override;
 
         //! Read preview image dimensions
-        virtual bool readDimensions();
+        bool readDimensions() override;
 
     protected:
         //! Structure that lists offset/size tag pairs
@@ -200,11 +200,11 @@ namespace {
         static const Param param_[];
 
         //! Offset value
-        uint32_t offset_;
+        size_t offset_;
     };
 
     //! Function to create new LoaderExifJpeg
-    Loader::AutoPtr createLoaderExifJpeg(PreviewId id, const Image &image, int parIdx);
+    Loader::UniquePtr createLoaderExifJpeg(PreviewId id, const Image &image, int parIdx);
 
     //! Loader for Jpeg previews that are read into ExifData
     class LoaderExifDataJpeg : public Loader {
@@ -213,13 +213,13 @@ namespace {
         LoaderExifDataJpeg(PreviewId id, const Image &image, int parIdx);
 
         //! Get properties of a preview image with given params
-        virtual PreviewProperties getProperties() const;
+        PreviewProperties getProperties() const override;
 
         //! Get a buffer that contains the preview image
-        virtual DataBuf getData() const;
+        DataBuf getData() const override;
 
         //! Read preview image dimensions
-        virtual bool readDimensions();
+        bool readDimensions() override;
 
     protected:
 
@@ -237,7 +237,7 @@ namespace {
     };
 
     //! Function to create new LoaderExifDataJpeg
-    Loader::AutoPtr createLoaderExifDataJpeg(PreviewId id, const Image &image, int parIdx);
+    Loader::UniquePtr createLoaderExifDataJpeg(PreviewId id, const Image &image, int parIdx);
 
     //! Loader for Tiff previews - it can get image data from ExifData or image_.io() as needed
     class LoaderTiff : public Loader {
@@ -246,10 +246,10 @@ namespace {
         LoaderTiff(PreviewId id, const Image &image, int parIdx);
 
         //! Get properties of a preview image with given params
-        virtual PreviewProperties getProperties() const;
+        PreviewProperties getProperties() const override;
 
         //! Get a buffer that contains the preview image
-        virtual DataBuf getData() const;
+        DataBuf getData() const override;
 
     protected:
         //! Name of the group that contains the preview image
@@ -264,7 +264,7 @@ namespace {
         //! Structure that lists preview groups
         struct Param {
             const char* group_; //!< Group name
-            const char* checkTag_; //!< Tag to check or NULL
+            const char* checkTag_; //!< Tag to check or nullptr
             const char* checkValue_; //!< The preview image is valid only if the checkTag_ has this value
         };
 
@@ -274,7 +274,7 @@ namespace {
     };
 
     //! Function to create new LoaderTiff
-    Loader::AutoPtr createLoaderTiff(PreviewId id, const Image &image, int parIdx);
+    Loader::UniquePtr createLoaderTiff(PreviewId id, const Image &image, int parIdx);
 
     //! Loader for JPEG previews stored in the XMP metadata
     class LoaderXmpJpeg : public Loader {
@@ -283,13 +283,13 @@ namespace {
         LoaderXmpJpeg(PreviewId id, const Image &image, int parIdx);
 
         //! Get properties of a preview image with given params
-        virtual PreviewProperties getProperties() const;
+        PreviewProperties getProperties() const override;
 
         //! Get a buffer that contains the preview image
-        virtual DataBuf getData() const;
+        DataBuf getData() const override;
 
         //! Read preview image dimensions
-        virtual bool readDimensions();
+        bool readDimensions() override;
 
     protected:
         //! Preview image data
@@ -297,7 +297,7 @@ namespace {
     };
 
     //! Function to create new LoaderXmpJpeg
-    Loader::AutoPtr createLoaderXmpJpeg(PreviewId id, const Image &image, int parIdx);
+    Loader::UniquePtr createLoaderXmpJpeg(PreviewId id, const Image &image, int parIdx);
 
 // *****************************************************************************
 // class member definitions
@@ -377,16 +377,16 @@ namespace {
         { "Image2",    0,                               0   }   // 7
     };
 
-    Loader::AutoPtr Loader::create(PreviewId id, const Image &image)
+    Loader::UniquePtr Loader::create(PreviewId id, const Image &image)
     {
         if (id < 0 || id >= Loader::getNumLoaders())
-            return AutoPtr();
+            return UniquePtr();
 
         if (loaderList_[id].imageMimeType_ &&
             std::string(loaderList_[id].imageMimeType_) != image.mimeType())
-            return AutoPtr();
+            return UniquePtr();
 
-        AutoPtr loader = loaderList_[id].create_(id, image, loaderList_[id].parIdx_);
+        UniquePtr loader = loaderList_[id].create_(id, image, loaderList_[id].parIdx_);
 
         if (loader.get() && !loader->valid()) loader.reset();
         return loader;
@@ -430,9 +430,9 @@ namespace {
         }
     }
 
-    Loader::AutoPtr createLoaderNative(PreviewId id, const Image &image, int parIdx)
+    Loader::UniquePtr createLoaderNative(PreviewId id, const Image &image, int parIdx)
     {
-        return Loader::AutoPtr(new LoaderNative(id, image, parIdx));
+        return Loader::UniquePtr(new LoaderNative(id, image, parIdx));
     }
 
     PreviewProperties LoaderNative::getProperties() const
@@ -506,7 +506,7 @@ namespace {
         const DataBuf data = getData();
         if (data.size_ == 0) return false;
         try {
-            Image::AutoPtr image = ImageFactory::open(data.pData_, data.size_);
+            Image::UniquePtr image = ImageFactory::open(data.pData_, data.size_);
             if (image.get() == 0) return false;
             image->readMetadata();
 
@@ -552,9 +552,9 @@ namespace {
         valid_ = true;
     }
 
-    Loader::AutoPtr createLoaderExifJpeg(PreviewId id, const Image &image, int parIdx)
+    Loader::UniquePtr createLoaderExifJpeg(PreviewId id, const Image &image, int parIdx)
     {
-        return Loader::AutoPtr(new LoaderExifJpeg(id, image, parIdx));
+        return Loader::UniquePtr(new LoaderExifJpeg(id, image, parIdx));
     }
 
     PreviewProperties LoaderExifJpeg::getProperties() const
@@ -597,7 +597,7 @@ namespace {
         const Exiv2::byte* base = io.mmap();
 
         try {
-            Image::AutoPtr image = ImageFactory::open(base + offset_, size_);
+            Image::UniquePtr image = ImageFactory::open(base + offset_, size_);
             if (image.get() == 0) return false;
             image->readMetadata();
 
@@ -630,9 +630,9 @@ namespace {
         valid_ = true;
     }
 
-    Loader::AutoPtr createLoaderExifDataJpeg(PreviewId id, const Image &image, int parIdx)
+    Loader::UniquePtr createLoaderExifDataJpeg(PreviewId id, const Image &image, int parIdx)
     {
-        return Loader::AutoPtr(new LoaderExifDataJpeg(id, image, parIdx));
+        return Loader::UniquePtr(new LoaderExifDataJpeg(id, image, parIdx));
     }
 
     PreviewProperties LoaderExifDataJpeg::getProperties() const
@@ -674,7 +674,7 @@ namespace {
         if (buf.size_ == 0) return false;
 
         try {
-            Image::AutoPtr image = ImageFactory::open(buf.pData_, buf.size_);
+            Image::UniquePtr image = ImageFactory::open(buf.pData_, buf.size_);
             if (image.get() == 0) return false;
             image->readMetadata();
 
@@ -742,9 +742,9 @@ namespace {
         valid_ = true;
     }
 
-    Loader::AutoPtr createLoaderTiff(PreviewId id, const Image &image, int parIdx)
+    Loader::UniquePtr createLoaderTiff(PreviewId id, const Image &image, int parIdx)
     {
-        return Loader::AutoPtr(new LoaderTiff(id, image, parIdx));
+        return Loader::UniquePtr(new LoaderTiff(id, image, parIdx));
     }
 
     PreviewProperties LoaderTiff::getProperties() const
@@ -817,7 +817,7 @@ namespace {
                             memcpy(&buf.pData_[idxBuf], base + offset, size);
                         idxBuf += size;
                     }
-                    dataValue.setDataArea(buf.pData_, buf.size_);
+                    dataValue.setDataArea(buf.pData_, (uint32_t)buf.size_);
                 }
             }
         }
@@ -865,9 +865,9 @@ namespace {
         valid_ = true;
     }
 
-    Loader::AutoPtr createLoaderXmpJpeg(PreviewId id, const Image &image, int parIdx)
+    Loader::UniquePtr createLoaderXmpJpeg(PreviewId id, const Image &image, int parIdx)
     {
-        return Loader::AutoPtr(new LoaderXmpJpeg(id, image, parIdx));
+        return Loader::UniquePtr(new LoaderXmpJpeg(id, image, parIdx));
     }
 
     PreviewProperties LoaderXmpJpeg::getProperties() const
@@ -979,7 +979,7 @@ namespace {
             return DataBuf();
         }
         const byte *imageData = src.pData_ + colorTableSize;
-        const long imageDataSize = src.size_ - colorTableSize;
+        const long imageDataSize = (uint32_t)src.size_ - colorTableSize;
         const bool rle = (imageDataSize >= 3 && imageData[0] == 'R' && imageData[1] == 'L' && imageData[2] == 'E');
         std::string dest;
         for (long i = rle ? 3 : 0; i < imageDataSize;) {
@@ -1013,7 +1013,7 @@ namespace {
 
     DataBuf makePnm(uint32_t width, uint32_t height, const DataBuf &rgb)
     {
-        const long expectedSize = static_cast<long>(width * height * 3);
+        const size_t expectedSize = static_cast<size_t>(width * height * 3);
         if (rgb.size_ != expectedSize) {
 #ifndef SUPPRESS_WARNINGS
             EXV_WARNING << "Invalid size of preview data. Expected " << expectedSize << " bytes, got " << rgb.size_ << " bytes.\n";
@@ -1040,8 +1040,8 @@ namespace Exiv2 {
         : properties_(properties)
     {
         pData_ = data.pData_;
-        size_ = data.size_;
-        std::pair<byte*, long> ret = data.release();
+        size_ = (uint32_t)data.size_;
+        auto ret = data.release();
         UNUSED(ret);
     }
 
@@ -1071,7 +1071,7 @@ namespace Exiv2 {
         return *this;
     }
 
-    long PreviewImage::writeFile(const std::string& path) const
+    size_t PreviewImage::writeFile(const std::string& path) const
     {
         std::string name = path + extension();
         // Todo: Creating a DataBuf here unnecessarily copies the memory
@@ -1080,7 +1080,7 @@ namespace Exiv2 {
     }
 
 #ifdef EXV_UNICODE_PATH
-    long PreviewImage::writeFile(const std::wstring& wpath) const
+    size_t PreviewImage::writeFile(const std::wstring& wpath) const
     {
         std::wstring name = wpath + wextension();
         // Todo: Creating a DataBuf here unnecessarily copies the memory
@@ -1099,7 +1099,7 @@ namespace Exiv2 {
         return pData_;
     }
 
-    uint32_t PreviewImage::size() const
+    size_t PreviewImage::size() const
     {
         return size_;
     }
@@ -1121,12 +1121,12 @@ namespace Exiv2 {
     }
 
 #endif
-    uint32_t PreviewImage::width() const
+    size_t PreviewImage::width() const
     {
         return properties_.width_;
     }
 
-    uint32_t PreviewImage::height() const
+    size_t PreviewImage::height() const
     {
         return properties_.height_;
     }
@@ -1146,11 +1146,11 @@ namespace Exiv2 {
         PreviewPropertiesList list;
         // go through the loader table and store all successfully created loaders in the list
         for (PreviewId id = 0; id < Loader::getNumLoaders(); ++id) {
-            Loader::AutoPtr loader = Loader::create(id, image_);
+            Loader::UniquePtr loader = Loader::create(id, image_);
             if (loader.get() && loader->readDimensions()) {
                 PreviewProperties props = loader->getProperties();
                 DataBuf buf             = loader->getData(); // #16 getPreviewImage()
-                props.size_             = buf.size_;         //     update the size
+                props.size_             = (uint32_t)buf.size_;         //     update the size
                 list.push_back(props) ;
             }
         }
@@ -1160,7 +1160,7 @@ namespace Exiv2 {
 
     PreviewImage PreviewManager::getPreviewImage(const PreviewProperties &properties) const
     {
-        Loader::AutoPtr loader = Loader::create(properties.id_, image_);
+        Loader::UniquePtr loader = Loader::create(properties.id_, image_);
         DataBuf buf;
         if (loader.get()) {
             buf = loader->getData();

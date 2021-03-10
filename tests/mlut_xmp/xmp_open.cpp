@@ -87,8 +87,8 @@ TEST(XMP, XMPOpenTest) {
         std::ofstream outFile;
 
         std::string file = "./";
-        xmp->get_name();
-        file.append(xmp->get_name());
+        auto name = xmp->get_name();
+        file.append(name);
         file.append("[");
         file.append(std::to_string(i));
         file.append("].png");

@@ -163,17 +163,17 @@ namespace Exiv2 {
         return TypeInfo::typeName(typeId());
     }
 
-    long Iptcdatum::typeSize() const
+    size_t Iptcdatum::typeSize() const
     {
         return TypeInfo::typeSize(typeId());
     }
 
-    long Iptcdatum::count() const
+    size_t Iptcdatum::count() const
     {
         return value_.get() == 0 ? 0 : value_->count();
     }
 
-    long Iptcdatum::size() const
+    size_t Iptcdatum::size() const
     {
         return value_.get() == 0 ? 0 : value_->size();
     }
@@ -203,9 +203,9 @@ namespace Exiv2 {
         return value_.get() == 0 ? Rational(-1, 1) : value_->toRational(n);
     }
 
-    Value::AutoPtr Iptcdatum::getValue() const
+    Value::UniquePtr Iptcdatum::getValue() const
     {
-        return value_.get() == 0 ? Value::AutoPtr(0) : value_->clone();
+        return value_.get() == 0 ? nullptr : value_->clone();
     }
 
     const Value& Iptcdatum::value() const
@@ -230,9 +230,9 @@ namespace Exiv2 {
 
     Iptcdatum& Iptcdatum::operator=(const uint16_t& value)
     {
-        UShortValue::AutoPtr v(new UShortValue);
+        UShortValue::UniquePtr v(new UShortValue);
         v->value_.push_back(value);
-        value_ = v;
+        value_ = std::move(v);
         return *this;
     }
 
@@ -276,21 +276,21 @@ namespace Exiv2 {
 
     long IptcData::size() const
     {
-        long newSize = 0;
+        size_t newSize = 0;
         const_iterator iter = iptcMetadata_.begin();
         const_iterator end = iptcMetadata_.end();
         for ( ; iter != end; ++iter) {
             // marker, record Id, dataset num, first 2 bytes of size
             newSize += 5;
-            long dataSize = iter->size();
+            size_t dataSize = iter->size();
             newSize += dataSize;
             if (dataSize > 32767) {
                 // extended dataset (we always use 4 bytes)
                 newSize += 4;
             }
         }
-        return newSize;
-    } // IptcData::size
+        return (long)newSize;
+    }
 
     int IptcData::add(const IptcKey& key, Value* value)
     {
@@ -424,16 +424,12 @@ namespace Exiv2 {
 
         if (ascii) return "ASCII";
         if (utf8) return "UTF-8";
-        return NULL;
+        return nullptr;
     }
 
     const byte IptcParser::marker_ = 0x1C;          // Dataset marker
 
-    int IptcParser::decode(
-              IptcData& iptcData,
-        const byte*     pData,
-              uint32_t  size
-    )
+    int IptcParser::decode(IptcData& iptcData, const byte* pData, size_t size)
     {
 #ifdef EXIV2_DEBUG_MESSAGES
         std::cerr << "IptcParser::decode, size = " << size << "\n";
@@ -525,13 +521,13 @@ namespace Exiv2 {
             *pWrite++ = static_cast<byte>(iter->tag());
 
             // extended or standard dataset?
-            long dataSize = iter->size();
+            size_t dataSize = iter->size();
             if (dataSize > 32767) {
                 // always use 4 bytes for extended length
                 uint16_t sizeOfSize = 4 | 0x8000;
                 us2Data(pWrite, sizeOfSize, bigEndian);
                 pWrite += 2;
-                ul2Data(pWrite, dataSize, bigEndian);
+                ul2Data(pWrite, static_cast<uint32_t>(dataSize), bigEndian);
                 pWrite += 4;
             }
             else {
@@ -558,7 +554,7 @@ namespace {
               uint32_t         sizeData
     )
     {
-        Exiv2::Value::AutoPtr value;
+        Exiv2::Value::UniquePtr value;
         Exiv2::TypeId type = Exiv2::IptcDataSets::dataSetType(dataSet, record);
         value = Exiv2::Value::create(type);
         int rc = value->read(data, sizeData, Exiv2::bigEndian);

@@ -22,7 +22,7 @@ namespace dehancer {
     public:
 
         using CLutBuffer = std::vector<std::uint8_t>;
-        using exiv2_ptr_t = Exiv2::Value::AutoPtr;
+        using exiv2_ptr_t = Exiv2::Value::UniquePtr;
 
     public:
 
@@ -55,25 +55,25 @@ namespace dehancer {
         );
         static dehancer::expected<CameraLutXmp,Error> Open(const std::string &path);
     
-        exiv2_ptr_t get_value(const std::string &key) const ;
-        const std::vector<std::string> & get_key_list() const;
-
-        time_t get_datetime() const ;
-        int get_revision() const ;
-        int get_order() const ;
-        bool is_photo_enabled() const ;
-        bool is_video_enabled() const ;
-        std::string get_id() const ;
-        std::string get_vendor() const ;
-        std::string get_model() const ;
-        std::string get_format() const ;
-        std::string get_caption() const ;
-        std::string get_description() const ;
-        std::string get_tags() const ;
-        std::string get_author() const ;
-        std::string get_maintainer() const ;
-        const std::vector<dehancer::License::Type>& get_license_matrix() const ;
-        const CLutBuffer& get_clut() const ;
+        [[nodiscard]] exiv2_ptr_t get_value(const std::string &key) const ;
+        [[nodiscard]] const std::vector<std::string> & get_key_list() const;
+    
+        [[nodiscard]] time_t get_datetime() const ;
+        [[nodiscard]] int get_revision() const ;
+        [[nodiscard]] int get_order() const ;
+        [[nodiscard]] bool is_photo_enabled() const ;
+        [[nodiscard]] bool is_video_enabled() const ;
+        [[nodiscard]] std::string get_id() const ;
+        [[nodiscard]] std::string get_vendor() const ;
+        [[nodiscard]] std::string get_model() const ;
+        [[nodiscard]] std::string get_format() const ;
+        [[nodiscard]] std::string get_caption() const ;
+        [[nodiscard]] std::string get_description() const ;
+        [[nodiscard]] std::string get_tags() const ;
+        [[nodiscard]] std::string get_author() const ;
+        [[nodiscard]] std::string get_maintainer() const ;
+        [[nodiscard]] const std::vector<dehancer::License::Type>& get_license_matrix() const ;
+        [[nodiscard]] const CLutBuffer& get_clut() const ;
 
         CameraLutXmp(const CameraLutXmp& other);
         ~CameraLutXmp();
@@ -85,10 +85,10 @@ namespace dehancer {
         std::map<std::string, exiv2_ptr_t> meta_;
         CLutBuffer clut_;
         std::vector<dehancer::License::Type> license_matrix_;
-
-        std::string get_cache_path() const ;
-        std::string get_cache_meta_path() const ;
-        std::string get_cache_clut_path() const ;
+    
+        [[nodiscard]] std::string get_cache_path() const ;
+        [[nodiscard]] std::string get_cache_meta_path() const ;
+        [[nodiscard]] std::string get_cache_clut_path() const ;
     private:
         static dehancer::expected<CameraLutXmp,Error> parse(
                 const std::string &metaBuffer,

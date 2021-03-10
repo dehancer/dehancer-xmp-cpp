@@ -26,14 +26,16 @@ add_library(exiv2-xmp STATIC
     include/XMP_Version.h
 )
 
+# TODO: Use imported target EXPAT::EXPAT when we upgrade CMake version
 target_link_libraries(exiv2-xmp
     PRIVATE 
-        $<BUILD_INTERFACE:${EXPAT_LIBRARY}>
+        ${EXPAT_LIBRARY}
 )
 
 target_include_directories(exiv2-xmp
-    PRIVATE 
+    PUBLIC 
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/xmpsdk/include>
+    PRIVATE 
         ${EXPAT_INCLUDE_DIR}
 )
 
@@ -45,13 +47,17 @@ if (MSVC)
     target_compile_definitions(exiv2-xmp PRIVATE XML_STATIC)
 endif()
 
+check_include_file( "stdint.h"  EXV_HAVE_STDINT_H )
+if (EXV_HAVE_STDINT_H)
+    target_compile_definitions(exiv2-xmp PRIVATE EXV_HAVE_STDINT_H)
+endif()
+
 if (BUILD_SHARED_LIBS)
     set_property(TARGET exiv2-xmp PROPERTY POSITION_INDEPENDENT_CODE ON)
 endif()
 
-# The private dependencies of a static library still need to be exported because they are needed to properly link the consumers of the static library.
-install(TARGETS exiv2-xmp EXPORT exiv2Config	
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}	
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}	
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+# 1119  Install libxmp.a for use by third party applications (Thanks, Emmanuel)
+install(TARGETS exiv2-xmp EXPORT exiv2Config
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )

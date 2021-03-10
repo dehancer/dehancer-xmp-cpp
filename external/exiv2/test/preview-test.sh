@@ -55,7 +55,7 @@ source ./functions.source
 
         echo
         echo "Command: exiv2 -pp $filename"
-        runTest        exiv2 -pp "$filename" 2>/dev/null
+        runTest        exiv2 -pp "$filename"
         exitcode=$?
         echo "Exit code: $exitcode"
 
@@ -63,22 +63,25 @@ source ./functions.source
 
         echo
         echo "Command: exiv2 -f -ep $filename"
-        runTest        exiv2 -f -ep "$filename" 2>/dev/null
+        runTest        exiv2 -f -ep "$filename"
         echo "Exit code: $?"
 
         runTest exiv2 -pp "$filename" 2>/dev/null | sed -n 's,^Preview \([0-9]\+\):.*,\1,p' | while read preview; do
-        	if [ $(uname) == SunOS ]; then
-    			bdiff "../data/preview/$image-preview$preview."* "$image-preview$preview."*
-    		else
-    			diff $diffargs -q "../data/preview/$image-preview$preview."* "$image-preview$preview."*
-    		fi
+            diff $diffargs -q "../data/preview/$image-preview$preview."* "$image-preview$preview."*
         done
     done
 
 ) 3>&1 > "$testdir/preview-test.out" 2>&1
+
 echo "."
 
-reportTest
+# ----------------------------------------------------------------------
+# Result
+if ! diff -q $diffargs  "$testdir/$datadir/preview/preview-test.out" "$testdir/preview-test.out" ; then
+    diff  -u $diffargs  "$testdir/$datadir/preview/preview-test.out" "$testdir/preview-test.out"
+    exit 1
+fi
+echo "All testcases passed."
 
 # That's all Folks!
 ##

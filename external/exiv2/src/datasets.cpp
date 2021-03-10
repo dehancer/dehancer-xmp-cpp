@@ -656,9 +656,9 @@ namespace Exiv2 {
         return record_;
     }
 
-    IptcKey::AutoPtr IptcKey::clone() const
+    IptcKey::UniquePtr IptcKey::clone() const
     {
-        return AutoPtr(clone_());
+        return UniquePtr(clone_());
     }
 
     IptcKey* IptcKey::clone_() const
@@ -722,16 +722,8 @@ namespace Exiv2 {
            << iptcKey.key() << ", "
            << TypeInfo::typeName(
               IptcDataSets::dataSetType(dataSet.number_,
-                                        dataSet.recordId_)) << ", ";
-        // CSV encoded I am \"dead\" beat" => "I am ""dead"" beat"
-        char Q = '"';
-        os << Q;
-        for ( size_t i = 0 ; i < ::strlen(dataSet.desc_) ; i++ ) {
-            char c = dataSet.desc_[i];
-            if ( c == Q ) os << Q;
-            os << c;
-        }
-        os << Q;
+                                          dataSet.recordId_)) << ", "
+           << dataSet.desc_;
         os.flags(f);
         return os;
     }

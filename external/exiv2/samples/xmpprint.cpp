@@ -4,7 +4,7 @@
 // all (known) properties.
 // ========================================================================
 // Linux standalone compilation : 
-//      g++ -o xmpprint xmpprint.cpp `pkg-config --cflags --libs exiv2`
+//      g++ -o xmprint xmprint.cpp `pkg-config --cflags --libs exiv2`
 // ========================================================================
 
 #include <exiv2/exiv2.hpp>
@@ -27,7 +27,7 @@ int main(int argc, char** argv)
         return 1;
       }
 
-    Exiv2::Image::AutoPtr image = Exiv2::ImageFactory::open(argv[1]);
+    Exiv2::Image::UniquePtr image = Exiv2::ImageFactory::open(argv[1]);
     assert (image.get() != 0);
     image->readMetadata();
 
@@ -55,7 +55,7 @@ int main(int argc, char** argv)
                   << std::dec << std::setw(3)
                   << std::setfill(' ') << std::right
                   << md->count() << "  "
-                  << std::dec << md->toString()
+                  << std::dec << md->value()
                   << std::endl;
       }
 

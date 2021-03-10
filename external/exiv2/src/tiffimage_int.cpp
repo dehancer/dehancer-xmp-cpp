@@ -3,7 +3,6 @@
 #include "error.hpp"
 #include "makernote_int.hpp"
 #include "sonymn_int.hpp"
-#include "tags_int.hpp"
 #include "tiffvisitor_int.hpp"
 #include "i18n.h"                // NLS support.
 
@@ -564,35 +563,15 @@ namespace Exiv2 {
         false,            // Don't concatenate gaps
         { 0, ttUnsignedByte,  1 }
     };
-    //! Nikon Lens Data binary array - configuration 3
-    extern const ArrayCfg nikonLd4Cfg = {
-        nikonLd4Id,       // Group for the elements
-        invalidByteOrder, // Use byte order from parent
-        ttUndefined,      // Type for array entry
-        nikonCrypt,       // Encryption function
-        false,            // No size element
-        true,             // Write all tags
-        false,            // Don't concatenate gaps
-        { 0, ttUnsignedByte,  1 }
-    };
     //! Nikon Lens Data binary array - definition
     extern const ArrayDef nikonLdDef[] = {
         { 0, ttUndefined, 4 } // Version
-    };
-    //! Nikon Lens Data binary array - definition
-    extern const ArrayDef nikonLd4Def[] = {
-        { 0, ttUndefined, 4 }, // Version
-        { 48, ttUnsignedShort, 1 }, // LensID
-        { 54, ttUnsignedShort, 1 }, // MacAperture
-        { 56, ttUnsignedShort, 1 }, // FNumber
-        { 60, ttUnsignedShort, 1 }  // FocalLength
     };
     //! Nikon Lens Data configurations and definitions
     extern const ArraySet nikonLdSet[] = {
         { nikonLd1Cfg, nikonLdDef, EXV_COUNTOF(nikonLdDef) },
         { nikonLd2Cfg, nikonLdDef, EXV_COUNTOF(nikonLdDef) },
-        { nikonLd3Cfg, nikonLdDef, EXV_COUNTOF(nikonLdDef) },
-        { nikonLd4Cfg, nikonLd4Def, EXV_COUNTOF(nikonLd4Def) }
+        { nikonLd3Cfg, nikonLdDef, EXV_COUNTOF(nikonLdDef) }
     };
 
     //! Nikon Color Balance binary array - configuration 1
@@ -807,60 +786,6 @@ namespace Exiv2 {
         { 0x2d, ttUnsignedByte, 1 }  // Exif.Sony2Fp.FocusPosition2
     };
 
-    extern const ArrayCfg sony2010eCfg = {
-        sony2010eId,      // Group for the elements
-        invalidByteOrder, // inherit from file.  Usually littleEndian
-        ttUnsignedByte,   // Type for array entry and size element
-        sonyTagDecipher,  // (uint16_t, const byte*, uint32_t, TiffComponent* const);
-        false,            // No size element
-        false,            // No fillers
-        false,            // Don't concatenate gaps
-        { 0, ttUnsignedByte, 1 }
-    };
-    extern const ArrayDef sony2010eDef[] = {
-        {0,  ttUnsignedLong, 1}, // Exif.Sony2010. SequenceImageNumber
-        {4,  ttUnsignedLong, 1}, // Exif.Sony2010. SequenceFileNumber
-        {8,  ttUnsignedLong, 1}, // Exif.Sony2010. ReleaseMode2
-        {540,  ttUnsignedByte, 1}, // Exif.Sony2010. DigitalZoomRatio
-        {556,  ttUndefined, 1}, // Exif.Sony2010. SonyDateTime
-        {808,  ttUnsignedByte, 1}, // Exif.Sony2010. DynamicRangeOptimizer
-        {1208,  ttUndefined, 1}, // Exif.Sony2010. MeterInfo
-        {4444,  ttUnsignedByte, 1}, // Exif.Sony2010. ReleaseMode3
-        {4448,  ttUnsignedByte, 1}, // Exif.Sony2010. ReleaseMode2
-        {4456,  ttUnsignedByte, 1}, // Exif.Sony2010. SelfTimer
-        {4460,  ttUnsignedByte, 1}, // Exif.Sony2010. FlashMode
-        {4466,  ttUnsignedShort, 1}, // Exif.Sony2010. StopsAboveBaseISO
-        {4468,  ttUnsignedShort, 1}, // Exif.Sony2010. BrightnessValue
-        {4472,  ttUnsignedByte, 1}, // Exif.Sony2010. DynamicRangeOptimizer
-        {4476,  ttUnsignedByte, 1}, // Exif.Sony2010. HDRSetting
-        {4480,  ttSignedShort, 1}, // Exif.Sony2010. ExposureCompensation
-        {4502,  ttUnsignedByte, 1}, // Exif.Sony2010. PictureProfile
-        {4503,  ttUnsignedByte, 1}, // Exif.Sony2010. PictureProfile2
-        {4507,  ttUnsignedByte, 1}, // Exif.Sony2010. PictureEffect2
-        {4520,  ttUnsignedByte, 1}, // Exif.Sony2010. Quality2
-        {4524,  ttUnsignedByte, 1}, // Exif.Sony2010. MeteringMode
-        {4525,  ttUnsignedByte, 1}, // Exif.Sony2010. ExposureProgram
-        {4532,  ttUnsignedShort, 3}, // Exif.Sony2010. WB_RGBLevels
-        {4692,  ttUnsignedShort, 1}, // Exif.Sony2010. SonyISO
-        {4696,  ttUnsignedShort, 1}, // Exif.Sony2010. SonyISO2
-        {4728,  ttUnsignedShort, 1}, // Exif.Sony2010. FocalLength
-        {4730,  ttUnsignedShort, 1}, // Exif.Sony2010. MinFocalLength
-        {4732,  ttUnsignedShort, 1}, // Exif.Sony2010. MaxFocalLength
-        {4736,  ttUnsignedShort, 1}, // Exif.Sony2010. SonyISO3
-        {6256,  ttSignedShort, 16}, // Exif.Sony2010. DistortionCorrParams
-        {6289,  ttUnsignedByte, 1}, // Exif.Sony2010. LensFormat
-        {6290,  ttUnsignedByte, 1}, // Exif.Sony2010. LensMount
-        {6291,  ttUnsignedShort, 1}, // Exif.Sony2010. LensType2
-        {6294,  ttUnsignedShort, 1}, // Exif.Sony2010. LensType
-        {6296,  ttUnsignedByte, 1}, // Exif.Sony2010. DistortionCorrParamsPresent
-        {6297,  ttUnsignedByte, 1} // Exif.Sony2010. DistortionCorrParamsNumber
-    };
-
-    //! Sony1 Camera Settings configurations and definitions
-    extern const ArraySet sony2010eSet[] = {
-        { sony2010eCfg,  sony2010eDef,  EXV_COUNTOF(sony2010eDef)  }
-    };
-
     //! Sony[12] Camera Settings binary array - definition
     extern const ArrayDef sonyCsDef[] = {
         {  12, ttSignedShort,   1 }  // Exif.Sony[12]Cs.WhiteBalanceFineTune
@@ -1058,7 +983,6 @@ namespace Exiv2 {
         { Tag::root, nikonLd1Id,       nikon3Id,         0x0098    },
         { Tag::root, nikonLd2Id,       nikon3Id,         0x0098    },
         { Tag::root, nikonLd3Id,       nikon3Id,         0x0098    },
-        { Tag::root, nikonLd4Id,       nikon3Id,         0x0098    },
         { Tag::root, nikonMeId,        nikon3Id,         0x00b0    },
         { Tag::root, nikonAf21Id,      nikon3Id,         0x00b7    },
         { Tag::root, nikonAf22Id,      nikon3Id,         0x00b7    },
@@ -1075,8 +999,6 @@ namespace Exiv2 {
         { Tag::root, samsungPvId,      samsung2Id,       0x0035    },
         { Tag::root, sigmaId,          exifId,           0x927c    },
         { Tag::root, sony1Id,          exifId,           0x927c    },
-        { Tag::root, sony2010eId,      sony1Id,          0x2010    },
-        { Tag::root, sony2FpId,        sony1Id,          0x9402    },
         { Tag::root, sony1CsId,        sony1Id,          0x0114    },
         { Tag::root, sony1Cs2Id,       sony1Id,          0x0114    },
         { Tag::root, sonyMltId,        sony1Id,          0xb028    },
@@ -1085,7 +1007,6 @@ namespace Exiv2 {
         { Tag::root, sony1MltCs7DId,   sonyMltId,        0x0004    },
         { Tag::root, sony1MltCsA100Id, sonyMltId,        0x0114    },
         { Tag::root, sony2Id,          exifId,           0x927c    },
-        { Tag::root, sony2010eId,      sony2Id,          0x2010    },
         { Tag::root, sony2FpId,        sony2Id,          0x9402    },
         { Tag::root, sony2CsId,        sony2Id,          0x0114    },
         { Tag::root, sony2Cs2Id,       sony2Id,          0x0114    },
@@ -1121,15 +1042,6 @@ namespace Exiv2 {
         //---------  ----------------- -----------------------------------------
         // Root directory
         { Tag::root, ifdIdNotSet,      newTiffDirectory<ifd0Id>                  },
-
-        // Fujifilm RAF #1402.  Use different root when parsing embedded tiff.
-        { Tag::fuji, ifdIdNotSet,      newTiffDirectory<fujiId>                  },
-        {    0xf000, fujiId,           newTiffSubIfd<fujiId>                     },
-
-        // CR3 images #1475
-        { Tag::cmt2, ifdIdNotSet,      newTiffDirectory<exifId>                  },
-        { Tag::cmt3, ifdIdNotSet,      newTiffDirectory<canonId>                 },
-        { Tag::cmt4, ifdIdNotSet,      newTiffDirectory<gpsId>                   },
 
         // IFD0
         {    0x8769, ifd0Id,           newTiffSubIfd<exifId>                     },
@@ -1480,7 +1392,6 @@ namespace Exiv2 {
         {  Tag::all, nikonLd1Id,       newTiffBinaryElement                      },
         {  Tag::all, nikonLd2Id,       newTiffBinaryElement                      },
         {  Tag::all, nikonLd3Id,       newTiffBinaryElement                      },
-        {  Tag::all, nikonLd4Id,       newTiffBinaryElement                      },
 
         // Panasonic makernote
         { Tag::next, panasonicId,      ignoreTiffComponent                       },
@@ -1517,14 +1428,6 @@ namespace Exiv2 {
         { Tag::next, sigmaId,          ignoreTiffComponent                       },
         {  Tag::all, sigmaId,          newTiffEntry                              },
 
-
-        { Tag::all, sony2010eId,        newTiffBinaryElement },
-        { 0x2010, sony1Id,              EXV_COMPLEX_BINARY_ARRAY(sony2010eSet, sony2010eSelector) },
-
-        // Tag 0x9402 Sony2Fp Focus Position
-        { Tag::all, sony2FpId,        newTiffBinaryElement },
-        { 0x9402, sony1Id,            EXV_BINARY_ARRAY(sony2FpCfg, sony2FpDef) },
-
         // Sony1 makernote
         {    0x0114, sony1Id,          EXV_COMPLEX_BINARY_ARRAY(sony1CsSet, sonyCsSelector) },
         {    0xb028, sony1Id,          newTiffSubIfd<sonyMltId>                  },
@@ -1534,9 +1437,6 @@ namespace Exiv2 {
         // Sony1 camera settings
         {  Tag::all, sony1CsId,        newTiffBinaryElement                      },
         {  Tag::all, sony1Cs2Id,       newTiffBinaryElement                      },
-
-        { Tag::all, sony2010eId,        newTiffBinaryElement },
-        { 0x2010, sony2Id,              EXV_COMPLEX_BINARY_ARRAY(sony2010eSet, sony2010eSelector) },
 
         // Tag 0x9402 Sony2Fp Focus Position
         {  Tag::all, sony2FpId,        newTiffBinaryElement                      },
@@ -1653,10 +1553,10 @@ namespace Exiv2 {
         return key.r_ == root_ && key.g_ == group_;
     }
 
-    TiffComponent::AutoPtr TiffCreator::create(uint32_t extendedTag,
+    TiffComponent::UniquePtr TiffCreator::create(uint32_t extendedTag,
                                                IfdId    group)
     {
-        TiffComponent::AutoPtr tc(0);
+        TiffComponent::UniquePtr tc;
         uint16_t tag = static_cast<uint16_t>(extendedTag & 0xffff);
         const TiffGroupStruct* ts = find(tiffGroupStruct_,
                                          TiffGroupStruct::Key(extendedTag, group));
@@ -1700,19 +1600,19 @@ namespace Exiv2 {
               IptcData&          iptcData,
               XmpData&           xmpData,
         const byte*              pData,
-              uint32_t           size,
+              size_t             size,
               uint32_t           root,
               FindDecoderFct     findDecoderFct,
               TiffHeaderBase*    pHeader
     )
     {
         // Create standard TIFF header if necessary
-        std::auto_ptr<TiffHeaderBase> ph;
+        std::unique_ptr<TiffHeaderBase> ph;
         if (!pHeader) {
-            ph = std::auto_ptr<TiffHeaderBase>(new TiffHeader);
+            ph = std::unique_ptr<TiffHeaderBase>(new TiffHeader);
             pHeader = ph.get();
         }
-        TiffComponent::AutoPtr rootDir = parse(pData, size, root, pHeader);
+        TiffComponent::UniquePtr rootDir = parse(pData, size, root, pHeader);
         if (0 != rootDir.get()) {
             TiffDecoder decoder(exifData,
                                 iptcData,
@@ -1728,7 +1628,7 @@ namespace Exiv2 {
     WriteMethod TiffParserWorker::encode(
               BasicIo&           io,
         const byte*              pData,
-              uint32_t           size,
+              size_t             size,
         const ExifData&          exifData,
         const IptcData&          iptcData,
         const XmpData&           xmpData,
@@ -1748,7 +1648,7 @@ namespace Exiv2 {
         assert(pHeader);
         assert(pHeader->byteOrder() != invalidByteOrder);
         WriteMethod writeMethod = wmIntrusive;
-        TiffComponent::AutoPtr parsedTree = parse(pData, size, root, pHeader);
+        TiffComponent::UniquePtr parsedTree = parse(pData, size, root, pHeader);
         PrimaryGroups primaryGroups;
         findPrimaryGroups(primaryGroups, parsedTree.get());
         if (0 != parsedTree.get()) {
@@ -1765,7 +1665,7 @@ namespace Exiv2 {
             if (!encoder.dirty()) writeMethod = wmNonIntrusive;
         }
         if (writeMethod == wmIntrusive) {
-            TiffComponent::AutoPtr createdTree = TiffCreator::create(root, ifdIdNotSet);
+            TiffComponent::UniquePtr createdTree = TiffCreator::create(root, ifdIdNotSet);
             if (0 != parsedTree.get()) {
                 // Copy image tags from the original image to the composite
                 TiffCopier copier(createdTree.get(), root, pHeader, &primaryGroups);
@@ -1783,13 +1683,13 @@ namespace Exiv2 {
             encoder.add(createdTree.get(), parsedTree.get(), root);
             // Write binary representation from the composite tree
             DataBuf header = pHeader->write();
-            BasicIo::AutoPtr tempIo(new MemIo);
+            BasicIo::UniquePtr tempIo(new MemIo);
             assert(tempIo.get() != 0);
-            IoWrapper ioWrapper(*tempIo, header.pData_, header.size_, pOffsetWriter);
+            IoWrapper ioWrapper(*tempIo, header.pData_, (long)header.size_, pOffsetWriter);
             uint32_t imageIdx(uint32_t(-1));
             createdTree->write(ioWrapper,
                                pHeader->byteOrder(),
-                               header.size_,
+                               (int32_t)header.size_,
                                uint32_t(-1),
                                uint32_t(-1),
                                imageIdx);
@@ -1807,18 +1707,19 @@ namespace Exiv2 {
         return writeMethod;
     } // TiffParserWorker::encode
 
-    TiffComponent::AutoPtr TiffParserWorker::parse(
+    TiffComponent::UniquePtr TiffParserWorker::parse(
         const byte*              pData,
-              uint32_t           size,
+              size_t             size,
               uint32_t           root,
               TiffHeaderBase*    pHeader
     )
     {
-        if (pData == 0 || size == 0) return TiffComponent::AutoPtr(0);
+        if (pData == 0 || size == 0)
+            return nullptr;
         if (!pHeader->read(pData, size) || pHeader->offset() >= size) {
             throw Error(kerNotAnImage, "TIFF");
         }
-        TiffComponent::AutoPtr rootDir = TiffCreator::create(root, ifdIdNotSet);
+        TiffComponent::UniquePtr rootDir = TiffCreator::create(root, ifdIdNotSet);
         if (0 != rootDir.get()) {
             rootDir->setStart(pData + pHeader->offset());
             TiffRwState state(pHeader->byteOrder(), 0);
@@ -1855,7 +1756,7 @@ namespace Exiv2 {
             TiffFinder finder(0x00fe, imageGroups[i]);
             pSourceDir->accept(finder);
             TiffEntryBase* te = dynamic_cast<TiffEntryBase*>(finder.result());
-            const Value* pV = te != NULL ? te->pValue() : NULL;
+            const Value* pV = te != nullptr ? te->pValue() : nullptr;
             if (pV && pV->typeId() == unsignedLong && pV->count() == 1 && (pV->toLong() & 1) == 0) {
                 primaryGroups.push_back(te->group());
             }
@@ -1878,7 +1779,7 @@ namespace Exiv2 {
     {
     }
 
-    bool TiffHeaderBase::read(const byte* pData, uint32_t size)
+    bool TiffHeaderBase::read(const byte* pData, size_t size)
     {
         if (!pData || size < 8) return false;
 

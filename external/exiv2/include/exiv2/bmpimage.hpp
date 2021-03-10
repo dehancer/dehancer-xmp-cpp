@@ -24,8 +24,8 @@
            <a href="mailto:marco.piovanelli@pobox.com">marco.piovanelli@pobox.com</a>
   @date    05-Mar-2007, marco: created
  */
-#ifndef BMPIMAGE_HPP_
-#define BMPIMAGE_HPP_
+
+#pragma once
 
 // *****************************************************************************
 #include "exiv2lib_export.h"
@@ -40,25 +40,17 @@ namespace Exiv2 {
 // *****************************************************************************
 // class definitions
 
-    // Add Windows Bitmap (BMP) to the supported image formats
-    namespace ImageType {
-        const int bmp = 14; //!< Windows bitmap (bmp) image type (see class BmpImage)
-    }
-
     /*!
       @brief Class to access Windows bitmaps. This is just a stub - we only
           read width and height.
      */
     class EXIV2API BmpImage : public Image {
-        //! @name NOT Implemented
-        //@{
-        //! Copy constructor
-        BmpImage(const BmpImage& rhs);
-        //! Assignment operator
-        BmpImage& operator=(const BmpImage& rhs);
-        //@}
-
     public:
+        BmpImage& operator=(const BmpImage& rhs) = delete;
+        BmpImage& operator=(const BmpImage&& rhs) = delete;
+        BmpImage(const BmpImage& rhs) = delete;
+        BmpImage(const BmpImage&& rhs) = delete;
+
         //! @name Creators
         //@{
         /*!
@@ -73,37 +65,37 @@ namespace Exiv2 {
               instance after it is passed to this method.  Use the Image::io()
               method to get a temporary reference.
          */
-        explicit BmpImage(BasicIo::AutoPtr io);
+        explicit BmpImage(BasicIo::UniquePtr io);
         //@}
 
         //! @name Manipulators
         //@{
-        void readMetadata();
+        void readMetadata() override;
         /*!
           @brief Todo: Write metadata back to the image. This method is not
               yet(?) implemented. Calling it will throw an Error(kerWritingImageFormatUnsupported).
          */
-        void writeMetadata();
+        void writeMetadata() override;
         /*!
           @brief Todo: Not supported yet(?). Calling this function will throw
               an instance of Error(kerInvalidSettingForImage).
          */
-        void setExifData(const ExifData& exifData);
+        void setExifData(const ExifData& exifData) override;
         /*!
           @brief Todo: Not supported yet(?). Calling this function will throw
               an instance of Error(kerInvalidSettingForImage).
          */
-        void setIptcData(const IptcData& iptcData);
+        void setIptcData(const IptcData& iptcData) override;
         /*!
           @brief Not supported. Calling this function will throw an instance
               of Error(kerInvalidSettingForImage).
          */
-        void setComment(const std::string& comment);
+        void setComment(const std::string& comment) override;
         //@}
 
         //! @name Accessors
         //@{
-        std::string mimeType() const;
+        std::string mimeType() const override;
         //@}
 
     }; // class BmpImage
@@ -118,11 +110,9 @@ namespace Exiv2 {
              Caller owns the returned object and the auto-pointer ensures that
              it will be deleted.
      */
-    EXIV2API Image::AutoPtr newBmpInstance(BasicIo::AutoPtr io, bool create);
+    EXIV2API Image::UniquePtr newBmpInstance(BasicIo::UniquePtr io, bool create);
 
     //! Check if the file iIo is a Windows Bitmap image.
     EXIV2API bool isBmpType(BasicIo& iIo, bool advance);
 
 }                                       // namespace Exiv2
-
-#endif                                  // #ifndef BMPIMAGE_HPP_

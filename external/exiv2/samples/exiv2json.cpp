@@ -31,7 +31,7 @@
 #endif
 const char* realpath(const char* file,char* path)
 {
-    GetFullPathName(file,PATH_MAX,path,NULL);
+    GetFullPathName(file,PATH_MAX,path,nullptr);
     return path;
 }
 #else
@@ -46,7 +46,7 @@ struct Token {
 typedef std::vector<Token>    Tokens;
 
 // "XMP.xmp.MP.RegionInfo/MPRI:Regions[1]/MPReg:Rectangle"
-bool getToken(std::string& in,Token& token,Exiv2::StringSet* pNS=NULL)
+bool getToken(std::string& in,Token& token,Exiv2::StringSet* pNS=nullptr)
 {
     bool result = false;
     bool ns     = false;
@@ -101,7 +101,7 @@ Jzon::Node& recursivelyBuildTree(Jzon::Node& root,Tokens& tokens,size_t k)
 }
 
 // build the json tree for this key.  return location and discover the name
-Jzon::Node& objectForKey(const std::string& Key,Jzon::Object& root,std::string& name,Exiv2::StringSet* pNS=NULL)
+Jzon::Node& objectForKey(const std::string& Key,Jzon::Object& root,std::string& name,Exiv2::StringSet* pNS=nullptr)
 {
     // Parse the key
     Tokens      tokens ;
@@ -282,17 +282,17 @@ int main(int argc, char* const argv[])
         while      (opt[0] == '-') opt++ ; // skip past leading -'s
         char        option = opt[0];
 
-        Exiv2::Image::AutoPtr image = Exiv2::ImageFactory::open(path);
+        Exiv2::Image::UniquePtr image = Exiv2::ImageFactory::open(path);
         assert(image.get() != 0);
         image->readMetadata();
 
         Jzon::Object   root;
 
         if ( option == 'f' ) { // only report filesystem when requested
-            const char*    Fs="FS";
-            Jzon::Object   fs     ;
-            root.Add(Fs,fs) ;
-            fileSystemPush(path,root.Get(Fs));
+            const char*    FS="FS";
+            Jzon::Object      fs  ;
+            root.Add(FS,fs) ;
+            fileSystemPush(path,root.Get(FS));
         }
 
         if ( option == 'a' || option == 'e' ) {

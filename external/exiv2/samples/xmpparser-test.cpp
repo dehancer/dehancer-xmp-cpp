@@ -43,7 +43,7 @@ try {
                   << std::dec << std::setw(3)
                   << std::setfill(' ') << std::right
                   << md->count() << "  "
-                  << std::dec << md->toString()
+                  << std::dec << md->value()
                   << std::endl;
     }
     filename += "-new";

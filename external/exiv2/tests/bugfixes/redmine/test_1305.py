@@ -25,11 +25,10 @@ Error: Directory Pentax, entry 0x3030 has invalid size 808464432*1; skipping ent
 File size       : 12341 Bytes
 MIME type       : image/jpeg
 Image size      : 0 x 0
-Thumbnail       : None
 Camera make     : PENTAX000000000000000000000000000000000000000000
 Camera model    : 
 Image timestamp : 
-File number     : 
+Image number    : 
 Exposure time   : 
 Aperture        : 
 Exposure bias   : 
@@ -42,7 +41,9 @@ Exposure mode   :
 Metering mode   : 
 Macro mode      : 
 Image quality   : 
+Exif Resolution : 
 White balance   : 
+Thumbnail       : None
 Copyright       : 
 Exif comment    : 
 

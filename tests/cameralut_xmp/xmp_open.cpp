@@ -73,8 +73,8 @@ TEST(XMP, XMPOpenTest) {
     std::ofstream outFile;
 
     std::string file = "./";
-    xmp->get_id();
-    file.append(xmp->get_id());
+    auto xmp_id = xmp->get_id();
+    file.append(xmp_id);
     file.append(".png");
 
     outFile.open(file, std::fstream::out | std::ofstream::binary);

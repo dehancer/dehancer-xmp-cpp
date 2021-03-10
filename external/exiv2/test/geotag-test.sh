@@ -3,7 +3,11 @@
 
 source ./functions.source
 
-(   jpg=FurnaceCreekInn.jpg
+(   cd "$testdir"
+
+    printf "geotag" >&3
+
+    jpg=FurnaceCreekInn.jpg
     gpx=FurnaceCreekInn.gpx
     copyTestFiles $jpg $gpx
 
@@ -17,9 +21,16 @@ source ./functions.source
     runTest                      geotag -ascii -tz -8:00 $jpg $gpx | cut -d' ' -f 2-
     echo --- show GPSInfo tags ---
     runTest                      exiv2 -pa --grep GPSInfo $jpg
-) > $results 2>&1
 
-reportTest
+) 3>&1 > $results 2>&1
+
+printf "\n"
+
+# ----------------------------------------------------------------------
+# Evaluate results
+cat $results | tr -d $'\r' > $results-stripped
+mv                           $results-stripped $results
+reportTest                                     $results $good
 
 # That's all Folks!
 ##

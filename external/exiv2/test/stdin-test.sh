@@ -49,7 +49,11 @@ source ./functions.source
 
 printf "\n"
 
-reportTest
+# ----------------------------------------------------------------------
+# Evaluate results
+cat $results | tr -d $'\r' > $results-stripped
+mv                           $results-stripped $results
+reportTest                                     $results $good
 
 # That's all Folks!
 ##

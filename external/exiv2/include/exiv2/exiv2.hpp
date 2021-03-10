@@ -1,6 +1,6 @@
 // ***************************************************************** -*- C++ -*-
 /*
- * Copyright (C) 2004-2021 Exiv2 authors
+ * Copyright (C) 2004-2018 Exiv2 authors
  * This program is part of the Exiv2 distribution.
  *
  * This program is free software; you can redistribute it and/or
@@ -17,8 +17,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301 USA.
  */
-#ifndef EXIV2_HPP_
-#define EXIV2_HPP_
+/*!
+  @file    exiv2.hpp
+  @brief   Include all Exiv2 header files.
+  @author  Andreas Huggel (ahu)
+           <a href="mailto:ahuggel@gmx.net">ahuggel@gmx.net</a>
+  @date    21-Jun-10, ahu: created
+ */
+#pragma once
 
 // *****************************************************************************
 // included header files
@@ -30,7 +36,6 @@
 #include "exiv2/cr2image.hpp"
 #include "exiv2/crwimage.hpp"
 #include "exiv2/easyaccess.hpp"
-#include "exiv2/epsimage.hpp"
 #include "exiv2/error.hpp"
 #include "exiv2/exif.hpp"
 #include "exiv2/futils.hpp"
@@ -45,11 +50,8 @@
 #include "exiv2/mrwimage.hpp"
 #include "exiv2/orfimage.hpp"
 #include "exiv2/pgfimage.hpp"
-#ifdef EXV_ENABLE_BMFF
-#include "bmffimage.hpp"
-#endif
 
-#ifdef EXV_HAVE_LIBZ
+#ifdef   EXIV2_ENABLE_PNG
 #include "exiv2/pngimage.hpp"
 #endif
 
@@ -59,10 +61,6 @@
 #include "exiv2/rafimage.hpp"
 #include "exiv2/rw2image.hpp"
 
-#ifdef EXV_USE_SSH
-#include "exiv2/ssh.hpp"
-#endif
-
 #include "exiv2/tags.hpp"
 #include "exiv2/tgaimage.hpp"
 #include "exiv2/tiffimage.hpp"
@@ -71,5 +69,3 @@
 #include "exiv2/version.hpp"
 #include "exiv2/xmp_exiv2.hpp"
 #include "exiv2/xmpsidecar.hpp"
-
-#endif//ifndef EXIV2_HPP_

@@ -296,7 +296,6 @@ namespace Exiv2 {
         bool prepareIptcTarget(const char* to, bool force =false);
         bool prepareXmpTarget(const char* to, bool force =false);
         std::string computeExifDigest(bool tiff);
-        std::string computeIptcDigest();
 
         // DATA
         static const Conversion conversion_[];  //<! Conversion rules
@@ -545,7 +544,7 @@ namespace Exiv2 {
         Exiv2::ExifData::iterator pos = exifData_->findKey(ExifKey(from));
         if (pos == exifData_->end()) return;
         if (!prepareXmpTarget(to)) return;
-        for (int i = 0; i < pos->count(); ++i) {
+        for (long i = 0; i < (long)pos->count(); ++i) {
             std::string value = pos->toString(i);
             if (!pos->value().ok()) {
 #ifndef SUPPRESS_WARNINGS
@@ -692,7 +691,7 @@ namespace Exiv2 {
         if (pos == exifData_->end()) return;
         if (!prepareXmpTarget(to)) return;
         std::ostringstream value;
-        for (int i = 0; i < pos->count(); ++i) {
+        for (long i = 0; i < (long)pos->count(); ++i) {
             value << static_cast<char>(pos->toLong(i));
         }
         (*xmpData_)[to] = value.str();
@@ -705,7 +704,7 @@ namespace Exiv2 {
         if (pos == exifData_->end()) return;
         if (!prepareXmpTarget(to)) return;
         std::ostringstream value;
-        for (int i = 0; i < pos->count(); ++i) {
+        for (long i = 0; i < (long)pos->count(); ++i) {
             if (i > 0) value << '.';
             value << pos->toLong(i);
         }
@@ -823,7 +822,7 @@ namespace Exiv2 {
         Exiv2::XmpData::iterator pos = xmpData_->findKey(XmpKey(from));
         if (pos == xmpData_->end()) return;
         std::ostringstream array;
-        for (int i = 0; i < pos->count(); ++i) {
+        for (long i = 0; i < (long)pos->count(); ++i) {
             std::string value = pos->toString(i);
             if (!pos->value().ok()) {
 #ifndef SUPPRESS_WARNINGS
@@ -832,7 +831,8 @@ namespace Exiv2 {
                 return;
             }
             array << value;
-            if (i != pos->count() - 1) array << " ";
+            if (i != static_cast<long>(pos->count()) - 1)
+              array << " ";
         }
         (*exifData_)[to] = array.str();
         if (erase_) xmpData_->erase(pos);
@@ -1151,9 +1151,8 @@ namespace Exiv2 {
             return;
         }
 
-        int count = pos->count();
         bool added = false;
-        for (int i = 0; i < count; ++i) {
+        for (long i = 0; i < static_cast<long>(pos->count()); ++i) {
             std::string value = pos->toString(i);
             if (!pos->value().ok()) {
 #ifndef SUPPRESS_WARNINGS
@@ -1192,7 +1191,7 @@ namespace Exiv2 {
                 if (pos == exifData_->end()) continue;
                 DataBuf data(pos->size());
                 pos->copy(data.pData_, littleEndian /* FIXME ? */);
-                MD5Update ( &context, data.pData_, data.size_);
+                MD5Update ( &context, data.pData_, (uint32_t)data.size_);
             }
         }
         MD5Final(digest, &context);
@@ -1256,29 +1255,6 @@ namespace Exiv2 {
             return;
         }
     }
-
-    std::string Converter::computeIptcDigest()
-    {
-#ifdef EXV_HAVE_XMP_TOOLKIT
-        std::ostringstream res;
-        MD5_CTX context;
-        unsigned char digest[16];
-
-        MD5Init(&context);
-
-        DataBuf data = IptcParser::encode(*iptcData_);
-        MD5Update(&context, data.pData_, data.size_);
-        MD5Final(digest, &context);
-        res << std::setw(2) << std::setfill('0') << std::hex << std::uppercase;
-        for (int i = 0; i < 16; ++i) {
-            res << static_cast<int>(digest[i]);
-        }
-        return res.str();
-#else
-        return std::string("");
-#endif
-    }
-
 
     // *************************************************************************
     // free functions
@@ -1389,7 +1365,8 @@ namespace {
 
     bool mb2wc(UINT cp, std::string& str)
     {
-        if (str.empty()) return true;
+        if (str.empty())
+            return true;
         int len = MultiByteToWideChar(cp, 0, str.c_str(), (int)str.size(), 0, 0);
         if (len == 0) {
 #ifdef EXIV2_DEBUG_MESSAGES
@@ -1398,21 +1375,22 @@ namespace {
             return false;
         }
         std::vector<std::string::value_type> out;
-        out.resize(len * 2);
-        int ret = MultiByteToWideChar(cp, 0, str.c_str(), (int)str.size(), (LPWSTR)&out[0], len * 2);
+        out.reserve(len * 2);
+        int ret = MultiByteToWideChar(cp, 0, str.c_str(), (int)str.size(), (LPWSTR)out.data(), len * 2);
         if (ret == 0) {
 #ifdef EXIV2_DEBUG_MESSAGES
             EXV_DEBUG << "mb2wc: Failed to convert the input string to a wide character string.\n";
 #endif
             return false;
         }
-        str.assign(out.begin(), out.end());
+        str.assign(out.data(), static_cast<size_t>(len) * 2);
         return true;
     }
 
     bool wc2mb(UINT cp, std::string& str)
     {
-        if (str.empty()) return true;
+        if (str.empty())
+            return true;
         if (str.size() & 1) {
 #ifdef EXIV2_DEBUG_MESSAGES
             EXV_DEBUG << "wc2mb: Size " << str.size() << " of input string is not even.\n";
@@ -1427,15 +1405,15 @@ namespace {
             return false;
         }
         std::vector<std::string::value_type> out;
-        out.resize(len);
-        int ret = WideCharToMultiByte(cp, 0, (LPCWSTR)str.data(), (int)str.size() / 2, (LPSTR)&out[0], len, 0, 0);
+        out.reserve(len);
+        int ret = WideCharToMultiByte(cp, 0, (LPCWSTR)str.data(), (int)str.size() / 2, (LPSTR)out.data(), len, 0, 0);
         if (ret == 0) {
 #ifdef EXIV2_DEBUG_MESSAGES
             EXV_DEBUG << "wc2mb: Failed to convert the input string to a multi byte string.\n";
 #endif
             return false;
         }
-        str.assign(out.begin(), out.end());
+        str.assign(out.data(), static_cast<size_t>(len));
         return true;
     }
 

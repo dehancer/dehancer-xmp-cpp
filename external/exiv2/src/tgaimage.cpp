@@ -41,8 +41,8 @@
 // class member definitions
 namespace Exiv2 {
 
-    TgaImage::TgaImage(BasicIo::AutoPtr io)
-        : Image(ImageType::tga, mdNone, io)
+    TgaImage::TgaImage(BasicIo::UniquePtr io)
+        : Image(ImageType::tga, mdNone, std::move(io))
     {
     } // TgaImage::TgaImage
 
@@ -125,9 +125,9 @@ namespace Exiv2 {
 
     // *************************************************************************
     // free functions
-    Image::AutoPtr newTgaInstance(BasicIo::AutoPtr io, bool /*create*/)
+    Image::UniquePtr newTgaInstance(BasicIo::UniquePtr io, bool /*create*/)
     {
-        Image::AutoPtr image(new TgaImage(io));
+        Image::UniquePtr image(new TgaImage(std::move(io)));
         if (!image->good())
         {
             image.reset();
@@ -152,9 +152,7 @@ namespace Exiv2 {
         }
 #endif
         byte buf[26];
-        long curPos = iIo.tell();
-        if ( curPos < 26 ) return false;
-        
+        int64 curPos = iIo.tell();
         iIo.seek(-26, BasicIo::end);
         if (iIo.error() || iIo.eof())
         {

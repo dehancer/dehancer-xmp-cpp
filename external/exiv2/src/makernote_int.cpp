@@ -83,7 +83,7 @@ namespace {
     //! Get the model name from tag Exif.Image.Model
     std::string getExifModel(Exiv2::Internal::TiffComponent* const pRoot);
     //! Nikon en/decryption function
-    void ncrypt(Exiv2::byte* pData, uint32_t size, uint32_t count, uint32_t serial);
+    void ncrypt(Exiv2::byte* pData, size_t size, uint32_t count, uint32_t serial);
 }
 
 // *****************************************************************************
@@ -97,7 +97,7 @@ namespace Exiv2 {
             std::string inifile;
 #if defined(_MSC_VER) || defined(__MINGW__)
             char path[MAX_PATH];
-            if (SUCCEEDED(SHGetFolderPathA(NULL, CSIDL_PROFILE, NULL, 0, path))) {
+            if (SUCCEEDED(SHGetFolderPathA(nullptr, CSIDL_PROFILE, nullptr, 0, path))) {
                 homedir = std::string(path);
                 inifile = "exiv2.ini"      ;
             }
@@ -227,11 +227,25 @@ namespace Exiv2 {
         return 0;
     }
 
-    const byte OlympusMnHeader::signature_[] = {
-        'O', 'L', 'Y', 'M', 'P', 0x00, 0x01, 0x00
-    };
+#ifndef _MSC_VER
+    /// \todo Required in C++11, but deprecated in C++17. Remove this line when we move to C++17.
+    constexpr byte OlympusMnHeader::signature_[];
+    constexpr byte Nikon3MnHeader::signature_[];
+    constexpr byte Olympus2MnHeader::signature_[];
+    constexpr byte FujiMnHeader::signature_[];
+    constexpr ByteOrder FujiMnHeader::byteOrder_;
+    constexpr byte Nikon2MnHeader::signature_[];
+    constexpr byte PanasonicMnHeader::signature_[];
+    constexpr byte PentaxDngMnHeader::signature_[];
+    constexpr byte PentaxMnHeader::signature_[];
+    constexpr byte SigmaMnHeader::signature1_[];
+    constexpr byte SigmaMnHeader::signature2_[];
+    constexpr byte SonyMnHeader::signature_[];
+    constexpr byte Casio2MnHeader::signature_[];
+    constexpr ByteOrder Casio2MnHeader::byteOrder_;
+#endif
 
-    uint32_t OlympusMnHeader::sizeOfSignature()
+    constexpr uint32_t OlympusMnHeader::sizeOfSignature()
     {
         return sizeof(signature_);
     }
@@ -245,7 +259,7 @@ namespace Exiv2 {
     {
     }
 
-    uint32_t OlympusMnHeader::size() const
+    size_t OlympusMnHeader::size() const
     {
         return header_.size_;
     }
@@ -269,18 +283,15 @@ namespace Exiv2 {
         return true;
     } // OlympusMnHeader::read
 
-    uint32_t OlympusMnHeader::write(IoWrapper& ioWrapper,
+    size_t OlympusMnHeader::write(IoWrapper& ioWrapper,
                                     ByteOrder /*byteOrder*/) const
     {
         ioWrapper.write(signature_, sizeOfSignature());
         return sizeOfSignature();
     } // OlympusMnHeader::write
 
-    const byte Olympus2MnHeader::signature_[] = {
-        'O', 'L', 'Y', 'M', 'P', 'U', 'S', 0x00, 'I', 'I', 0x03, 0x00
-    };
 
-    uint32_t Olympus2MnHeader::sizeOfSignature()
+    constexpr uint32_t Olympus2MnHeader::sizeOfSignature()
     {
         return sizeof(signature_);
     }
@@ -294,7 +305,7 @@ namespace Exiv2 {
     {
     }
 
-    uint32_t Olympus2MnHeader::size() const
+    size_t Olympus2MnHeader::size() const
     {
         return header_.size_;
     }
@@ -323,19 +334,15 @@ namespace Exiv2 {
         return true;
     } // Olympus2MnHeader::read
 
-    uint32_t Olympus2MnHeader::write(IoWrapper& ioWrapper,
+    size_t Olympus2MnHeader::write(IoWrapper& ioWrapper,
                                     ByteOrder /*byteOrder*/) const
     {
         ioWrapper.write(signature_, sizeOfSignature());
         return sizeOfSignature();
     } // Olympus2MnHeader::write
 
-    const byte FujiMnHeader::signature_[] = {
-        'F', 'U', 'J', 'I', 'F', 'I', 'L', 'M', 0x0c, 0x00, 0x00, 0x00
-    };
-    const ByteOrder FujiMnHeader::byteOrder_ = littleEndian;
 
-    uint32_t FujiMnHeader::sizeOfSignature()
+    constexpr uint32_t FujiMnHeader::sizeOfSignature()
     {
         return sizeof(signature_);
     }
@@ -349,7 +356,7 @@ namespace Exiv2 {
     {
     }
 
-    uint32_t FujiMnHeader::size() const
+    size_t FujiMnHeader::size() const
     {
         return header_.size_;
     }
@@ -386,18 +393,15 @@ namespace Exiv2 {
         return true;
     } // FujiMnHeader::read
 
-    uint32_t FujiMnHeader::write(IoWrapper& ioWrapper,
+    size_t FujiMnHeader::write(IoWrapper& ioWrapper,
                                  ByteOrder /*byteOrder*/) const
     {
         ioWrapper.write(signature_, sizeOfSignature());
         return sizeOfSignature();
     } // FujiMnHeader::write
 
-    const byte Nikon2MnHeader::signature_[] = {
-        'N', 'i', 'k', 'o', 'n', '\0', 0x01, 0x00
-    };
 
-    uint32_t Nikon2MnHeader::sizeOfSignature()
+    constexpr uint32_t Nikon2MnHeader::sizeOfSignature()
     {
         return sizeof(signature_);
     }
@@ -411,7 +415,7 @@ namespace Exiv2 {
     {
     }
 
-    uint32_t Nikon2MnHeader::size() const
+    size_t Nikon2MnHeader::size() const
     {
         return sizeOfSignature();
     }
@@ -433,19 +437,15 @@ namespace Exiv2 {
         return true;
     } // Nikon2MnHeader::read
 
-    uint32_t Nikon2MnHeader::write(IoWrapper& ioWrapper,
+    size_t Nikon2MnHeader::write(IoWrapper& ioWrapper,
                                    ByteOrder /*byteOrder*/) const
     {
         ioWrapper.write(signature_, sizeOfSignature());
         return sizeOfSignature();
     } // Nikon2MnHeader::write
 
-    const byte Nikon3MnHeader::signature_[] = {
-        'N', 'i', 'k', 'o', 'n', '\0', 0x02, 0x10, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-    };
 
-    uint32_t Nikon3MnHeader::sizeOfSignature()
+    constexpr uint32_t Nikon3MnHeader::sizeOfSignature()
     {
         return sizeof(signature_);
     }
@@ -462,7 +462,7 @@ namespace Exiv2 {
     {
     }
 
-    uint32_t Nikon3MnHeader::size() const
+    size_t Nikon3MnHeader::size() const
     {
         return sizeOfSignature();
     }
@@ -497,8 +497,7 @@ namespace Exiv2 {
         return true;
     } // Nikon3MnHeader::read
 
-    uint32_t Nikon3MnHeader::write(IoWrapper& ioWrapper,
-                                   ByteOrder byteOrder) const
+    size_t Nikon3MnHeader::write(IoWrapper& ioWrapper, ByteOrder byteOrder) const
     {
         assert(buf_.size_ >= 10);
 
@@ -516,11 +515,8 @@ namespace Exiv2 {
         byteOrder_ = byteOrder;
     }
 
-    const byte PanasonicMnHeader::signature_[] = {
-        'P', 'a', 'n', 'a', 's', 'o', 'n', 'i', 'c', 0x00, 0x00, 0x00
-    };
 
-    uint32_t PanasonicMnHeader::sizeOfSignature()
+    constexpr uint32_t PanasonicMnHeader::sizeOfSignature()
     {
         return sizeof(signature_);
     }
@@ -534,7 +530,7 @@ namespace Exiv2 {
     {
     }
 
-    uint32_t PanasonicMnHeader::size() const
+    size_t PanasonicMnHeader::size() const
     {
         return sizeOfSignature();
     }
@@ -556,18 +552,14 @@ namespace Exiv2 {
         return true;
     } // PanasonicMnHeader::read
 
-    uint32_t PanasonicMnHeader::write(IoWrapper& ioWrapper,
+    size_t PanasonicMnHeader::write(IoWrapper& ioWrapper,
                                       ByteOrder /*byteOrder*/) const
     {
         ioWrapper.write(signature_, sizeOfSignature());
         return sizeOfSignature();
     } // PanasonicMnHeader::write
 
-    const byte PentaxDngMnHeader::signature_[] = {
-        'P', 'E', 'N', 'T', 'A', 'X', ' ', 0x00, 'M', 'M'
-    };
-
-    uint32_t PentaxDngMnHeader::sizeOfSignature()
+    constexpr uint32_t PentaxDngMnHeader::sizeOfSignature()
     {
         return sizeof(signature_);
     }
@@ -581,7 +573,7 @@ namespace Exiv2 {
     {
     }
 
-    uint32_t PentaxDngMnHeader::size() const
+    size_t PentaxDngMnHeader::size() const
     {
         return header_.size_;
     }
@@ -610,18 +602,15 @@ namespace Exiv2 {
         return true;
     } // PentaxDngMnHeader::read
 
-    uint32_t PentaxDngMnHeader::write(IoWrapper& ioWrapper,
+    size_t PentaxDngMnHeader::write(IoWrapper& ioWrapper,
                                    ByteOrder /*byteOrder*/) const
     {
         ioWrapper.write(signature_, sizeOfSignature());
         return sizeOfSignature();
     } // PentaxDngMnHeader::write
 
-    const byte PentaxMnHeader::signature_[] = {
-        'A', 'O', 'C', 0x00, 'M', 'M'
-    };
 
-    uint32_t PentaxMnHeader::sizeOfSignature()
+    constexpr uint32_t PentaxMnHeader::sizeOfSignature()
     {
         return sizeof(signature_);
     }
@@ -635,7 +624,7 @@ namespace Exiv2 {
     {
     }
 
-    uint32_t PentaxMnHeader::size() const
+    size_t PentaxMnHeader::size() const
     {
         return header_.size_;
     }
@@ -659,7 +648,7 @@ namespace Exiv2 {
         return true;
     } // PentaxMnHeader::read
 
-    uint32_t PentaxMnHeader::write(IoWrapper& ioWrapper,
+    size_t PentaxMnHeader::write(IoWrapper& ioWrapper,
                                    ByteOrder /*byteOrder*/) const
     {
         ioWrapper.write(signature_, sizeOfSignature());
@@ -671,7 +660,7 @@ namespace Exiv2 {
         read(0, 0, invalidByteOrder);
     }
 
-    uint32_t SamsungMnHeader::size() const
+    size_t SamsungMnHeader::size() const
     {
         return 0;
     }
@@ -688,22 +677,16 @@ namespace Exiv2 {
         return true;
     } // SamsungMnHeader::read
 
-    uint32_t SamsungMnHeader::write(IoWrapper& /*ioWrapper*/,
+    size_t SamsungMnHeader::write(IoWrapper& /*ioWrapper*/,
                                     ByteOrder /*byteOrder*/) const
     {
         return 0;
     } // SamsungMnHeader::write
 
-    const byte SigmaMnHeader::signature1_[] = {
-        'S', 'I', 'G', 'M', 'A', '\0', '\0', '\0', 0x01, 0x00
-    };
-    const byte SigmaMnHeader::signature2_[] = {
-        'F', 'O', 'V', 'E', 'O', 'N', '\0', '\0', 0x01, 0x00
-    };
 
-    uint32_t SigmaMnHeader::sizeOfSignature()
+    constexpr uint32_t SigmaMnHeader::sizeOfSignature()
     {
-        assert(sizeof(signature1_) == sizeof(signature2_));
+        static_assert(sizeof(signature1_) == sizeof(signature2_), "Signatures must be of same size");
         return sizeof(signature1_);
     }
 
@@ -716,7 +699,7 @@ namespace Exiv2 {
     {
     }
 
-    uint32_t SigmaMnHeader::size() const
+    size_t SigmaMnHeader::size() const
     {
         return sizeOfSignature();
     }
@@ -739,18 +722,15 @@ namespace Exiv2 {
         return true;
     } // SigmaMnHeader::read
 
-    uint32_t SigmaMnHeader::write(IoWrapper& ioWrapper,
+    size_t SigmaMnHeader::write(IoWrapper& ioWrapper,
                                   ByteOrder /*byteOrder*/) const
     {
         ioWrapper.write(signature1_, sizeOfSignature());
         return sizeOfSignature();
     } // SigmaMnHeader::write
 
-    const byte SonyMnHeader::signature_[] = {
-        'S', 'O', 'N', 'Y', ' ', 'D', 'S', 'C', ' ', '\0', '\0', '\0'
-    };
 
-    uint32_t SonyMnHeader::sizeOfSignature()
+    constexpr uint32_t SonyMnHeader::sizeOfSignature()
     {
         return sizeof(signature_);
     }
@@ -764,7 +744,7 @@ namespace Exiv2 {
     {
     }
 
-    uint32_t SonyMnHeader::size() const
+    size_t SonyMnHeader::size() const
     {
         return sizeOfSignature();
     }
@@ -786,19 +766,15 @@ namespace Exiv2 {
         return true;
     } // SonyMnHeader::read
 
-    uint32_t SonyMnHeader::write(IoWrapper& ioWrapper,
+    size_t SonyMnHeader::write(IoWrapper& ioWrapper,
                                  ByteOrder /*byteOrder*/) const
     {
         ioWrapper.write(signature_, sizeOfSignature());
         return sizeOfSignature();
     } // SonyMnHeader::write
 
-    const byte Casio2MnHeader::signature_[] = {
-        'Q', 'V', 'C', '\0', '\0', '\0'
-    };
-    const ByteOrder Casio2MnHeader::byteOrder_ = bigEndian;
 
-    uint32_t Casio2MnHeader::sizeOfSignature()
+    constexpr uint32_t Casio2MnHeader::sizeOfSignature()
     {
         return sizeof(signature_);
     }
@@ -812,7 +788,7 @@ namespace Exiv2 {
     {
     }
 
-    uint32_t Casio2MnHeader::size() const
+    size_t Casio2MnHeader::size() const
     {
         return sizeOfSignature();
     }
@@ -839,7 +815,7 @@ namespace Exiv2 {
         return true;
     } // Casio2MnHeader::read
 
-    uint32_t Casio2MnHeader::write(IoWrapper& ioWrapper,
+    size_t Casio2MnHeader::write(IoWrapper& ioWrapper,
                                  ByteOrder /*byteOrder*/) const
     {
         ioWrapper.write(signature_, sizeOfSignature());
@@ -1171,8 +1147,6 @@ namespace Exiv2 {
         { 0x0098, "0202",    0, 1,   4 },
         { 0x0098, "0203",    0, 1,   4 },
         { 0x0098, "0204",    0, 2,   4 },
-        { 0x0098, "0800",    0, 3,   4 }, // for e.g. Z6/7
-        { 0x0098, "0801",    0, 3,   4 }, // for e.g. Z6/7
         // NikonFl
         { 0x00a8, "0100",    0, 0,  NA },
         { 0x00a8, "0101",    0, 0,  NA },
@@ -1245,21 +1219,6 @@ namespace Exiv2 {
         }
         return idx;
     }
-    int sony2010eSelector(uint16_t /*tag*/, const byte* /*pData*/, uint32_t /*size*/, TiffComponent* const pRoot)
-    {
-        const char* models[] = { "SLT-A58", "SLT-A99", "ILCE-3000", "ILCE-3500", "NEX-3N", "NEX-5R", "NEX-5T", "NEX-6", "VG30E", "VG900",
-            "DSC-RX100", "DSC-RX1", "DSC-RX1R", "DSC-HX300", "DSC-HX50V", "DSC-TX30", "DSC-WX60", "DSC-WX200", "DSC-WX300" };
-        std::set<std::string> s2010eModels;
-        for (size_t i = 0; i < EXV_COUNTOF(models); i++) {
-            s2010eModels.insert(models[i]);
-        }
-        std::string model = getExifModel(pRoot);
-        int idx = -1;
-        if (s2010eModels.find(model) != s2010eModels.end()) {
-            idx = 0;
-        }
-        return idx;
-    }
 }}                                      // namespace Internal, Exiv2
 
 // *****************************************************************************
@@ -1274,7 +1233,7 @@ namespace {
         return te->pValue()->toString();
     }
 
-    void ncrypt(Exiv2::byte* pData, uint32_t size, uint32_t count, uint32_t serial)
+    void ncrypt(Exiv2::byte* pData, size_t size, uint32_t count, uint32_t serial)
     {
         static const Exiv2::byte xlat[2][256] = {
             { 0xc1,0xbf,0x6d,0x0d,0x59,0xc5,0x13,0x9d,0x83,0x61,0x6b,0x4f,0xc7,0x7f,0x3d,0x3d,
@@ -1317,7 +1276,7 @@ namespace {
         Exiv2::byte ci = xlat[0][serial & 0xff];
         Exiv2::byte cj = xlat[1][key];
         Exiv2::byte ck = 0x60;
-        for (uint32_t i = 0; i < size; ++i) {
+        for (size_t i = 0; i < size; ++i) {
             cj += ci * ck++;
             pData[i] ^= cj;
         }

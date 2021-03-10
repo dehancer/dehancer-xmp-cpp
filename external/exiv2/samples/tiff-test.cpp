@@ -51,7 +51,7 @@ void mini1(const char* path)
 
     // Write nothing, this time with a previous binary image
     DataBuf buf = readFile(path);
-    wm = ExifParser::encode(blob, buf.pData_, buf.size_, bigEndian, exifData);
+    wm = ExifParser::encode(blob, buf.pData_, (uint32_t)buf.size_, bigEndian, exifData);
     enforce(wm == wmIntrusive, Exiv2::kerErrorMessage, "encode returned an unexpected value");
     assert(blob.size() == 0);
     std::cout << "Test 2: Writing empty Exif data with original binary data: ok.\n";
@@ -69,7 +69,7 @@ void mini1(const char* path)
 
 void mini9(const char* path)
 {
-    TiffImage tiffImage(BasicIo::AutoPtr(new FileIo(path)), false);
+    TiffImage tiffImage(BasicIo::UniquePtr(new FileIo(path)), false);
     tiffImage.readMetadata();
 
     std::cout << "MIME type:  " << tiffImage.mimeType() << "\n";

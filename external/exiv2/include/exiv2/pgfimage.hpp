@@ -27,8 +27,7 @@
            <a href="mailto:caulier dot gilles at gmail dot com">caulier dot gilles at gmail dot com</a>
   @date    16-Jun-09, gc: submitted
  */
-#ifndef PGFIMAGE_HPP_
-#define PGFIMAGE_HPP_
+#pragma once
 
 // *****************************************************************************
 #include "exiv2lib_export.h"
@@ -43,12 +42,6 @@ namespace Exiv2
 
 // *****************************************************************************
 // class definitions
-
-    // Add PGF to the supported image formats
-    namespace ImageType
-    {
-        const int pgf = 17;          //!< PGF image type (see class PgfImage)
-    }
 
     /*!
       @brief Class to access PGF images. Exif and IPTC metadata are supported
@@ -73,28 +66,27 @@ namespace Exiv2
           @param create Specifies if an existing image should be read (false)
               or if a new file should be created (true).
          */
-        PgfImage(BasicIo::AutoPtr io, bool create);
+        PgfImage(BasicIo::UniquePtr io, bool create);
         //@}
 
         //! @name Manipulators
         //@{
-        void readMetadata();
-        void writeMetadata();
+        void readMetadata() override;
+        void writeMetadata() override;
         //@}
 
         //! @name Accessors
         //@{
-        std::string mimeType() const { return "image/pgf"; }
+        std::string mimeType() const override { return "image/pgf"; }
         //@}
+
+        PgfImage& operator=(const PgfImage& rhs) = delete;
+        PgfImage& operator=(const PgfImage&& rhs) = delete;
+        PgfImage(const PgfImage& rhs) = delete;
+        PgfImage(const PgfImage&& rhs) = delete;
 
     private:
         bool bSwap_; // true for bigEndian hardware, else false
-        //! @name NOT implemented
-        //@{
-        //! Copy constructor
-        PgfImage(const PgfImage& rhs);
-        //! Assignment operator
-        PgfImage& operator=(const PgfImage& rhs);
         /*!
           @brief Provides the main implementation of writeMetadata() by
                 writing all buffered metadata to the provided BasicIo.
@@ -123,11 +115,9 @@ namespace Exiv2
              Caller owns the returned object and the auto-pointer ensures that
              it will be deleted.
      */
-    EXIV2API Image::AutoPtr newPgfInstance(BasicIo::AutoPtr io, bool create);
+    EXIV2API Image::UniquePtr newPgfInstance(BasicIo::UniquePtr io, bool create);
 
     //! Check if the file iIo is a PGF image.
     EXIV2API bool isPgfType(BasicIo& iIo, bool advance);
 
 }                                       // namespace Exiv2
-
-#endif                                  // #ifndef PGFIMAGE_HPP_

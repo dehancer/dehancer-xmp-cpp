@@ -28,15 +28,14 @@
            <a href="mailto:caulier dot gilles at gmail dot com">caulier dot gilles at gmail dot com</a>
   @date    13-Jul-07, ahu: created
  */
-#ifndef PROPERTIES_HPP_
-#define PROPERTIES_HPP_
+#pragma once
 
 // *****************************************************************************
 #include "exiv2lib_export.h"
 
 // included header files
 #include "datasets.hpp"
-#include "rwlock.hpp"
+#include <mutex>
 
 // *****************************************************************************
 // namespace extensions
@@ -94,19 +93,17 @@ namespace Exiv2 {
 
     //! XMP property reference, implemented as a static class.
     class EXIV2API XmpProperties {
-        //! Prevent construction: not implemented.
-        XmpProperties();
-        //! Prevent copy-construction: not implemented.
-        XmpProperties(const XmpProperties& rhs);
-        //! Prevent assignment: not implemented.
-        XmpProperties& operator=(const XmpProperties& rhs);
-
-      private:
         static const XmpNsInfo* nsInfoUnsafe(const std::string& prefix);
         static void unregisterNsUnsafe(const std::string& ns);
         static const XmpNsInfo* lookupNsRegistryUnsafe(const XmpNsInfo::Prefix& prefix);
 
     public:
+        XmpProperties() = delete;
+        XmpProperties& operator=(const XmpProperties& rhs) = delete;
+        XmpProperties& operator=(const XmpProperties&& rhs) = delete;
+        XmpProperties(const XmpProperties& rhs) = delete;
+        XmpProperties(const XmpProperties&& rhs) = delete;
+
         /*!
           @brief Return the title (label) of the property.
           @param key The property key
@@ -206,8 +203,15 @@ namespace Exiv2 {
          */
         static void unregisterNs(const std::string& ns);
 
-        //! lock to be used while modifying properties
-        static Exiv2::RWLock rwLock_;
+        /*!
+          @brief Lock to be used while modifying properties.
+
+          @todo For a proper read-write lock, this shall be improved by a
+          \em std::shared_timed_mutex (once C++14 is allowed) or
+          \em std::shared_mutex (once C++17 is allowed). The
+          read-access locks shall be updated to \em std::shared_lock then.
+         */
+        static std::mutex mutex_;
 
         /*!
           @brief Unregister all custom namespaces.
@@ -242,7 +246,7 @@ namespace Exiv2 {
     {
     public:
         //! Shortcut for an %XmpKey auto pointer.
-        typedef std::auto_ptr<XmpKey> AutoPtr;
+        typedef std::unique_ptr<XmpKey> UniquePtr;
 
         //! @name Creators
         //@{
@@ -265,8 +269,10 @@ namespace Exiv2 {
           @throw Error if the schema prefix is not known.
         */
         XmpKey(const std::string& prefix, const std::string& property);
+
         //! Copy constructor.
         XmpKey(const XmpKey& rhs);
+
         //! Virtual destructor.
         virtual ~XmpKey();
         //@}
@@ -279,19 +285,19 @@ namespace Exiv2 {
 
         //! @name Accessors
         //@{
-        virtual std::string key() const;
-        virtual const char* familyName() const;
+        std::string key() const override;
+        const char* familyName() const override;
         /*!
           @brief Return the name of the group (the second part of the key).
                  For XMP keys, the group name is the schema prefix name.
         */
-        virtual std::string groupName() const;
-        virtual std::string tagName() const;
-        virtual std::string tagLabel() const;
+        std::string groupName() const override;
+        std::string tagName() const override;
+        std::string tagLabel() const override;
         //! Properties don't have a tag number. Return 0.
-        virtual uint16_t tag() const;
+        uint16_t tag() const override;
 
-        AutoPtr clone() const;
+        UniquePtr clone() const;
 
         // Todo: Should this be removed? What about tagLabel then?
         //! Return the schema namespace for the prefix of the key
@@ -300,12 +306,12 @@ namespace Exiv2 {
 
     private:
         //! Internal virtual copy constructor.
-        virtual XmpKey* clone_() const;
+        XmpKey* clone_() const override;
 
     private:
         // Pimpl idiom
         struct Impl;
-        std::auto_ptr<Impl> p_;
+        std::unique_ptr<Impl> p_;
 
     };  // class XmpKey
 
@@ -316,5 +322,3 @@ namespace Exiv2 {
     EXIV2API std::ostream& operator<<(std::ostream& os, const XmpPropertyInfo& propertyInfo);
 
 }                                       // namespace Exiv2
-
-#endif                                  // #ifndef PROPERTIES_HPP_

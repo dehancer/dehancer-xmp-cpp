@@ -4,10 +4,6 @@ import system_tests
 class BigTiffImageRecursionStackExhaustion(
         metaclass=system_tests.CaseMeta):
     """
-    src/bigtiffimage.cpp is longer in the code base
-    however, let's retain this test as support for BigTiff will
-    be developed and the malicious test file may stress the bigtiff parser.
-    
     Regression test for the bug described in:
     https://github.com/Exiv2/exiv2/issues/712
 
@@ -23,9 +19,12 @@ class BigTiffImageRecursionStackExhaustion(
         "$data_path/issue_712_poc.tif"
     )
     commands = ["$exiv2 -b -u -k pr $filename"]
-    stdout = [""]
-    stderr = [
-        """$exiv2_exception_message """ + filename + """:
-$filename: $kerFileContainsUnknownImageType
+    stdout = ["File name       : " + filename + """
+File size       : 3720 Bytes
+MIME type       : 
+Image size      : 0 x 0
+"""
+]
+    stderr = [filename + """: No Exif data found in the file
 """]
-    retval = [1]
+    retval = [253]

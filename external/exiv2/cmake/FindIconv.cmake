@@ -1,9 +1,6 @@
 # Distributed under the OSI-approved BSD 3-Clause License.  See accompanying
 # file Copyright.txt or https://cmake.org/licensing for details.
 
-# This code is disabled for Visual Studio as explained in README.md
-if ( NOT MSVC )
-
 #[=======================================================================[.rst:
 FindIconv
 ---------
@@ -127,6 +124,4 @@ if(Iconv_FOUND)
   endif()
   set_property(TARGET Iconv::Iconv PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${Iconv_INCLUDE_DIRS}")
   set_property(TARGET Iconv::Iconv PROPERTY INTERFACE_LINK_LIBRARIES "${Iconv_LIBRARIES}")
-endif()
-
 endif()

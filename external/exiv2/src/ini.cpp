@@ -79,7 +79,7 @@ static char* find_chars_or_comment(const char* s, const char* chars)
 /* Version of strncpy that ensures dest (size bytes) is null-terminated. */
 static char* strncpy0(char* dest, const char* src, size_t size)
 {
-    memcpy(dest, src, size);
+    strncpy(dest, src, size);
     dest[size - 1] = '\0';
     return dest;
 }
@@ -97,7 +97,6 @@ int Exiv2::ini_parse_stream(ini_reader reader, void* stream, ini_handler handler
     char section[MAX_SECTION] = "";
     char prev_name[MAX_NAME] = "";
 
-    char* start;
     char* end;
     char* name;
     char* value;
@@ -112,10 +111,10 @@ int Exiv2::ini_parse_stream(ini_reader reader, void* stream, ini_handler handler
 #endif
 
     /* Scan through stream line by line */
-    while (reader(line, INI_MAX_LINE, stream) != NULL) {
+    while (reader(line, INI_MAX_LINE, stream) != nullptr) {
         lineno++;
 
-        start = line;
+        char* start = line;
 #if INI_ALLOW_BOM
         if (lineno == 1 && (unsigned char)start[0] == 0xEF &&
                            (unsigned char)start[1] == 0xBB &&
@@ -158,7 +157,7 @@ int Exiv2::ini_parse_stream(ini_reader reader, void* stream, ini_handler handler
                 name = rstrip(start);
                 value = lskip(end + 1);
 #if INI_ALLOW_INLINE_COMMENTS
-                end = find_chars_or_comment(value, NULL);
+                end = find_chars_or_comment(value, nullptr);
                 if (*end)
                     *end = '\0';
 #endif
