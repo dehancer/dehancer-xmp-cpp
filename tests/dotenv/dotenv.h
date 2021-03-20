@@ -22,6 +22,9 @@
 
 namespace dotenv
 {
+    
+    using uint = unsigned int;
+    
     class syntax_error: public std::runtime_error
     {
     public:
