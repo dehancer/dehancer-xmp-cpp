@@ -35,7 +35,10 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -Wno-unused-command-line-argument")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-command-line-argument")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Ofast -ffast-math")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS} -static")
+
+if (NOT APPLE)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS} -static")
+endif ()
 
 # googletes, etc
 set (EXTERNAL_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/external)
@@ -58,18 +61,23 @@ if(NOT PKG_CONFIG_FOUND)
     message(FATAL_ERROR "sudo apt-get install pkg-config, or brew install pkg-config")
 endif()
 
-find_package (Threads REQUIRED)
+#sfind_package (Threads REQUIRED)
 find_package (EXPAT REQUIRED)
-find_package (ZLIB REQUIRED)
 find_package (Iconv REQUIRED)
 
-if (${DEHANCER_TARGET_ARCH} MATCHES "arm64.*")
+if (${DEHANCER_TARGET_ARCH} MATCHES ".*arm64.*")
+    MESSAGE("Configure: ARM4")
+
     find_package (ZLIB REQUIRED)
-elseif (${DEHANCER_TARGET_ARCH} MATCHES "x86_64.*")
+
+elseif (${DEHANCER_TARGET_ARCH} MATCHES ".*x86_64.*")
+    MESSAGE("Configure: x86_64")
+
     SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
     set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:/usr/local/x86_64")
     pkg_check_modules(ZLIB ZLIB)
-    if(ZLIB_FOUND)
+
+    if(NOT ZLIB_FOUND)
         MESSAGE(FATAL "x86_64 zlib not found")
     endif()
 
@@ -79,6 +87,9 @@ elseif (${DEHANCER_TARGET_ARCH} MATCHES "x86_64.*")
     link_directories(
             ${ZLIB_LIBRARY_DIRS}
     )
+
+else()
+    find_package (ZLIB REQUIRED)
 endif()
 
 
@@ -149,8 +160,6 @@ include(ExternalProject)
 #
 set(COMMON_DEPENDENCIES)
 set(COMMON_LIBRARIES
-        ${BLAS_LIBRARIES};
-        ${LAPACK_LIBRARIES};
         ${CMAKE_THREAD_LIBS_INIT};
         ${MKL_LIBRARIES};
         ${EXPAT_LIBRARIES};
