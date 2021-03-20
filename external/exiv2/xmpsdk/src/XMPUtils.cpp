@@ -70,8 +70,17 @@ XMP_VarString * sExtendedDigest = 0;
 	#define ansi_mktime		mktime
 	#define ansi_difftime	difftime
 
+#ifdef __MINGW32__
+	#define ansi_gmtime(x,y)		gmtime_s(y,x)
+#else
 	#define ansi_gmtime		gmtime_r
+#endif
+
+#ifdef __MINGW32__
+	#define ansi_localtime(x,y)	localtime_s(y,x)
+#else
 	#define ansi_localtime	localtime_r
+#endif
 
 #elif XMP_WinBuild
 

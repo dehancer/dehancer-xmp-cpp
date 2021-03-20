@@ -35,6 +35,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -Wno-unused-command-line-argument")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-command-line-argument")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Ofast -ffast-math")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS} -static")
 
 # googletes, etc
 set (EXTERNAL_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/external)
@@ -59,7 +60,7 @@ endif()
 
 find_package (Threads REQUIRED)
 find_package (EXPAT REQUIRED)
-#find_package (ZLIB REQUIRED)
+find_package (ZLIB REQUIRED)
 find_package (Iconv REQUIRED)
 
 if (${DEHANCER_TARGET_ARCH} MATCHES "arm64.*")
@@ -153,9 +154,13 @@ set(COMMON_LIBRARIES
         ${CMAKE_THREAD_LIBS_INIT};
         ${MKL_LIBRARIES};
         ${EXPAT_LIBRARIES};
+        ${Iconv_LIBRARIES};
         ${ZLIB_LIBRARIES};
-        ${Iconv_LIBRARIES}; )
+        )
 
+if (MINGW)
+    set(COMMON_LIBRARIES ${COMMON_LIBRARIES};ws2_32;kernel32;psapi)
+endif ()
 #
 # Google TEST
 #
@@ -213,7 +218,7 @@ ExternalProject_Add(exiv2_lib
         )
 set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};exiv2_lib)
 
-ExternalProject_Add(dehancer_common_cpplib
+ExternalProject_Add(dcmmc
         GIT_REPOSITORY https://github.com/dehancer/dehancer-common-cpp
         CMAKE_ARGS
         -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
@@ -224,9 +229,8 @@ ExternalProject_Add(dehancer_common_cpplib
         -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
         -DBUILD_TESTING=OFF
         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-        INSTALL_COMMAND make install
         )
-set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dehancer_common_cpplib)
+set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dcmmc)
 
 ExternalProject_Add(ed25519cpplib
         GIT_REPOSITORY https://github.com/dnevera/ed25519cpp
@@ -239,7 +243,6 @@ ExternalProject_Add(ed25519cpplib
         -DBUILD_TESTING=OFF
         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
         -DDEHANCER_TARGET_ARCH=${DEHANCER_TARGET_ARCH}
-        INSTALL_COMMAND make install
         PREFIX=${CMAKE_BINARY_DIR}/ed25519cpplib
         )
 set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};ed25519cpplib)
@@ -255,11 +258,10 @@ ExternalProject_Add(base64cpplib
         -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
         -DBUILD_TESTING=OFF
         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-        INSTALL_COMMAND make install
         )
 set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};base64cpplib)
 
-set(COMMON_LIBRARIES ${COMMON_LIBRARIES};dehancer_common_cpp;ed25519cpp;base64cpp;exiv2;exiv2-xmp)
+set(COMMON_LIBRARIES dehancer_common_cpp;ed25519cpp;base64cpp;exiv2;exiv2-xmp;${COMMON_LIBRARIES})
 
 #
 # Details
