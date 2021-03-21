@@ -229,7 +229,7 @@ ExternalProject_Add(exiv2_lib
         )
 set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};exiv2_lib)
 
-ExternalProject_Add(dcmmc
+ExternalProject_Add(dcmcpp
         GIT_REPOSITORY https://github.com/dehancer/dehancer-common-cpp
         CMAKE_ARGS
         -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
@@ -242,7 +242,7 @@ ExternalProject_Add(dcmmc
         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
         PREFIX ${CMAKE_BINARY_DIR}/tmp
         )
-set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dcmmc)
+set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dcmcpp)
 
 ExternalProject_Add(ed25519cpplib
         GIT_REPOSITORY https://github.com/dnevera/ed25519cpp
