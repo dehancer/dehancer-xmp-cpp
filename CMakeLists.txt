@@ -17,6 +17,11 @@ if (NOT DEHANCER_COMMON_DIR)
     set(DEHANCER_COMMON_DIR ${CMAKE_BINARY_DIR}/tmp)
 endif ()
 
+option(EXTERNAL_INSTALL_LOCATION  "")
+if (NOT EXTERNAL_INSTALL_LOCATION)
+    set (EXTERNAL_INSTALL_LOCATION ${CMAKE_BINARY_DIR}/external)
+endif ()
+
 if (DEHANCER_TARGET_ARCH)
     #
     # x86_64-apple-macos10.13
@@ -46,7 +51,6 @@ endif ()
 
 # googletes, etc
 set (EXTERNAL_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/external)
-set (EXTERNAL_INSTALL_LOCATION ${CMAKE_BINARY_DIR}/external)
 set (EXTERNAL_INCLUDE_DIR ${EXTERNAL_INSTALL_LOCATION}/include)
 set (EXIVEDK_DB_DIR ${CMAKE_SOURCE_DIR}/external/exiv2)
 
@@ -195,11 +199,11 @@ if (NOT GTEST_FOUND)
     include_directories(
             ./
             ../include
-            ${CMAKE_BINARY_DIR}/external/include
+            ${EXTERNAL_INSTALL_LOCATION}/include
     )
 
     link_directories(
-            ${CMAKE_BINARY_DIR}/external/lib
+            ${EXTERNAL_INSTALL_LOCATION}/lib
     )
 
 endif()
@@ -284,12 +288,12 @@ set(COMMON_LIBRARIES dehancer_common_cpp;ed25519cpp;base64cpp;exiv2;exiv2-xmp;${
 # Details
 #
 include_directories(
-        ${CMAKE_BINARY_DIR}/external/include
+        ${EXTERNAL_INSTALL_LOCATION}/include
         ${CMAKE_SOURCE_DIR}/include
 )
 
 link_directories(
-        ${CMAKE_BINARY_DIR}/external/lib
+        ${EXTERNAL_INSTALL_LOCATION}/lib
 )
 
 add_subdirectory(lib)
