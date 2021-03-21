@@ -10,8 +10,8 @@ project(${PROJECT_LIB} VERSION 0.7.6)
 # Options
 #
 option(BUILD_TESTING "Enable creation of tests." OFF)
-option(DEHANCER_COMMON_DIR  "")
 option(DEHANCER_TARGET_ARCH "")
+option(DEHANCER_COMMON_DIR  "")
 
 if (NOT DEHANCER_COMMON_DIR)
     set(DEHANCER_COMMON_DIR ${CMAKE_BINARY_DIR}/tmp)
