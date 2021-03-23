@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.12)
 # Project
 #
 set(PROJECT_LIB dehancer_xmp_cpp)
-project(${PROJECT_LIB} VERSION 0.7.6)
+project(${PROJECT_LIB} VERSION 0.8.0)
 
 #
 # Options
@@ -38,15 +38,22 @@ endif ()
 set(VERSION_FILE "version.txt")
 set(CMAKE_CXX_STANDARD 17)
 
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
+if (WIN32)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -EHsc -Wno-deprecated-declarations")
+    add_definitions(/MT /DWIN32=1 /D_ITERATOR_DEBUG_LEVEL=0)
+else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -rdynamic")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-command-line-argument")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Ofast -ffast-math")
+endif ()
+
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DPRINT_DEBUG -DDEBUG_BUILD=1")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -Wno-unused-command-line-argument")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-command-line-argument")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Ofast -ffast-math")
 
 if (NOT APPLE)
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS} -static")
+    #set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS} -static")
 endif ()
 
 # googletes, etc
@@ -126,15 +133,20 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" ST
 
     message(STATUS "Using Clang" )
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wc++17-extensions")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility-inlines-hidden")
+
+    if (NOT WIN32)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility-inlines-hidden")
+    endif ()
 
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 
     message(STATUS "Using gcc" )
 
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -W -Wall -Wextra -Wno-ignored-qualifiers -Wvariadic-macros -pthread -static-libgcc -static-libstdc++")
-    set(CMAKE_CXX_FLAGS "-fvisibility=hidden -Wno-pedantic")
-    set(CMAKE_CXX_FLAGS "-Wno-pedantic")
+    if (NOT WIN32)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
+    endif ()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-pedantic")
     set(CMAKE_LINK_DEPENDS_NO_SHARED TRUE)
 
     add_compile_options(-lpthread)
@@ -153,10 +165,6 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 
 endif()
 
-if (MSVC)
-    add_definitions (/W4)
-elseif (CMAKE_COMPILER_IS_GNUCXX)
-endif ()
 
 #
 # Package manager
@@ -178,45 +186,55 @@ set(COMMON_LIBRARIES
 if (MINGW)
     set(COMMON_LIBRARIES ${COMMON_LIBRARIES};ws2_32;kernel32;psapi)
 endif ()
-#
-# Google TEST
-#
-find_package(GTest)
-if (NOT GTEST_FOUND)
-    ExternalProject_Add(googletest
-            GIT_REPOSITORY https://github.com/google/googletest
-            CMAKE_ARGS
-            -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
-            -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
-            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-            -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-            -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
-            -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
-            -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
-            PREFIX ${DEHANCER_COMMON_DIR}
-            )
-    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};googletest)
 
-    include_directories(
-            ./
-            ../include
-            ${EXTERNAL_INSTALL_LOCATION}/include
-    )
+if (BUILD_TESTING)
+    #
+    # Google TEST
+    #
+    find_package(GTest)
+    if (NOT GTEST_FOUND)
+        ExternalProject_Add(googletest
+                GIT_REPOSITORY https://github.com/google/googletest
+                CMAKE_ARGS
+                -DCMAKE_BUILD_TYPE=Release
+                -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
+                -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+                -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
+                -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+                -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
+                -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
+                -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
+                PREFIX ${DEHANCER_COMMON_DIR}
+                )
+        set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};googletest)
 
-    link_directories(
-            ${EXTERNAL_INSTALL_LOCATION}/lib
-    )
+        include_directories(
+                ./
+                ../include
+                ${EXTERNAL_INSTALL_LOCATION}/include
+        )
 
+        link_directories(
+                ${EXTERNAL_INSTALL_LOCATION}/lib
+        )
+    endif()
 endif()
 
+set(EXIV2_FLAGS)
+if (WIN32)
+    set(EXIV2_FLAGS "-DXMP_WinBuild=1 -D_ITERATOR_DEBUG_LEVEL=0")
+else()
+    set(EXIV2_FLAGS "-fvisibility=hidden")
+endif ()
 ExternalProject_Add(exiv2_lib
         SOURCE_DIR ${EXIVEDK_DB_DIR}
         CMAKE_ARGS
+        -DCMAKE_BUILD_TYPE=Release
         -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-        -DCMAKE_CXX_FLAGS="-fvisibility=hidden"
+        -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+        -DCMAKE_CXX_FLAGS=${EXIV2_FLAGS}
         -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
         -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
-        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
         -DDEHANCER_TARGET_ARCH=${DEHANCER_TARGET_ARCH}
         -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
         -DBUILD_SHARED_LIBS=OFF
@@ -225,7 +243,9 @@ ExternalProject_Add(exiv2_lib
         -DEXIV2_BUILD_EXIV2_COMMAND=OFF
         -DEXIV2_ENABLE_XMP=ON
         -DBUILD_WITH_CCACHE=OFF
+        -DEXIV2_ENABLE_DYNAMIC_RUNTIME=OFF
         -DDEHANCER_TARGET_ARCH=${DEHANCER_TARGET_ARCH}
+        -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
         #BUILD_COMMAND make
         #INSTALL_COMMAND make install
         #BUILD_ALWAYS ON
@@ -242,6 +262,7 @@ ExternalProject_Add(dcmcpp
         GIT_REPOSITORY https://github.com/dehancer/dehancer-common-cpp
         CMAKE_ARGS
         -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+        -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
         -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
         -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
@@ -251,6 +272,7 @@ ExternalProject_Add(dcmcpp
         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
         -DDEHANCER_COMMON_DIR=${DEHANCER_COMMON_DIR}
         -DEXTERNAL_INSTALL_LOCATION=${EXTERNAL_INSTALL_LOCATION}
+        -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
         PREFIX ${DEHANCER_COMMON_DIR}
         )
 set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dcmcpp)
@@ -259,6 +281,7 @@ ExternalProject_Add(ed25519cpplib
         GIT_REPOSITORY https://github.com/dnevera/ed25519cpp
         CMAKE_ARGS
         -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+        -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
         -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
         -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
@@ -268,28 +291,35 @@ ExternalProject_Add(ed25519cpplib
         -DDEHANCER_TARGET_ARCH=${DEHANCER_TARGET_ARCH}
         -DDEHANCER_COMMON_DIR=${DEHANCER_COMMON_DIR}
         -DEXTERNAL_INSTALL_LOCATION=${EXTERNAL_INSTALL_LOCATION}
+        -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
         PREFIX ${DEHANCER_COMMON_DIR}
         )
 set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};ed25519cpplib)
 
+
 ExternalProject_Add(base64cpplib
         GIT_REPOSITORY https://github.com/dnevera/base64cpp
         CMAKE_ARGS
-        -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-        -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+        -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+        -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+        -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
         -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
         -DDEHANCER_TARGET_ARCH=${DEHANCER_TARGET_ARCH}
         -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
         -DBUILD_TESTING=OFF
-        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
         -DDEHANCER_COMMON_DIR=${DEHANCER_COMMON_DIR}
         -DEXTERNAL_INSTALL_LOCATION=${EXTERNAL_INSTALL_LOCATION}
+        -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
         PREFIX ${DEHANCER_COMMON_DIR}
         )
 set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};base64cpplib)
 
 set(COMMON_LIBRARIES dehancer_common_cpp;ed25519cpp;base64cpp;exiv2;exiv2-xmp;${COMMON_LIBRARIES})
+
+if (WIN32)
+    set(COMMON_LIBRARIES ${COMMON_LIBRARIES};psapi)
+endif ()
 
 #
 # Details

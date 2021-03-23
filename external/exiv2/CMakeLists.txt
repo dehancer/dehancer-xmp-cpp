@@ -50,7 +50,12 @@ if (DEHANCER_TARGET_ARCH)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -target ${DEHANCER_TARGET_ARCH}")
 endif ()
 
-set(EXTRA_COMPILE_FLAGS "${EXTRA_COMPILE_FLAGS} -fvisibility=hidden")
+if (WIN32)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -EHsc -Wno-deprecated-declarations")
+    add_definitions(/DWIN32=1 /DXMP_WinBuild=1)
+else()
+    set(EXTRA_COMPILE_FLAGS "${EXTRA_COMPILE_FLAGS} -fvisibility=hidden")
+endif ()
 
 mark_as_advanced(
     EXIV2_TEAM_EXTRA_WARNINGS

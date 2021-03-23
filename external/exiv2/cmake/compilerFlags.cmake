@@ -133,6 +133,6 @@ if(MSVC)
     endif ()
 
     # Object Level Parallelism
-    add_compile_options(/MP)
+    #add_compile_options(/MP)
     add_definitions(-DNOMINMAX -DWIN32_LEAN_AND_MEAN)
 endif()

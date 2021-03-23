@@ -25,3 +25,38 @@ Build Linux
 ==========
     mkdir build-x86_64 && cd build-x86_64
     cmake -DCMAKE_CXX_COMPILER=clang++ -DPRINT_DEBUG=ON -DBUILD_TESTING=ON 
+
+Windows GCC
+=======
+
+    # mingw
+    # Install https://www.msys2.org/
+    # https://blog.jetbrains.com/clion/2020/12/setting-up-clang-on-windows/
+
+    pacman -S mingw-w64-x86_64-toolchain
+    pacman -S mingw-w64-x86_64-clang
+    pacman -S mingw-w64-x86_64-cmake
+    pacman -S libcurl
+    pacman -S zlib-devel
+    pacman -S libcurl-devel
+
+
+Windows MVSC
+=======
+    # Requrements: 
+    # Visual Studio, English Language Pack!
+    # https://vcpkg.info/
+    # GitBash
+
+    cd C:
+    git clone https://github.com/microsoft/vcpkg
+    cd /c/vcpkg/
+    ./bootstrap-vcpkg.sh
+    /c/vcpkg/vcpkg integrate install
+    /c/vcpkg/vcpkg install gtest
+    /c/vcpkg/vcpkg install expat
+    /c/vcpkg/vcpkg install libiconv 
+    /c/vcpkg/vcpkg install zlib
+
+    # cmake integration
+    -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
