@@ -12,7 +12,15 @@
 #include <sstream>
 #include <map>
 #include <vector>
+#if WIN32
+#include  <io.h>
+#include  <cstdio>
+#include  <cstdlib>
+#define R_OK 04
+#define W_OK 06
+#else
 #include <unistd.h>
+#endif
 
 namespace dehancer {
 
