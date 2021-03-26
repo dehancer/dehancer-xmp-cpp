@@ -53,9 +53,10 @@ Windows MVSC
     cd /c/vcpkg/
     ./bootstrap-vcpkg.sh
     /c/vcpkg/vcpkg integrate install
-    /c/vcpkg/vcpkg install expat:x64-windows
-    /c/vcpkg/vcpkg install libiconv:x64-windows 
-    /c/vcpkg/vcpkg install zlib:x64-windows
+    /c/vcpkg/vcpkg install expat:x64-windows-static
+    /c/vcpkg/vcpkg install libiconv:x64-windows-static 
+    /c/vcpkg/vcpkg install zlib:x64-windows-static
 
     # cmake integration
     -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+    -DVCPKG_TARGET_TRIPLET=x64-windows-static
