@@ -14,7 +14,7 @@ add_library(${PROJECT_NAME} ${COMMON_SRC})
 if (COMMON_DEPENDENCIES)
     add_dependencies(${PROJECT_LIB} ${COMMON_DEPENDENCIES})
 else()
-    add_dependencies(${PROJECT_LIB} exiv2_lib)
+    add_dependencies(${PROJECT_LIB} exiv2_lib dcmcpp)
 endif()
 
 set(config_install_dir "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
