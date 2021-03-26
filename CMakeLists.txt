@@ -294,6 +294,7 @@ ExternalProject_Add(dcmcpp
         -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
         -DVCPKG_TARGET_TRIPLET=${VCPKG_TARGET_TRIPLET}
         PREFIX ${DEHANCER_COMMON_DIR}
+        DEPENDS exiv2_lib
         )
 set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dcmcpp)
 set(COMMON_LIBRARIES dehancer_common_cpp;ed25519cpp;base64cpp;exiv2;exiv2-xmp;${COMMON_LIBRARIES})
