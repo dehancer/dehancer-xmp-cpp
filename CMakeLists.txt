@@ -293,6 +293,7 @@ ExternalProject_Add(dcmcpp
         -DEXTERNAL_INSTALL_LOCATION=${EXTERNAL_INSTALL_LOCATION}
         -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
         PREFIX ${DEHANCER_COMMON_DIR}
+        DEPENDS exiv2_lib
         )
 set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dcmcpp)
 set(COMMON_LIBRARIES dehancer_common_cpp;ed25519cpp;base64cpp;exiv2;exiv2-xmp;${COMMON_LIBRARIES})
