@@ -31,7 +31,7 @@ TEST(XMP, XMPOpenTest) {
      * * read properties
      * */
 
-    auto xmp = dehancer::MLutXmp::Open(file_path, pass, cache_dir);
+    auto xmp = dehancer::MLutXmp::Open(file_path, pass, cache_dir, true);
 
     if (!xmp) {
       std::cerr << xmp.error().message() << std::endl;

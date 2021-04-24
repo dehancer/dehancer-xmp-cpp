@@ -239,10 +239,10 @@ namespace dehancer {
               std::string lut_file = xmp.get_cache_clut_path(i);
               std::ofstream fout(lut_file, std::ios::out | std::ios::binary);
 
-              Blowfish fish(key.empty() ? Blowfish::KeyType({0,0,0,0,0,0,0,0}) : key);
+              Blowfish new_fish(key.empty() ? Blowfish::KeyType({0,0,0,0,0,0,0,0}) : key);
 
               CLutBuffer buffer;
-              fish.encrypt(xmp.cluts_[i],buffer);
+              new_fish.encrypt(xmp.cluts_[i],buffer);
               fout.write(reinterpret_cast<const char *>(buffer.data()),buffer.size());
               fout.close();
             }
