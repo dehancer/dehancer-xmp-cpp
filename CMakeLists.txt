@@ -212,6 +212,8 @@ if (BUILD_TESTING)
 
         ExternalProject_Add(googletest
                 GIT_REPOSITORY https://github.com/google/googletest
+                GIT_PROGRESS YES
+                GIT_SHALLOW YES
                 CMAKE_ARGS
                 -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
                 -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
@@ -272,6 +274,8 @@ set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};exiv2_lib)
 
 ExternalProject_Add(dcmcpp
         GIT_REPOSITORY https://github.com/dehancer/dehancer-common-cpp
+        GIT_PROGRESS YES
+        GIT_SHALLOW YES
         CMAKE_ARGS
         -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
         -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
