@@ -4,6 +4,7 @@
 
 #include "dehancer/MLutXmp.h"
 #include "dehancer/Utils.h"
+#include "dehancer/FileUtils.h"
 
 #include <string>
 #include <iostream>
@@ -23,8 +24,12 @@ TEST(XMP, XMPOpenTest) {
     std::string file_path = "../../../tests/mlut_xmp/mlut.mlut";
     std::string cache_dir = "./cache";
 
-    dehancer::file::mkdir_p(cache_dir.c_str(), 0777);
-
+    //dehancer::file::mkdir_p(cache_dir.c_str(), 0777);
+  
+    auto ec = dehancer::platform::create_directories(cache_dir);
+  
+    GTEST_EXPECT_FALSE(ec);
+    
     std::cout << "Open test: " << file_path << std::endl;
 
     /*

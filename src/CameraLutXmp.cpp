@@ -6,21 +6,8 @@
 #include "dehancer/Blowfish.h"
 #include "dehancer/Base64.h"
 #include "dehancer/Utils.h"
+#include "dehancer/FileUtils.h"
 #include "nlohmann/json.h"
-
-#include <fstream>
-#include <sstream>
-#include <map>
-#include <vector>
-#if WIN32
-#include  <io.h>
-#include  <cstdio>
-#include  <cstdlib>
-#define R_OK 04
-#define W_OK 06
-#else
-#include <unistd.h>
-#endif
 
 namespace dehancer {
     
@@ -144,11 +131,11 @@ namespace dehancer {
                 }
                 
                 if (!meta.empty()) {
-                    std::ofstream file(meta_file);
+                    platform::ofstream file(meta_file);
                     file << meta;
                     
                     std::string lut_file = xmp.get_cache_clut_path();
-                    std::ofstream fout(lut_file, std::ios::out | std::ios::binary);
+                    platform::ofstream fout(lut_file, std::ios::out | std::ios::binary);
                     
                     Blowfish fish_next(key.empty() ? Blowfish::KeyType({0,0,0,0,0,0,0,0}) : key);
                     
@@ -220,20 +207,21 @@ namespace dehancer {
         try {
             
             
-            if (!purge_cache && !cache_dir.empty() && access(cache_dir.c_str(),W_OK)==0 ) {
+            if (!purge_cache && !cache_dir.empty() && platform::access(cache_dir, W_OK) == Error(CommonError::OK)) {
                 
                 auto xmp = CameraLutXmp();
                 xmp.path_ = path;
                 xmp.cache_dir_ = cache_dir;
                 auto meta_file_name = xmp.get_cache_meta_path();
                 
-                if (access(meta_file_name.c_str(),R_OK)==0) {
+                if (platform::access(meta_file_name, R_OK) == Error(CommonError::OK)) {
                     nlohmann::json meta;
-                    std::ifstream  meta_file(meta_file_name);
+                    
+                    platform::ifstream  meta_file(meta_file_name);
                     meta_file>>meta;
                     
                     std::string lut_file = xmp.get_cache_clut_path();
-                    std::ifstream instream(lut_file, std::ios::in | std::ios::binary);
+                    platform::ifstream instream(lut_file, std::ios::in | std::ios::binary);
                     Blowfish fish(key.empty() ? Blowfish::KeyType({0,0,0,0,0,0,0,0}) : key);
                     
                     CLutBuffer tmp((std::istreambuf_iterator<char>(instream)), std::istreambuf_iterator<char>());
@@ -258,7 +246,7 @@ namespace dehancer {
             
             
             std::string metaBuffer;
-            std::ifstream inFile;
+            platform::ifstream inFile;
             
             inFile.open(path.c_str(), std::fstream::in);
             

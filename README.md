@@ -58,5 +58,10 @@ Windows MVSC
     /c/vcpkg/vcpkg install zlib:x64-windows-static
 
     # cmake integration
+    -G
+    "Ninja"
+    -DCMAKE_VERBOSE_MAKEFILE=ON
+    -DBUILD_TESTING=ON
+    -DPRINT_DEBUG=ON
     -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
     -DVCPKG_TARGET_TRIPLET=x64-windows-static
