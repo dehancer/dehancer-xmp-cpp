@@ -24,8 +24,6 @@ TEST(XMP, XMPOpenTest) {
     std::string file_path = "../../../tests/mlut_xmp/mlut.mlut";
     std::string cache_dir = "./cache";
 
-    //dehancer::file::mkdir_p(cache_dir.c_str(), 0777);
-  
     auto ec = dehancer::platform::create_directories(cache_dir);
   
     GTEST_EXPECT_FALSE(ec);
