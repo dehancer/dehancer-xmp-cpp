@@ -92,6 +92,8 @@ find_package (PkgConfig QUIET)
 if(NOT PKG_CONFIG_FOUND)
     message(FATAL_ERROR "pkg-config not found!" )
     message(FATAL_ERROR "sudo apt-get install pkg-config, or brew install pkg-config")
+else()
+    set (PKG_CONFIG_USE_CMAKE_PREFIX_PATH 1)
 endif()
 
 find_package (EXPAT REQUIRED)
@@ -293,37 +295,46 @@ ExternalProject_Add(exiv2_lib
         )
 set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};exiv2_lib)
 
-ExternalProject_Add(dcmcpp
-        GIT_REPOSITORY https://github.com/dehancer/dehancer-common-cpp
-        GIT_PROGRESS YES
-        GIT_SHALLOW YES
-        CMAKE_ARGS
-        -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-        -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-        -DCMAKE_C_FLAGS=${C_FLAGS}
-        -DCMAKE_CXX_FLAGS=${CXX_FLAGS}
-        -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
-        -DCMAKE_OSX_SYSROOT=${CMAKE_OSX_SYSROOT}
-        -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
-        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-        -DDEHANCER_TARGET_ARCH=${DEHANCER_TARGET_ARCH}
-        -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
-        -DBUILD_TESTING=OFF
-        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-        -DDEHANCER_COMMON_DIR=${DEHANCER_COMMON_DIR}
-        -DEXTERNAL_INSTALL_LOCATION=${EXTERNAL_INSTALL_LOCATION}
-        -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-        -DVCPKG_TARGET_TRIPLET=${VCPKG_TARGET_TRIPLET}
-        PREFIX ${DEHANCER_COMMON_DIR}
-        DEPENDS exiv2_lib
-        )
-set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dcmcpp)
-set(COMMON_LIBRARIES dehancer_common_cpp;ed25519cpp;base64cpp;exiv2;exiv2-xmp;${COMMON_LIBRARIES})
-
+pkg_search_module(dehancer_common_cpp dehancer-common-cpp)
+if (NOT dehancer_common_cpp_FOUND)
+    ExternalProject_Add(dcmcpp
+            GIT_REPOSITORY https://github.com/dehancer/dehancer-common-cpp
+            GIT_PROGRESS YES
+            GIT_SHALLOW YES
+            CMAKE_ARGS
+            -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+            -DCMAKE_C_FLAGS=${C_FLAGS}
+            -DCMAKE_CXX_FLAGS=${CXX_FLAGS}
+            -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
+            -DCMAKE_OSX_SYSROOT=${CMAKE_OSX_SYSROOT}
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
+            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+            -DDEHANCER_TARGET_ARCH=${DEHANCER_TARGET_ARCH}
+            -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
+            -DBUILD_TESTING=OFF
+            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+            -DDEHANCER_COMMON_DIR=${DEHANCER_COMMON_DIR}
+            -DEXTERNAL_INSTALL_LOCATION=${EXTERNAL_INSTALL_LOCATION}
+            -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+            -DVCPKG_TARGET_TRIPLET=${VCPKG_TARGET_TRIPLET}
+            PREFIX ${DEHANCER_COMMON_DIR}
+            DEPENDS exiv2_lib
+            )
+    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dcmcpp)
+    set(COMMON_LIBRARIES dehancer_common_cpp;ed25519cpp;base64cpp;exiv2;exiv2-xmp;${COMMON_LIBRARIES})
+else()
+    set(COMMON_LIBRARIES ${dehancer_common_cpp_LINK_LIBRARIES};exiv2;exiv2-xmp;${COMMON_LIBRARIES})
+    include_directories(
+            ${dehancer_common_cpp_INCLUDE_DIRS}
+    )
+endif ()
 
 if (WIN32)
     set(COMMON_LIBRARIES ${COMMON_LIBRARIES};psapi)
 endif ()
+
+message("COMMON_LIBRARIES: ${COMMON_LIBRARIES}")
 
 #
 # Details
