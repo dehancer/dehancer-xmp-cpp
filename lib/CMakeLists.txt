@@ -9,6 +9,8 @@ file (GLOB COMMON_SRC ${COMMON_SRC}
         ../src/*.c
         )
 
+message("PROJECT_NAME ${PROJECT_NAME} <- ${COMMON_SRC} ")
+
 add_library(${PROJECT_NAME} ${COMMON_SRC})
 
 if (COMMON_DEPENDENCIES)
