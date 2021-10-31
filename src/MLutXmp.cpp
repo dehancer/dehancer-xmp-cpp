@@ -308,6 +308,8 @@ namespace dehancer {
             "nslutSize",
             "nsfilmType",
             "nslutType",
+            "nsisPrinted",
+            "nsisPrintMedia",
             "nsisPhotoEnabled",
             "nsisVideoEnabled",
             "nslicenseMatrix",
@@ -421,6 +423,16 @@ namespace dehancer {
 
     bool MLutXmp::is_photo_enabled()  const {
       if (get_value("nsisPhotoEnabled")) return get_value("nsisPhotoEnabled")->toString() == "True";
+      return false;
+    }
+    
+    bool MLutXmp::is_printed()  const {
+      if (get_value("nsisPrinted")) return get_value("nsisPrinted")->toString() == "True";
+      return false;
+    }
+    
+    bool MLutXmp::is_print_media()  const {
+      if (get_value("nsisPrintMedia")) return get_value("nsisPrintMedia")->toString() == "True";
       return false;
     }
 

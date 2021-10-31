@@ -74,6 +74,8 @@ namespace dehancer {
         [[nodiscard]] std::string get_id() const ;
         [[nodiscard]] std::string get_name() const ;
         [[nodiscard]] std::string get_caption() const ;
+        [[nodiscard]] bool is_printed() const ;
+        [[nodiscard]] bool is_print_media() const ;
         [[nodiscard]] bool is_photo_enabled() const ;
         [[nodiscard]] bool is_video_enabled() const ;
         [[nodiscard]] std::string get_description() const ;
