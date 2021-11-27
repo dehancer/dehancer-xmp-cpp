@@ -235,6 +235,7 @@ if (BUILD_TESTING)
                 GIT_REPOSITORY https://github.com/google/googletest
                 GIT_PROGRESS YES
                 GIT_SHALLOW YES
+                GIT_TAG release-1.11.0
                 CMAKE_ARGS
                 -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
                 -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
@@ -259,7 +260,9 @@ if (WIN32)
     set(EXIV2_FLAGS "-DXMP_WinBuild=1 -D_ITERATOR_DEBUG_LEVEL=0  ${CXX_FLAGS}")
 else()
     #set(EXIV2_FLAGS "-fvisibility=hidden ${CXX_FLAGS}")
+    set(EXIV2_FLAGS "-Wno-deprecated-copy -fvisibility=default ${CXX_FLAGS}")
 endif ()
+
 
 string(STRIP "${EXIV2_FLAGS}" EXIV2_FLAGS)
 
