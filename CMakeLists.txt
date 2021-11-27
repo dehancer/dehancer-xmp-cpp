@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.12)
 # Project
 #
 set(PROJECT_LIB dehancer_xmp_cpp)
-project(${PROJECT_LIB} VERSION 0.8.3)
+project(${PROJECT_LIB} VERSION 0.8.4)
 
 #
 # Options
@@ -63,7 +63,8 @@ if (WIN32)
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -rdynamic")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
+    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-command-line-argument")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Ofast -ffast-math")
 endif ()
@@ -154,7 +155,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" ST
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wc++17-extensions")
 
     if (NOT WIN32)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility-inlines-hidden")
+        #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility-inlines-hidden")
     endif ()
 
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -163,7 +164,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -W -Wall -Wextra -Wno-ignored-qualifiers -Wvariadic-macros -pthread -static-libgcc -static-libstdc++")
     if (NOT WIN32)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
+        #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
     endif ()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-pedantic")
     set(CMAKE_LINK_DEPENDS_NO_SHARED TRUE)
@@ -234,6 +235,7 @@ if (BUILD_TESTING)
                 GIT_REPOSITORY https://github.com/google/googletest
                 GIT_PROGRESS YES
                 GIT_SHALLOW YES
+                GIT_TAG release-1.11.0
                 CMAKE_ARGS
                 -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
                 -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
@@ -257,8 +259,10 @@ set(EXIV2_FLAGS)
 if (WIN32)
     set(EXIV2_FLAGS "-DXMP_WinBuild=1 -D_ITERATOR_DEBUG_LEVEL=0  ${CXX_FLAGS}")
 else()
-    set(EXIV2_FLAGS "-fvisibility=hidden ${CXX_FLAGS}")
+    #set(EXIV2_FLAGS "-fvisibility=hidden ${CXX_FLAGS}")
+    set(EXIV2_FLAGS "-Wno-deprecated-copy -fvisibility=default ${CXX_FLAGS}")
 endif ()
+
 
 string(STRIP "${EXIV2_FLAGS}" EXIV2_FLAGS)
 
