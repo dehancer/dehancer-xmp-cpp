@@ -149,6 +149,11 @@ endif(CCACHE_FOUND)
 
 message(STATUS "CMAKE_CXX_COMPILER_ID: " ${CMAKE_CXX_COMPILER_ID})
 
+if (${CMAKE_SYSTEM_NAME} STREQUAL Linux)
+    set(LINUX ON)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DX86_LINUX")
+endif()
+
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
 
     message(STATUS "Using Clang" )
@@ -168,8 +173,6 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     endif ()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-pedantic")
     set(CMAKE_LINK_DEPENDS_NO_SHARED TRUE)
-
-    add_compile_options(-lpthread)
 
     if (${CMAKE_SYSTEM_NAME} STREQUAL Linux)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DX86_LINUX")
@@ -336,6 +339,10 @@ endif ()
 
 if (WIN32)
     set(COMMON_LIBRARIES ${COMMON_LIBRARIES};psapi)
+endif ()
+
+if (LINUX)
+    set(COMMON_LIBRARIES ${COMMON_LIBRARIES};pthread)
 endif ()
 
 message("COMMON_LIBRARIES: ${COMMON_LIBRARIES}")
