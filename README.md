@@ -30,10 +30,30 @@ Build Linux
 iOS 
 =======
     cd external/exiv2 && mkdir build-ios && cd build-ios
-    cmake -G Xcode -DCMAKE_TOOLCHAIN_FILE=../../cmake/ios.toolchain.cmake -DPLATFORM=OS64COMBINED -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=~/Develop/local/ios/dehancer -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DEXIV2_BUILD_SAMPLES=OFF -DEXIV2_BUILD_EXIV2_COMMAND=OFF -DEXIV2_ENABLE_XMP=ON -DEXIV2_ENABLE_DYNAMIC_RUNTIME=OFF ..
-    cmake --build . --config Debug && cmake --install . --config Debug 
-    cd ../../ && mkdir build-ios && cd build-ios
-    -cmake G Xcode -DCMAKE_TOOLCHAIN_FILE=~/Develop/Dehancer/Dehancer-Plugins/ios-cmake/ios.toolchain.cmake -DPLATFORM=OS64COMBINED -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=~/Develop/local/ios/dehancer
+
+    export PKG_CONFIG_PATH=/opt/homebrew/opt/zlib/lib/pkgconfig:~/Develop/local/arm64/dehancer/lib/pkgconfig
+
+    cmake -G Xcode \
+    -DCMAKE_TOOLCHAIN_FILE=../../lib/ios.toolchain.cmake \
+    -DPLATFORM=OS64COMBINED \
+    -DENABLE_BITCODE=ON \
+    -DBUILD_TESTING=OFF \
+    -DCMAKE_INSTALL_PREFIX=~/Develop/local/ios/dehancer \
+    -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF \
+    -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+    -DEXIV2_BUILD_SAMPLES=OFF -DEXIV2_BUILD_EXIV2_COMMAND=OFF \
+    -DEXIV2_ENABLE_XMP=ON -DEXIV2_ENABLE_DYNAMIC_RUNTIME=OFF ..
+    
+    cmake --build . --config Release && cmake --install . --config Release 
+    
+    cd ../../../ && mkdir build-ios && cd build-ios
+
+    cmake -G Xcode \
+    -DCMAKE_TOOLCHAIN_FILE=../lib/ios.toolchain.cmake \
+    -DPLATFORM=OS64COMBINED \
+    -DENABLE_BITCODE=ON \
+    -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=~/Develop/local/ios/dehancer ..
+
     cmake --build . --config Debug && cmake --install . --config Debug
 
 Windows MVSC
