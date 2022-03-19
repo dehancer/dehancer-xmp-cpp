@@ -56,6 +56,24 @@ iOS
 
     cmake --build . --config Debug && cmake --install . --config Debug
 
+    
+    Add to XCode Project  
+    
+    Build Settiongs tab:
+    Header Search Paths: ~/Develop/local/ios/dehancer/include/**
+    Library Search Paths: ~/Develop/local/ios/dehancer/lib/**     
+
+    Framework, Libraries section in XCode:
+    libdehancer_xmp_cpp.a
+    libdehancer_common_cpp.a
+    libexiv2-xmp.a
+    libexiv2.a
+    libbase64cpp.a
+    libed25519cpp.a
+    libexpat.tbd
+    libiconv.tbd
+    libz.tbd
+
 Windows MVSC
 =======
     # Requrements: 
