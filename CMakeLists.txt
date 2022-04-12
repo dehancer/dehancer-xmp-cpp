@@ -357,6 +357,7 @@ include_directories(
 
 link_directories(
         ${EXTERNAL_INSTALL_LOCATION}/lib
+        ${EXTERNAL_INSTALL_LOCATION}/lib64
 )
 
 add_subdirectory(lib)
