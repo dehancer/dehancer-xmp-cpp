@@ -61,6 +61,7 @@ if (WIN32)
     endif ()
 
 else()
+    set(CMAKE_INSTALL_LIBDIR  "lib")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -rdynamic")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
     #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
@@ -272,6 +273,7 @@ string(STRIP "${EXIV2_FLAGS}" EXIV2_FLAGS)
 ExternalProject_Add(exiv2_lib
         SOURCE_DIR ${EXIVEDK_DB_DIR}
         CMAKE_ARGS
+        -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
         -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
         -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}

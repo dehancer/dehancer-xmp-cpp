@@ -3,6 +3,8 @@ install(DIRECTORY
         FILES_MATCHING PATTERN *.h PATTERN *.hpp
         )
 
+message("CMAKE_INSTALL_LIBDIR: ${CMAKE_INSTALL_LIBDIR}")
+
 if (MSVC)
     install(FILES   ${EXTERNAL_INSTALL_LOCATION}/lib/exiv2.lib DESTINATION lib)
     install(FILES   ${EXTERNAL_INSTALL_LOCATION}/lib/exiv2-xmp.lib DESTINATION lib)
