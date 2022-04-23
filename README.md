@@ -26,20 +26,53 @@ Build Linux
     mkdir build-x86_64 && cd build-x86_64
     cmake -DCMAKE_CXX_COMPILER=clang++ -DPRINT_DEBUG=ON -DBUILD_TESTING=ON 
 
-Windows GCC
+
+iOS 
 =======
+    cd external/exiv2 && mkdir build-ios && cd build-ios
 
-    # mingw
-    # Install https://www.msys2.org/
-    # https://blog.jetbrains.com/clion/2020/12/setting-up-clang-on-windows/
+    export PKG_CONFIG_PATH=/opt/homebrew/opt/zlib/lib/pkgconfig:~/Develop/local/arm64/dehancer/lib/pkgconfig
 
-    pacman -S mingw-w64-x86_64-toolchain
-    pacman -S mingw-w64-x86_64-clang
-    pacman -S mingw-w64-x86_64-cmake
-    pacman -S libcurl
-    pacman -S zlib-devel
-    pacman -S libcurl-devel
+    cmake -G Xcode \
+    -DCMAKE_TOOLCHAIN_FILE=../../lib/ios.toolchain.cmake \
+    -DPLATFORM=OS64COMBINED \
+    -DENABLE_BITCODE=ON \
+    -DBUILD_TESTING=OFF \
+    -DCMAKE_INSTALL_PREFIX=~/Develop/local/ios/dehancer \
+    -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF \
+    -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+    -DEXIV2_BUILD_SAMPLES=OFF -DEXIV2_BUILD_EXIV2_COMMAND=OFF \
+    -DEXIV2_ENABLE_XMP=ON -DEXIV2_ENABLE_DYNAMIC_RUNTIME=OFF ..
+    
+    cmake --build . --config Release && cmake --install . --config Release 
+    
+    cd ../../../ && mkdir build-ios && cd build-ios
 
+    cmake -G Xcode \
+    -DCMAKE_TOOLCHAIN_FILE=../lib/ios.toolchain.cmake \
+    -DPLATFORM=OS64COMBINED \
+    -DENABLE_BITCODE=ON \
+    -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=~/Develop/local/ios/dehancer ..
+
+    cmake --build . --config Debug && cmake --install . --config Debug
+
+    
+    Add to XCode Project  
+    
+    Build Settiongs tab:
+    Header Search Paths: ~/Develop/local/ios/dehancer/include/**
+    Library Search Paths: ~/Develop/local/ios/dehancer/lib/**     
+
+    Framework, Libraries section in XCode:
+    libdehancer_xmp_cpp.a
+    libdehancer_common_cpp.a
+    libexiv2-xmp.a
+    libexiv2.a
+    libbase64cpp.a
+    libed25519cpp.a
+    libexpat.tbd
+    libiconv.tbd
+    libz.tbd
 
 Windows MVSC
 =======
