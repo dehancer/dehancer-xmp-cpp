@@ -275,6 +275,7 @@ if (NOT exiv2_lib_FOUND)
     ExternalProject_Add(exiv2_lib
             SOURCE_DIR ${EXIVEDK_DB_DIR}
             CMAKE_ARGS
+            -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
