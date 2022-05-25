@@ -5,6 +5,12 @@ project(exiv2
     LANGUAGES CXX C
 )
 
+if (CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    include_directories(${CMAKE_SOURCE_DIR}/ios)
+endif ()
+
+message("CMAKE_SYSTEM_NAME: ${CMAKE_SYSTEM_NAME}")
+
 set (CMAKE_CXX_STANDARD 17)
 
 include(cmake/mainSetup.cmake  REQUIRED)
