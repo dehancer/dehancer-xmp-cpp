@@ -1,1 +1,1 @@
-dehancer_xmp_cpp 0.8.4
+dehancer_xmp_cpp 0.8.5

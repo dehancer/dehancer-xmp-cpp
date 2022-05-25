@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.12)
 # Project
 #
 set(PROJECT_LIB dehancer_xmp_cpp)
-project(${PROJECT_LIB} VERSION 0.8.4)
+project(${PROJECT_LIB} VERSION 0.8.5)
 
 #
 # Options
@@ -323,6 +323,7 @@ if (NOT dehancer_common_cpp_FOUND)
             GIT_REPOSITORY https://github.com/dehancer/dehancer-common-cpp
             GIT_PROGRESS YES
             GIT_SHALLOW YES
+            GIT_TAG 0.9.1
             CMAKE_ARGS
             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
