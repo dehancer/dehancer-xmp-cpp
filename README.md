@@ -31,7 +31,7 @@ iOS
 =======
     cd external/exiv2 && mkdir build-ios && cd build-ios
 
-    export PKG_CONFIG_PATH=/opt/homebrew/opt/zlib/lib/pkgconfig:~/Develop/local/arm64/dehancer/lib/pkgconfig
+    export PKG_CONFIG_PATH=/opt/homebrew/opt/zlib/lib/pkgconfig:~/Develop/local/ios/dehancer/lib/pkgconfig
 
     cmake -G Xcode \
     -DCMAKE_TOOLCHAIN_FILE=../../lib/ios.toolchain.cmake \
