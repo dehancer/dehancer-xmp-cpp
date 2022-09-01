@@ -8,9 +8,31 @@
 #include "dehancer/Utils.h"
 #include "dehancer/FileUtils.h"
 #include "nlohmann/json.h"
+#include "dehancer/Log.h"
+
+#if defined(IOS_SYSTEM) || (DEHANCER_BLOWFISH_CACHE_DISABLED)
+#define DEHANCER_BLOWFISH_CACHE_ENABLED 0
+#else
+#define DEHANCER_BLOWFISH_CACHE_ENABLED 1
+#endif
 
 namespace dehancer {
-
+    
+    static std::vector<std::string> split (std::string s, std::string delimiter) {
+      size_t pos_start = 0, pos_end, delim_len = delimiter.length();
+      std::string token;
+      std::vector<std::string> res;
+      
+      while ((pos_end = s.find (delimiter, pos_start)) != std::string::npos) {
+        token = s.substr (pos_start, pos_end - pos_start);
+        pos_start = pos_end + delim_len;
+        res.push_back (token);
+      }
+      
+      res.push_back (s.substr (pos_start));
+      return res;
+    }
+    
     static const std::string xmp_meta_prefix = "Xmp.Dehancer.mlutAttributes.undo[1]/rdf:";
     static const std::string xmp_clut_prefix = "Xmp.Dehancer.mlutClutList.undo[1]/rdf:";
 
@@ -63,15 +85,19 @@ namespace dehancer {
         if (!purge_cache && !cache_dir.empty() && platform::access(cache_dir,W_OK) == Error(CommonError::OK) ) {
           
           auto xmp = MLutXmp();
+          
           xmp.path_ = path;
           xmp.cache_dir_ = cache_dir;
+          
           auto meta_file_name = xmp.get_cache_meta_path();
-
-          if (platform::access(meta_file_name,R_OK) == Error(CommonError::OK)) {
+          platform::ifstream  meta_file;
+  
+          meta_file.open(meta_file_name, std::fstream::in);
+          
+          if (meta_file.is_open()) {
           
             nlohmann::json meta;
           
-            platform::ifstream  meta_file(meta_file_name);
             meta_file>>meta;
 
             size_t lut_count = meta.at("lut_count");
@@ -80,15 +106,20 @@ namespace dehancer {
               std::string lut_file = xmp.get_cache_clut_path(i);
               
               platform::ifstream instream(lut_file, std::ios::in | std::ios::binary);
-              
+  
+              #if DEHANCER_BLOWFISH_CACHE_ENABLED
               Blowfish fish(key.empty() ? Blowfish::KeyType({0,0,0,0,0,0,0,0}) : key);
 
               CLutBuffer tmp((std::istreambuf_iterator<char>(instream)), std::istreambuf_iterator<char>());
               CLutBuffer buffer;
 
               fish.decrypt(tmp, buffer);
-
               xmp.cluts_.push_back(buffer);
+              #else
+              CLutBuffer buffer((std::istreambuf_iterator<char>(instream)), std::istreambuf_iterator<char>());
+              xmp.cluts_.push_back(buffer);
+              #endif
+              
             }
 
             for (auto m: meta.at("meta")) {
@@ -111,7 +142,7 @@ namespace dehancer {
         platform::ifstream inFile;
 
         inFile.open(path,  std::fstream::in);
-
+        
         if (!inFile.is_open()) {
           return dehancer::make_unexpected(Error(
                   CommonError::NOT_FOUND,
@@ -230,12 +261,17 @@ namespace dehancer {
             for (int i = 0; i < xmp.cluts_.size(); ++i) {
               std::string lut_file = xmp.get_cache_clut_path(i);
               platform::ofstream fout(lut_file, std::ios::out | std::ios::binary);
-
+  
+              #if DEHANCER_BLOWFISH_CACHE_ENABLED
               Blowfish new_fish(key.empty() ? Blowfish::KeyType({0,0,0,0,0,0,0,0}) : key);
 
               CLutBuffer buffer;
               new_fish.encrypt(xmp.cluts_[i],buffer);
               fout.write(reinterpret_cast<const char *>(buffer.data()),buffer.size());
+              #else
+              fout.write(reinterpret_cast<const char *>(xmp.cluts_[i].data()), xmp.cluts_[i].size());
+              #endif
+              
               fout.close();
             }
           }
@@ -260,13 +296,23 @@ namespace dehancer {
 
     std::string MLutXmp::get_cache_path() const {
       auto file_path = cache_dir_;
-      auto h = std::hash<std::string>()(path_);
+      #ifdef WIN32
+      auto last = split(path_, "\\");
+      #else
+      auto last = split(path_, "/");
+      #endif
+      //auto h = std::hash<std::string>()(path_);
 
+      if (last.empty()) {
+        last.push_back(path_);
+      }
+      
       if (file_path.back() != '/')
         file_path.append("/");
 
       file_path.append("mlut_");
-      file_path.append(std::to_string(h));
+      file_path.append(last.back());
+      //file_path.append(std::to_string(h));
 
       return file_path;
     }
