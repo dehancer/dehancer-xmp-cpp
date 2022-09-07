@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.12)
 # Project
 #
 set(PROJECT_LIB dehancer_xmp_cpp)
-project(${PROJECT_LIB} VERSION 0.8.5)
+project(${PROJECT_LIB} VERSION 0.8.6)
 
 #
 # Options
@@ -14,6 +14,11 @@ option(DEHANCER_TARGET_ARCH "")
 option(VCPKG_TARGET_TRIPLET "")
 option(DEHANCER_DEBUG OFF)
 option(USE_UNICODE OFF)
+
+option(DEHANCER_BLOWFISH_CACHE_DISABLED OFF)
+if(DEHANCER_BLOWFISH_CACHE_DISABLED)
+    add_definitions(-DDEHANCER_BLOWFISH_CACHE_DISABLED=1)
+endif()
 
 option(DEHANCER_COMMON_DIR  "")
 if (NOT DEHANCER_COMMON_DIR)
