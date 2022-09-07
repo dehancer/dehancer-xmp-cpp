@@ -328,7 +328,7 @@ if (NOT dehancer_common_cpp_FOUND)
             GIT_REPOSITORY https://github.com/dehancer/dehancer-common-cpp
             GIT_PROGRESS YES
             GIT_SHALLOW YES
-            GIT_TAG 0.9.1
+            GIT_TAG 0.9.2
             CMAKE_ARGS
             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
