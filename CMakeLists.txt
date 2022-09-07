@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.12)
 # Project
 #
 set(PROJECT_LIB dehancer_xmp_cpp)
-project(${PROJECT_LIB} VERSION 0.8.6)
+project(${PROJECT_LIB} VERSION 0.8.7)
 
 #
 # Options
@@ -18,6 +18,10 @@ option(USE_UNICODE OFF)
 option(DEHANCER_BLOWFISH_CACHE_DISABLED OFF)
 if(DEHANCER_BLOWFISH_CACHE_DISABLED)
     add_definitions(-DDEHANCER_BLOWFISH_CACHE_DISABLED=1)
+endif()
+
+if(IOS_SYSTEM)
+#    add_definitions(-DIOS_SYSTEM=1)
 endif()
 
 option(DEHANCER_COMMON_DIR  "")

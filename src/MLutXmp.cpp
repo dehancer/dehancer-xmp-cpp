@@ -18,7 +18,7 @@
 
 namespace dehancer {
     
-    static std::vector<std::string> split (std::string s, std::string delimiter) {
+    static std::vector<std::string> split (const std::string& s, const std::string& delimiter) {
       size_t pos_start = 0, pos_end, delim_len = delimiter.length();
       std::string token;
       std::vector<std::string> res;
@@ -296,23 +296,40 @@ namespace dehancer {
 
     std::string MLutXmp::get_cache_path() const {
       auto file_path = cache_dir_;
-      #ifdef WIN32
-      auto last = split(path_, "\\");
-      #else
+      #if defined(IOS_SYSTEM)
       auto last = split(path_, "/");
+      #else
+      auto h = std::hash<std::string>()(path_);
       #endif
-      //auto h = std::hash<std::string>()(path_);
-
+  
+      if (file_path.back() != '/')
+        file_path.append("/");
+  
+      file_path.append("mlut_");
+  
+      #if defined(IOS_SYSTEM)
+      
       if (last.empty()) {
         last.push_back(path_);
       }
       
-      if (file_path.back() != '/')
-        file_path.append("/");
-
-      file_path.append("mlut_");
-      file_path.append(last.back());
-      //file_path.append(std::to_string(h));
+      auto h = last.back();
+      
+      last = split(h, ".");
+      
+      if (last.empty()) {
+        last.push_back(h);
+      }
+      
+      h = last.front();
+      
+      file_path.append(h);
+      
+      #else
+      
+      file_path.append(std::to_string(h));
+      
+      #endif
 
       return file_path;
     }
