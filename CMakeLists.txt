@@ -14,6 +14,7 @@ option(DEHANCER_TARGET_ARCH "")
 option(VCPKG_TARGET_TRIPLET "")
 option(DEHANCER_DEBUG OFF)
 option(USE_UNICODE OFF)
+option(DEHANCER_CONTROLLED_SINGLETON OFF)
 
 option(DEHANCER_BLOWFISH_CACHE_DISABLED OFF)
 if(DEHANCER_BLOWFISH_CACHE_DISABLED)
@@ -332,8 +333,10 @@ if (NOT dehancer_common_cpp_FOUND)
             GIT_REPOSITORY https://github.com/dehancer/dehancer-common-cpp
             GIT_PROGRESS YES
             GIT_SHALLOW YES
-            GIT_TAG 0.9.2
+            #GIT_TAG 0.9.2
+            GIT_TAG develop
             CMAKE_ARGS
+            -DDEHANCER_CONTROLLED_SINGLETON=${DEHANCER_CONTROLLED_SINGLETON}
             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
             -DCMAKE_C_FLAGS=${C_FLAGS}
