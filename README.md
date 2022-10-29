@@ -29,23 +29,38 @@ Build Linux
 
 iOS 
 =======
-    cd external/exiv2 && mkdir build-ios && cd build-ios
-
-    export PKG_CONFIG_PATH=/opt/homebrew/opt/zlib/lib/pkgconfig:~/Develop/local/ios/dehancer/lib/pkgconfig
+    cd external/exiv2 && mkdir build-debug-ios && cd build-debug-ios
+    export PKG_CONFIG_PATH=/opt/homebrew/opt/zlib/lib/pkgconfig:~/Develop/local/ios-debug/dehancer/lib/pkgconfig
 
     cmake -G Xcode \
     -DCMAKE_TOOLCHAIN_FILE=../../lib/ios.toolchain.cmake \
     -DPLATFORM=OS64COMBINED \
     -DENABLE_BITCODE=ON \
     -DBUILD_TESTING=OFF \
-    -DCMAKE_INSTALL_PREFIX=~/Develop/local/ios/dehancer \
+    -DCMAKE_INSTALL_PREFIX=~/Develop/local/ios-debug/dehancer \
     -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF \
     -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
     -DEXIV2_BUILD_SAMPLES=OFF -DEXIV2_BUILD_EXIV2_COMMAND=OFF \
     -DEXIV2_ENABLE_XMP=ON -DEXIV2_ENABLE_DYNAMIC_RUNTIME=OFF ..
     
+    cmake --build . --config Debug && cmake --install . --config Debug 
+
+    cd external/exiv2 && mkdir build-release-ios && cd build-release-ios
+    export PKG_CONFIG_PATH=/opt/homebrew/opt/zlib/lib/pkgconfig:~/Develop/local/ios-release/dehancer/lib/pkgconfig
+
+    cmake -G Xcode \
+    -DCMAKE_TOOLCHAIN_FILE=../../lib/ios.toolchain.cmake \
+    -DPLATFORM=OS64COMBINED \
+    -DENABLE_BITCODE=ON \
+    -DBUILD_TESTING=OFF \
+    -DCMAKE_INSTALL_PREFIX=~/Develop/local/ios-release/dehancer \
+    -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF \
+    -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+    -DEXIV2_BUILD_SAMPLES=OFF -DEXIV2_BUILD_EXIV2_COMMAND=OFF \
+    -DEXIV2_ENABLE_XMP=ON -DEXIV2_ENABLE_DYNAMIC_RUNTIME=OFF ..
+
     cmake --build . --config Release && cmake --install . --config Release 
-    
+
     cd ../../../ && mkdir build-ios && cd build-ios
 
     cmake -G Xcode \
