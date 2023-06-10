@@ -333,8 +333,7 @@ if (NOT dehancer_common_cpp_FOUND)
             GIT_REPOSITORY https://github.com/dehancer/dehancer-common-cpp
             GIT_PROGRESS YES
             GIT_SHALLOW YES
-            GIT_TAG 0.10.0
-#            GIT_TAG develop
+            GIT_TAG 0.12.0
             CMAKE_ARGS
             -DDEHANCER_CONTROLLED_SINGLETON=${DEHANCER_CONTROLLED_SINGLETON}
             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}

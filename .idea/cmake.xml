@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CMakeSharedSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug-arm64" ENABLED="false" CONFIG_NAME="Debug" GENERATION_OPTIONS="-DCMAKE_INSTALL_PREFIX=~/Develop/local/arm64/dehancer -DBUILD_TESTING=ON -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_OSX_SYSROOT=macosx -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 -DDEHANCER_TARGET_ARCH=arm64-apple-macos11 -DGTest_ROOT=/Users/denn/Develop/local/arm64" BUILD_OPTIONS="-j8 --verbose">
+        <ADDITIONAL_GENERATION_ENVIRONMENT>
+          <envs>
+            <env name="PKG_CONFIG_PATH__" value="/opt/homebrew/opt/zlib/lib/pkgconfig:/Users/denn/Develop/local/arm64/dehancer/lib/pkgconfig" />
+          </envs>
+        </ADDITIONAL_GENERATION_ENVIRONMENT>
+      </configuration>
+      <configuration PROFILE_NAME="Debug-x86_64" ENABLED="true" CONFIG_NAME="Debug" GENERATION_OPTIONS="-DCMAKE_INSTALL_PREFIX=~/Develop/local/x86_64/dehancer -DBUILD_TESTING=ON -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_OSX_SYSROOT=macosx -DCMAKE_OSX_DEPLOYMENT_TARGET=10.14 -DDEHANCER_TARGET_ARCH=x86_64-apple-macos10.14 -DGTest_ROOT=/Users/denn/Develop/local/x86_64" BUILD_OPTIONS="-j8 --verbose">
+        <ADDITIONAL_GENERATION_ENVIRONMENT>
+          <envs>
+            <env name="PKG_CONFIG_PATH__" value="/opt/homebrew/opt/zlib/lib/pkgconfig:/Users/denn/Develop/local/x86_64/dehancer/lib/pkgconfig" />
+          </envs>
+        </ADDITIONAL_GENERATION_ENVIRONMENT>
+      </configuration>
+    </configurations>
+  </component>
+</project>
