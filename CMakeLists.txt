@@ -333,7 +333,8 @@ if (NOT dehancer_common_cpp_FOUND)
             GIT_REPOSITORY https://github.com/dehancer/dehancer-common-cpp
             GIT_PROGRESS YES
             GIT_SHALLOW YES
-            GIT_TAG 0.12.0
+            GIT_TAG 0.13.0
+#            GIT_TAG develop
             CMAKE_ARGS
             -DDEHANCER_CONTROLLED_SINGLETON=${DEHANCER_CONTROLLED_SINGLETON}
             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
@@ -354,6 +355,7 @@ if (NOT dehancer_common_cpp_FOUND)
             -DVCPKG_TARGET_TRIPLET=${VCPKG_TARGET_TRIPLET}
             PREFIX ${DEHANCER_COMMON_DIR}
             DEPENDS exiv2_lib
+            #DOWNLOAD_DIR = ${DEHANCER_COMMON_DIR}
             )
     set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dcmcpp)
     set(COMMON_LIBRARIES dehancer_common_cpp;ed25519cpp;base64cpp;exiv2;exiv2-xmp;${COMMON_LIBRARIES})
