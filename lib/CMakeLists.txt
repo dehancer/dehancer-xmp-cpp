@@ -13,19 +13,9 @@ message("PROJECT_NAME ${PROJECT_NAME} <- ${COMMON_SRC} ")
 
 add_library(${PROJECT_NAME} ${COMMON_SRC})
 
-#target_link_libraries(${PROJECT_NAME} PRIVATE dehancer_common_cpp)
-#target_include_directories (${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_LIST_DIR}/include") # or whatever path
-
 
 if (COMMON_DEPENDENCIES)
     add_dependencies(${PROJECT_LIB} ${COMMON_DEPENDENCIES})
-#else()
-#    if(exiv2_lib)
-#        add_dependencies(${PROJECT_LIB} exiv2_lib)
-#    endif()
-#    if(dcmcpp)
-#        add_dependencies(${PROJECT_LIB} dcmcpp)
-#    endif()
 endif()
 
 set(config_install_dir "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
@@ -51,5 +41,3 @@ install(TARGETS ${PROJECT_LIB} DESTINATION lib)
 install(FILES   ${PUBLIC_INCLUDE_FILES} DESTINATION include/dehancer)
 install(FILES   ${project_config} ${version_config} DESTINATION lib/cmake/${PROJECT_LIB})
 install(FILES   cmake/${PROJECT_LIB}.cmake DESTINATION lib/cmake/${PROJECT_LIB})
-
-#add_subdirectory(exiv2)

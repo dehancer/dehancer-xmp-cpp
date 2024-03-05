@@ -27,18 +27,13 @@ if(IOS_SYSTEM)
 #    add_definitions(-DIOS_SYSTEM=1)
 endif()
 
-#option(DEHANCER_COMMON_DIR  "")
-#if (NOT DEHANCER_COMMON_DIR)
-#    set(DEHANCER_COMMON_DIR ${CMAKE_BINARY_DIR}/tmp)
-#endif ()
-
 option(EXTERNAL_INSTALL_LOCATION  "")
 if (NOT EXTERNAL_INSTALL_LOCATION)
     set (EXTERNAL_INSTALL_LOCATION ${CMAKE_BINARY_DIR}/external)
 endif ()
 
 #
-# Global setttings
+# Global settings
 #
 set(VERSION_FILE "version.txt")
 
@@ -65,7 +60,6 @@ else()
     set(CMAKE_INSTALL_LIBDIR  "lib")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -rdynamic")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
-    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-command-line-argument")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Ofast -ffast-math")
@@ -92,40 +86,12 @@ endif()
 
 find_package (EXPAT REQUIRED)
 find_package (Iconv REQUIRED)
-
-if (${DEHANCER_TARGET_ARCH} MATCHES ".*arm64.*")
-    MESSAGE("Configure: ARM4")
-
-    find_package (ZLIB REQUIRED)
-
-elseif (${DEHANCER_TARGET_ARCH} MATCHES ".*x86_64.*")
-    MESSAGE("Configure: x86_64")
-
-    SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
-    set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:/usr/local/x86_64")
-    pkg_check_modules(ZLIB ZLIB)
-
-    if(NOT ZLIB_FOUND)
-        MESSAGE(FATAL "x86_64 zlib not found")
-    endif()
-
-    include_directories(
-            ${ZLIB_INCLUDE_DIRS}
-    )
-    link_directories(
-            ${ZLIB_LIBRARY_DIRS}
-    )
-
-else()
-    find_package (ZLIB REQUIRED)
-endif()
-
+find_package (ZLIB REQUIRED)
 
 #
 # Programs
 #
 find_program(CCACHE_FOUND ccache)
-#find_program(MAKE_EXE NAMES gmake nmake make)
 
 #
 # CCache settings
@@ -242,16 +208,52 @@ set(EXIV2_FLAGS)
 
 include(FetchContent)
 
+set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "Build static libraries")
+set(CMAKE_POSITION_INDEPENDENT_CODE ON CACHE INTERNAL "Build with CMAKE_POSITION_INDEPENDENT_CODE lib")
+
+#if (NOT ZLIB_FOUND)
+#
+#    #
+#    # Zlib
+#    #
+#    FetchContent_Declare(
+#            zlib
+#            GIT_REPOSITORY https://github.com/madler/zlib.git
+#            GIT_TAG     v1.3.1
+#            SOURCE_DIR "${CMAKE_BINARY_DIR}/zlib-src"
+#            BINARY_DIR "${CMAKE_BINARY_DIR}/zlib-build"
+#            OVERRIDE_FIND_PACKAGE
+#    )
+#
+#    FetchContent_GetProperties(zlib)
+#    if(NOT zlib_POPULATED)
+#        FetchContent_Populate(zlib)
+#        add_subdirectory(${zlib_SOURCE_DIR} ${zlib_BINARY_DIR} EXCLUDE_FROM_ALL)
+#    endif()
+#
+#    install(TARGETS zlibstatic DESTINATION lib)
+#    install(FILES   ${zlib_BINARY_DIR}/zconf.h DESTINATION include)
+#    install(FILES   ${zlib_SOURCE_DIR}/zlib.h DESTINATION include)
+#
+#    install(FILES
+#            ${zlib_BINARY_DIR}/zlib.pc
+#            DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
+#    )
+#
+#    set_target_properties(zlib zlibstatic PROPERTIES OUTPUT_NAME z)
+#
+#    set(ZLIB_ROOT ${zlib_SOURCE_DIR} CACHE INTERNAL "Build internal zlib")
+#
+#endif ()
+
 #
 # Exiv2
 #
-set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "Build static libraries")
-set(CMAKE_POSITION_INDEPENDENT_CODE ON CACHE INTERNAL "Build with CMAKE_POSITION_INDEPENDENT_CODE lib")
 set(EXIV2_ENABLE_BROTLI OFF CACHE INTERNAL "Build without BROTLI lib")
 set(EXIV2_ENABLE_INIH OFF CACHE INTERNAL "Build without INIH lib")
 set(EXIV2_BUILD_SAMPLES OFF CACHE INTERNAL "Build with CMAKE_POSITION_INDEPENDENT_CODE lib")
 set(EXIV2_BUILD_EXIV2_COMMAND OFF CACHE INTERNAL "Build without EXIV2_COMMAND ")
-#set(EXIV2_ENABLE_XMP ON CACHE INTERNAL "Build with XMP lib")
+set(EXIV2_ENABLE_XMP OFF CACHE INTERNAL "Build without XMP lib")
 set(EXIV2_ENABLE_DYNAMIC_RUNTIME OFF CACHE INTERNAL "Build without DYNAMIC_RUNTIME")
 if (WIN32)
     set(CMAKE_CXX_FLAGS "-DXMP_WinBuild=1 -D_ITERATOR_DEBUG_LEVEL=0 ${CMAKE_CXX_FLAGS}" CACHE INTERNAL "Build with XMP_WinBuild")
@@ -267,6 +269,7 @@ FetchContent_Declare(
         GIT_SHALLOW TRUE
         SOURCE_DIR "${CMAKE_BINARY_DIR}/exiv2-src"
         BINARY_DIR "${CMAKE_BINARY_DIR}/exiv2-build"
+        INSTALL_COMMAND ${CMAKE_COMMAND} -E cmake --build . --target=install
 )
 
 FetchContent_MakeAvailable(exiv2)
@@ -293,7 +296,7 @@ include_directories(${dehancer_common_cpp_SOURCE_DIR}/external)
 include_directories(${base64cpp_SOURCE_DIR}/include)
 
 set(COMMON_LIBRARIES ${COMMON_LIBRARIES};dehancer_common_cpp;ed25519cpp;base64cpp;exiv2lib)
-set(COMMON_DEPENDENCIES exiv2lib)
+set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dehancer_common_cpp;exiv2lib)
 
 if (WIN32)
     set(COMMON_LIBRARIES ${COMMON_LIBRARIES};psapi)
