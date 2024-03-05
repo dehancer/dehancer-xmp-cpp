@@ -1,7 +1,7 @@
 include(CMakePackageConfigHelpers)
 
 FILE(GLOB PUBLIC_INCLUDE_FILES
-        ${CMAKE_SOURCE_DIR}/include/dehancer/*.h
+        ../include/dehancer/*.h
         )
 
 file (GLOB COMMON_SRC ${COMMON_SRC}
