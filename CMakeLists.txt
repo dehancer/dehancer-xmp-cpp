@@ -12,7 +12,6 @@ set(CMAKE_CXX_STANDARD 17)
 # Options
 #
 option(BUILD_TESTING "Enable creation of tests." OFF)
-option(DEHANCER_TARGET_ARCH "")
 option(VCPKG_TARGET_TRIPLET "")
 option(DEHANCER_DEBUG OFF)
 option(USE_UNICODE OFF)
