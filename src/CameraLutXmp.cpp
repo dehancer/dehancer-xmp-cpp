@@ -71,7 +71,7 @@ namespace dehancer {
             lic_matrix_prefix << xmp_meta_prefix << "nslicenseMatrix[";
             
             if (has_prefix(md.key(), lic_matrix_prefix.str())) {
-                xmp.license_matrix_.push_back(static_cast<dehancer::License::Type>(md.getValue()->toLong()));
+                xmp.license_matrix_.push_back(static_cast<dehancer::License::Type>(md.getValue()->toInt64()));
             }
             
             bool is_clut = false;
@@ -333,7 +333,7 @@ namespace dehancer {
     }
     
     int CameraLutXmp::get_revision() const {
-        if (get_value("nsrevision")) return get_value("nsrevision")->toLong();
+        if (get_value("nsrevision")) return get_value("nsrevision")->toInt64();
         return 0;
     }
     
@@ -393,7 +393,7 @@ namespace dehancer {
     }
     
     int CameraLutXmp::get_order() const {
-        if (get_value("nsorder")) return get_value("nsorder")->toLong();
+        if (get_value("nsorder")) return get_value("nsorder")->toInt64();
         return 0;
     }
     

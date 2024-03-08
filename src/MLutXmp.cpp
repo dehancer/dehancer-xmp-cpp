@@ -196,7 +196,7 @@ namespace dehancer {
         lic_matrix_prefix << xmp_meta_prefix << "nslicenseMatrix[";
 
         if (has_prefix(md->key(), lic_matrix_prefix.str())) {
-          xmp.license_matrix_.push_back(static_cast<dehancer::License::Type>(md->getValue()->toLong()));
+          xmp.license_matrix_.push_back(static_cast<dehancer::License::Type>(md->getValue()->toInt64()));
         }
 
         if (!key.empty()) {
@@ -391,25 +391,25 @@ namespace dehancer {
 
     MLutXmp::ColorType MLutXmp::get_color_type() const {
       if (get_value("nscolorType"))
-        return static_cast< MLutXmp::ColorType>(get_value("nscolorType")->toLong());
+        return static_cast< MLutXmp::ColorType>(get_value("nscolorType")->toInt64());
       return MLutXmp::ColorType::color;
     }
 
     MLutXmp::FilmType MLutXmp::get_film_type() const {
       if (get_value("nsfilmType"))
-        return static_cast< MLutXmp::FilmType>(get_value("nsfilmType")->toLong());
+        return static_cast< MLutXmp::FilmType>(get_value("nsfilmType")->toInt64());
       return MLutXmp::FilmType::negative;
     }
 
     int MLutXmp::get_ISO_index() const {
       if (get_value("nsISOIndex"))
-        return static_cast<int>(get_value("nsISOIndex")->toLong());
+        return static_cast<int>(get_value("nsISOIndex")->toInt64());
       return 100;
     }
 
     int MLutXmp::get_expand_mode() const {
       if (get_value("nsexpandBlendingMode"))
-        return static_cast<int>(get_value("nsexpandBlendingMode")->toLong());
+        return static_cast<int>(get_value("nsexpandBlendingMode")->toInt64());
       return 0;
     }
 
@@ -428,7 +428,7 @@ namespace dehancer {
 
     int MLutXmp::get_revision() const {
       if (get_value("nsrevision"))
-        return static_cast<int>(get_value("nsrevision")->toLong());
+        return static_cast<int>(get_value("nsrevision")->toInt64());
       return 0;
     }
 

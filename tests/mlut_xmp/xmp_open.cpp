@@ -69,7 +69,7 @@ TEST(XMP, XMPOpenTest) {
             if (value->typeId() == Exiv2::TypeId::string || value->typeId() == Exiv2::TypeId::xmpText)
               std::cout << " mlut_xmp key: " << key << " = " << value->toString() << std::endl;
             else if (value->typeId() == Exiv2::TypeId::signedLong || value->typeId() == Exiv2::TypeId::unsignedLong)
-              std::cout << " mlut_xmp key: " << key << " = " << value->toLong() << std::endl;
+              std::cout << " mlut_xmp key: " << key << " = " << value->toInt64() << std::endl;
             else {
               std::cout << " mlut_xmp key: " << key << " type:  " << std::hex << value->typeId() << std::endl;
             }
@@ -82,9 +82,7 @@ TEST(XMP, XMPOpenTest) {
         auto data = xmp->get_cluts()[i];
 
         std::cout << " mlut_xmp luts: " << data.size() << "  >> " << std::endl;
-
-        continue;
-
+        
         std::ofstream outFile;
 
         std::string file = "./";

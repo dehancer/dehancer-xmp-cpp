@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.22)
 
 #
 # Project
@@ -6,11 +6,12 @@ cmake_minimum_required(VERSION 3.12)
 set(PROJECT_LIB dehancer_xmp_cpp)
 project(${PROJECT_LIB} VERSION 0.9.0)
 
+set(CMAKE_CXX_STANDARD 17)
+
 #
 # Options
 #
 option(BUILD_TESTING "Enable creation of tests." OFF)
-option(DEHANCER_TARGET_ARCH "")
 option(VCPKG_TARGET_TRIPLET "")
 option(DEHANCER_DEBUG OFF)
 option(USE_UNICODE OFF)
@@ -25,31 +26,15 @@ if(IOS_SYSTEM)
 #    add_definitions(-DIOS_SYSTEM=1)
 endif()
 
-option(DEHANCER_COMMON_DIR  "")
-if (NOT DEHANCER_COMMON_DIR)
-    set(DEHANCER_COMMON_DIR ${CMAKE_BINARY_DIR}/tmp)
-endif ()
-
 option(EXTERNAL_INSTALL_LOCATION  "")
 if (NOT EXTERNAL_INSTALL_LOCATION)
     set (EXTERNAL_INSTALL_LOCATION ${CMAKE_BINARY_DIR}/external)
 endif ()
 
-if (DEHANCER_TARGET_ARCH)
-    #
-    # x86_64-apple-macos10.13
-    # or
-    # arm64-apple-macos11
-    #
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -target ${DEHANCER_TARGET_ARCH}")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -target ${DEHANCER_TARGET_ARCH}")
-endif ()
-
 #
-# Global setttings
+# Global settings
 #
 set(VERSION_FILE "version.txt")
-set(CMAKE_CXX_STANDARD 17)
 
 if (WIN32)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -EHsc -Wno-deprecated-declarations")
@@ -62,8 +47,6 @@ if (WIN32)
         string(REPLACE "/Ob2" "" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
         string(REPLACE "/DNDEBUG" "" CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
         string(REPLACE "/DNDEBUG" "" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDEBUG=1 -DZ7=1")
-        add_definitions(/DEBUG /Z7)
     endif ()
 
     if (USE_UNICODE)
@@ -74,22 +57,12 @@ else()
     set(CMAKE_INSTALL_LIBDIR  "lib")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -rdynamic")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
-    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-command-line-argument")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Ofast -ffast-math")
 endif ()
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DPRINT_DEBUG -DDEBUG_BUILD=1")
-
-if (NOT APPLE)
-    #set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS} -static")
-endif ()
-
-# googletes, etc
-set (EXTERNAL_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/external)
-set (EXTERNAL_INCLUDE_DIR ${EXTERNAL_INSTALL_LOCATION}/include)
-set (EXIVEDK_DB_DIR ${CMAKE_SOURCE_DIR}/external/exiv2)
 
 #
 # Generators
@@ -110,40 +83,12 @@ endif()
 
 find_package (EXPAT REQUIRED)
 find_package (Iconv REQUIRED)
-
-if (${DEHANCER_TARGET_ARCH} MATCHES ".*arm64.*")
-    MESSAGE("Configure: ARM4")
-
-    find_package (ZLIB REQUIRED)
-
-elseif (${DEHANCER_TARGET_ARCH} MATCHES ".*x86_64.*")
-    MESSAGE("Configure: x86_64")
-
-    SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
-    set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:/usr/local/x86_64")
-    pkg_check_modules(ZLIB ZLIB)
-
-    if(NOT ZLIB_FOUND)
-        MESSAGE(FATAL "x86_64 zlib not found")
-    endif()
-
-    include_directories(
-            ${ZLIB_INCLUDE_DIRS}
-    )
-    link_directories(
-            ${ZLIB_LIBRARY_DIRS}
-    )
-
-else()
-    find_package (ZLIB REQUIRED)
-endif()
-
+find_package (ZLIB REQUIRED)
 
 #
 # Programs
 #
 find_program(CCACHE_FOUND ccache)
-#find_program(MAKE_EXE NAMES gmake nmake make)
 
 #
 # CCache settings
@@ -170,18 +115,11 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" ST
     message(STATUS "Using Clang" )
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wc++17-extensions")
 
-    if (NOT WIN32)
-        #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility-inlines-hidden")
-    endif ()
-
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 
     message(STATUS "Using gcc" )
 
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -W -Wall -Wextra -Wno-ignored-qualifiers -Wvariadic-macros -pthread -static-libgcc -static-libstdc++")
-    if (NOT WIN32)
-        #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
-    endif ()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-pedantic")
     set(CMAKE_LINK_DEPENDS_NO_SHARED TRUE)
 
@@ -199,14 +137,8 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 
 endif()
 
-
 #
-# Package manager
-#
-include(ExternalProject)
-
-#
-# External project dependencies
+# Project dependencies
 #
 set(COMMON_DEPENDENCIES)
 set(COMMON_LIBRARIES
@@ -239,134 +171,135 @@ string(STRIP "${CMAKE_CXX_FLAGS} -D_ITERATOR_DEBUG_LEVEL=0" CXX_FLAGS)
 # Google Test
 #
 if (BUILD_TESTING)
+
     find_package(GTest)
-    if (NOT GTEST_FOUND)
+
+    if (NOT GTest_FOUND)
 
         string(STRIP "${CMAKE_C_FLAGS} -D_ITERATOR_DEBUG_LEVEL=0" C_FLAGS)
         string(STRIP "${CMAKE_CXX_FLAGS} -D_ITERATOR_DEBUG_LEVEL=0" CXX_FLAGS)
 
-        ExternalProject_Add(googletest
-                GIT_REPOSITORY https://github.com/google/googletest
-                GIT_PROGRESS YES
-                GIT_SHALLOW YES
-                GIT_TAG release-1.11.0
-                CMAKE_ARGS
-                -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-                -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
-                -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-                -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-                -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
-                -DCMAKE_OSX_SYSROOT=${CMAKE_OSX_SYSROOT}
-                -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
-                -DCMAKE_C_FLAGS=${C_FLAGS}
-                -DCMAKE_CXX_FLAGS=${CXX_FLAGS}
-                PREFIX ${DEHANCER_COMMON_DIR}
-                )
-        set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};googletest)
+        set(CMAKE_OSX_ARCHITECTURES "${CMAKE_OSX_ARCHITECTURES}" CACHE STRING "" FORCE)
+
+        include(FetchContent)
+
+        FetchContent_Declare(
+                googletest
+                GIT_REPOSITORY https://github.com/google/googletest.git
+                GIT_TAG      v1.14.0
+                SOURCE_DIR "${CMAKE_BINARY_DIR}/googletest-src"
+        )
+
+        FetchContent_GetProperties(googletest)
+
+        if(NOT googletest_POPULATED)
+            FetchContent_Populate(googletest)
+            add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR} EXCLUDE_FROM_ALL)
+        endif()
+
     endif ()
 
 endif ()
 
+include(FetchContent)
 
-set(EXIV2_FLAGS)
+set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "Build static libraries")
+set(CMAKE_POSITION_INDEPENDENT_CODE ON CACHE INTERNAL "Build with CMAKE_POSITION_INDEPENDENT_CODE lib")
+
+#if (NOT ZLIB_FOUND)
+#
+#    #
+#    # Zlib
+#    #
+#    FetchContent_Declare(
+#            zlib
+#            GIT_REPOSITORY https://github.com/madler/zlib.git
+#            GIT_TAG     v1.3.1
+#            SOURCE_DIR "${CMAKE_BINARY_DIR}/zlib-src"
+#            BINARY_DIR "${CMAKE_BINARY_DIR}/zlib-build"
+#            OVERRIDE_FIND_PACKAGE
+#    )
+#
+#    FetchContent_GetProperties(zlib)
+#    if(NOT zlib_POPULATED)
+#        FetchContent_Populate(zlib)
+#        add_subdirectory(${zlib_SOURCE_DIR} ${zlib_BINARY_DIR} EXCLUDE_FROM_ALL)
+#    endif()
+#
+#    install(TARGETS zlibstatic DESTINATION lib)
+#    install(FILES   ${zlib_BINARY_DIR}/zconf.h DESTINATION include)
+#    install(FILES   ${zlib_SOURCE_DIR}/zlib.h DESTINATION include)
+#
+#    install(FILES
+#            ${zlib_BINARY_DIR}/zlib.pc
+#            DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
+#    )
+#
+#    set_target_properties(zlib zlibstatic PROPERTIES OUTPUT_NAME z)
+#
+#    set(ZLIB_ROOT ${zlib_SOURCE_DIR} CACHE INTERNAL "Build internal zlib")
+#
+#endif ()
+
+#
+# Exiv2
+#
+set(EXIV2_ENABLE_BROTLI OFF CACHE INTERNAL "Build without BROTLI lib")
+set(EXIV2_ENABLE_INIH OFF CACHE INTERNAL "Build without INIH lib")
+set(EXIV2_BUILD_SAMPLES OFF CACHE INTERNAL "Build with CMAKE_POSITION_INDEPENDENT_CODE lib")
+set(EXIV2_BUILD_EXIV2_COMMAND OFF CACHE INTERNAL "Build without EXIV2_COMMAND ")
+set(EXIV2_ENABLE_XMP ON CACHE INTERNAL "Build without XMP lib")
+set(EXIV2_ENABLE_DYNAMIC_RUNTIME OFF CACHE INTERNAL "Build without DYNAMIC_RUNTIME")
+if (WIN32)
+    set(CMAKE_CXX_FLAGS "-DXMP_WinBuild=1 -D_ITERATOR_DEBUG_LEVEL=0 ${CMAKE_CXX_FLAGS}" CACHE INTERNAL "Build with XMP_WinBuild")
+else()
+    set(CMAKE_CXX_FLAGS "-Wno-deprecated-copy ${CMAKE_CXX_FLAGS}" CACHE INTERNAL "Build with -Wno-deprecated-copy")
+endif ()
+
+set(DEBUG_GLOBAL ${DEBUG})
+set(DEBUG OFF CACHE INTERNAL "DEBUG disabled for exiv2" )
+FetchContent_Declare(
+        exiv2
+        GIT_REPOSITORY  https://github.com/Exiv2/exiv2.git
+        GIT_TAG     v0.28.2
+        GIT_PROGRESS TRUE
+        GIT_SHALLOW TRUE
+        SOURCE_DIR "${CMAKE_BINARY_DIR}/exiv2-src"
+        BINARY_DIR "${CMAKE_BINARY_DIR}/exiv2-build"
+        INSTALL_COMMAND ${CMAKE_COMMAND} -E cmake --build . --target=install
+)
+
+FetchContent_MakeAvailable(exiv2)
+
+include_directories(${exiv2_SOURCE_DIR}/include)
+include_directories(${exiv2_SOURCE_DIR}/include/exiv2)
+include_directories(${CMAKE_BINARY_DIR})
+
+set(DEBUG ${DEBUG_GLOBAL} CACHE INTERNAL "DEBUG restored")
+
+
+#
+# dehancer-common-cpp
+#
+FetchContent_Declare(
+        dehancer_common_cpp
+        GIT_REPOSITORY  https://github.com/dehancer/dehancer-common-cpp
+        GIT_TAG     feature/build-fetcher-deps
+        SOURCE_DIR "${CMAKE_BINARY_DIR}/dehancer_common_cpp-src"
+        BINARY_DIR "${CMAKE_BINARY_DIR}/dehancer_common_cpp-build"
+)
+
+FetchContent_MakeAvailable(dehancer_common_cpp)
+
+include_directories(${dehancer_common_cpp_SOURCE_DIR}/include)
+include_directories(${dehancer_common_cpp_SOURCE_DIR}/external)
+include_directories(${base64cpp_SOURCE_DIR}/include)
+
+set(COMMON_LIBRARIES ${COMMON_LIBRARIES};dehancer_common_cpp;ed25519cpp;base64cpp;exiv2lib)
+set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dehancer_common_cpp;exiv2lib)
 
 if (WIN32)
-    set(EXIV2_FLAGS "-DXMP_WinBuild=1 -D_ITERATOR_DEBUG_LEVEL=0  ${CXX_FLAGS}")
-else()
-    #set(EXIV2_FLAGS "-fvisibility=hidden ${CXX_FLAGS}")
-    set(EXIV2_FLAGS "-Wno-deprecated-copy -fvisibility=default ${CXX_FLAGS}")
-endif ()
-
-
-string(STRIP "${EXIV2_FLAGS}" EXIV2_FLAGS)
-
-pkg_search_module(exiv2_lib exiv2)
-if (NOT exiv2_lib_FOUND)
-    ExternalProject_Add(exiv2_lib
-            SOURCE_DIR ${EXIVEDK_DB_DIR}
-            CMAKE_ARGS
-            -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
-            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-            -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-            -DCMAKE_CXX_FLAGS=${EXIV2_FLAGS}
-            -DCMAKE_C_FLAGS=${C_FLAGS}
-            -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
-            -DCMAKE_OSX_SYSROOT=${CMAKE_OSX_SYSROOT}
-            -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
-            -DDEHANCER_TARGET_ARCH=${DEHANCER_TARGET_ARCH}
-            -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
-            -DBUILD_SHARED_LIBS=OFF
-            -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-            -DEXIV2_BUILD_SAMPLES=OFF
-            -DEXIV2_BUILD_EXIV2_COMMAND=OFF
-            -DEXIV2_ENABLE_XMP=ON
-            -DBUILD_WITH_CCACHE=OFF
-            -DEXIV2_ENABLE_DYNAMIC_RUNTIME=OFF
-            -DDEHANCER_TARGET_ARCH=${DEHANCER_TARGET_ARCH}
-            -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-            -DVCPKG_TARGET_TRIPLET=${VCPKG_TARGET_TRIPLET}
-            #BUILD_ALWAYS ON
-            #LOG_DOWNLOAD ON
-            #LOG_CONFIGURE ON
-            #LOG_BUILD ON
-            #LOG_INSTALL ON
-            #LOG_OUTPUT_ON_FAILURE ON
-            PREFIX ${DEHANCER_COMMON_DIR}
-            )
-    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};exiv2_lib)
-else()
-    message(STATUS "exiv2_lib: ${exiv2_lib_LIBRARIES}, ${exiv2_lib_LIBRARY_DIRS} ${exiv2_lib_INCLUDE_DIRS}")
-    include_directories(
-            ${exiv2_lib_INCLUDE_DIRS}
-    )
-    link_directories(
-            ${exiv2_lib_LIBRARY_DIRS}
-    )
-    set(COMMON_LIBRARIES ${exiv2_lib_LIBRARIES};${COMMON_LIBRARIES})
-
-endif ()
-
-pkg_search_module(dehancer_common_cpp dehancer-common-cpp)
-if (NOT dehancer_common_cpp_FOUND)
-    ExternalProject_Add(dcmcpp
-            GIT_REPOSITORY https://github.com/dehancer/dehancer-common-cpp
-            GIT_PROGRESS YES
-            GIT_SHALLOW YES
-#            GIT_TAG 0.13.0
-            GIT_TAG develop
-            CMAKE_ARGS
-            -DDEHANCER_CONTROLLED_SINGLETON=${DEHANCER_CONTROLLED_SINGLETON}
-            -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-            -DCMAKE_C_FLAGS=${C_FLAGS}
-            -DCMAKE_CXX_FLAGS=${CXX_FLAGS}
-            -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
-            -DCMAKE_OSX_SYSROOT=${CMAKE_OSX_SYSROOT}
-            -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
-            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-            -DDEHANCER_TARGET_ARCH=${DEHANCER_TARGET_ARCH}
-            -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
-            -DBUILD_TESTING=OFF
-            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-            -DDEHANCER_COMMON_DIR=${DEHANCER_COMMON_DIR}
-            -DEXTERNAL_INSTALL_LOCATION=${EXTERNAL_INSTALL_LOCATION}
-            -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-            -DVCPKG_TARGET_TRIPLET=${VCPKG_TARGET_TRIPLET}
-            PREFIX ${DEHANCER_COMMON_DIR}
-            DEPENDS exiv2_lib
-            #DOWNLOAD_DIR = ${DEHANCER_COMMON_DIR}
-            )
-    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dcmcpp)
-    set(COMMON_LIBRARIES dehancer_common_cpp;ed25519cpp;base64cpp;exiv2;exiv2-xmp;${COMMON_LIBRARIES})
-else()
-    set(COMMON_LIBRARIES ${dehancer_common_cpp_LINK_LIBRARIES};exiv2;exiv2-xmp;${COMMON_LIBRARIES})
-    include_directories(
-            ${dehancer_common_cpp_INCLUDE_DIRS}
-    )
-endif ()
-
-if (WIN32)
+    add_definitions(/DEBUG /Z7)
     set(COMMON_LIBRARIES ${COMMON_LIBRARIES};psapi)
 endif ()
 
@@ -380,13 +313,11 @@ message("COMMON_LIBRARIES: ${COMMON_LIBRARIES}")
 # Details
 #
 include_directories(
-        ${EXTERNAL_INSTALL_LOCATION}/include
-        ${CMAKE_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 link_directories(
-        ${EXTERNAL_INSTALL_LOCATION}/lib
-        ${EXTERNAL_INSTALL_LOCATION}/lib64
+        ${CMAKE_CURRENT_BINARY_DIR}/lib
 )
 
 add_subdirectory(lib)
@@ -411,7 +342,7 @@ set(exec_prefix "\${prefix}")
 set(libdir "\${exec_prefix}/${CMAKE_INSTALL_LIBDIR}")
 set(includedir "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
 
-configure_file(${CMAKE_SOURCE_DIR}/dehancer-xmp-cpp.pc.in ${CMAKE_CURRENT_BINARY_DIR}/dehancer-xmp-cpp.pc @ONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/dehancer-xmp-cpp.pc.in ${CMAKE_CURRENT_BINARY_DIR}/dehancer-xmp-cpp.pc @ONLY)
 
 install(FILES
         ${CMAKE_CURRENT_BINARY_DIR}/dehancer-xmp-cpp.pc
