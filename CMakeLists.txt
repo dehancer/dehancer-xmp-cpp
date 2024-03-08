@@ -47,8 +47,6 @@ if (WIN32)
         string(REPLACE "/Ob2" "" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
         string(REPLACE "/DNDEBUG" "" CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
         string(REPLACE "/DNDEBUG" "" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDEBUG=1 -DZ7=1")
-        add_definitions(/DEBUG /Z7)
     endif ()
 
     if (USE_UNICODE)
@@ -301,6 +299,7 @@ set(COMMON_LIBRARIES ${COMMON_LIBRARIES};dehancer_common_cpp;ed25519cpp;base64cp
 set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dehancer_common_cpp;exiv2lib)
 
 if (WIN32)
+    add_definitions(/DEBUG /Z7)
     set(COMMON_LIBRARIES ${COMMON_LIBRARIES};psapi)
 endif ()
 
