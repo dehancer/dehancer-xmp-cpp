@@ -206,41 +206,6 @@ include(FetchContent)
 set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "Build static libraries")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON CACHE INTERNAL "Build with CMAKE_POSITION_INDEPENDENT_CODE lib")
 
-#if (NOT ZLIB_FOUND)
-#
-#    #
-#    # Zlib
-#    #
-#    FetchContent_Declare(
-#            zlib
-#            GIT_REPOSITORY https://github.com/madler/zlib.git
-#            GIT_TAG     v1.3.1
-#            SOURCE_DIR "${CMAKE_BINARY_DIR}/zlib-src"
-#            BINARY_DIR "${CMAKE_BINARY_DIR}/zlib-build"
-#            OVERRIDE_FIND_PACKAGE
-#    )
-#
-#    FetchContent_GetProperties(zlib)
-#    if(NOT zlib_POPULATED)
-#        FetchContent_Populate(zlib)
-#        add_subdirectory(${zlib_SOURCE_DIR} ${zlib_BINARY_DIR} EXCLUDE_FROM_ALL)
-#    endif()
-#
-#    install(TARGETS zlibstatic DESTINATION lib)
-#    install(FILES   ${zlib_BINARY_DIR}/zconf.h DESTINATION include)
-#    install(FILES   ${zlib_SOURCE_DIR}/zlib.h DESTINATION include)
-#
-#    install(FILES
-#            ${zlib_BINARY_DIR}/zlib.pc
-#            DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
-#    )
-#
-#    set_target_properties(zlib zlibstatic PROPERTIES OUTPUT_NAME z)
-#
-#    set(ZLIB_ROOT ${zlib_SOURCE_DIR} CACHE INTERNAL "Build internal zlib")
-#
-#endif ()
-
 #
 # Exiv2
 #
@@ -281,10 +246,16 @@ set(DEBUG ${DEBUG_GLOBAL} CACHE INTERNAL "DEBUG restored")
 #
 # dehancer-common-cpp
 #
+set(GIT_TAG_dehancer_common_cpp "develop")
+
+if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(GIT_TAG_dehancer_common_cpp "1.14.0")
+endif ()
+
 FetchContent_Declare(
         dehancer_common_cpp
         GIT_REPOSITORY  https://github.com/dehancer/dehancer-common-cpp
-        GIT_TAG     feature/build-fetcher-deps
+        GIT_TAG     ${GIT_TAG_dehancer_common_cpp}
         SOURCE_DIR "${CMAKE_BINARY_DIR}/dehancer_common_cpp-src"
         BINARY_DIR "${CMAKE_BINARY_DIR}/dehancer_common_cpp-build"
 )
