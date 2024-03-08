@@ -203,8 +203,6 @@ if (BUILD_TESTING)
 
 endif ()
 
-set(EXIV2_FLAGS)
-
 include(FetchContent)
 
 set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "Build static libraries")
@@ -260,6 +258,8 @@ else()
     set(CMAKE_CXX_FLAGS "-Wno-deprecated-copy ${CMAKE_CXX_FLAGS}" CACHE INTERNAL "Build with -Wno-deprecated-copy")
 endif ()
 
+set(DEBUG_GLOBAL ${DEBUG})
+set(DEBUG OFF CACHE INTERNAL "DEBUG disabled for exiv2" )
 FetchContent_Declare(
         exiv2
         GIT_REPOSITORY  https://github.com/Exiv2/exiv2.git
@@ -276,6 +276,9 @@ FetchContent_MakeAvailable(exiv2)
 include_directories(${exiv2_SOURCE_DIR}/include)
 include_directories(${exiv2_SOURCE_DIR}/include/exiv2)
 include_directories(${CMAKE_BINARY_DIR})
+
+set(DEBUG ${DEBUG_GLOBAL} CACHE INTERNAL "DEBUG restored")
+
 
 #
 # dehancer-common-cpp
