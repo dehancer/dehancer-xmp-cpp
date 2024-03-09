@@ -1,5 +1,11 @@
 cmake_minimum_required(VERSION 3.22)
 
+set(GIT_TAG_dehancer_common_cpp "develop")
+
+if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(GIT_TAG_dehancer_common_cpp "0.14.0")
+endif ()
+
 #
 # Project
 #
@@ -246,12 +252,6 @@ set(DEBUG ${DEBUG_GLOBAL} CACHE INTERNAL "DEBUG restored")
 #
 # dehancer-common-cpp
 #
-set(GIT_TAG_dehancer_common_cpp "develop")
-
-if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(GIT_TAG_dehancer_common_cpp "1.14.0")
-endif ()
-
 FetchContent_Declare(
         dehancer_common_cpp
         GIT_REPOSITORY  https://github.com/dehancer/dehancer-common-cpp
