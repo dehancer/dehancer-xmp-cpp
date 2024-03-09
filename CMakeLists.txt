@@ -1,5 +1,11 @@
 cmake_minimum_required(VERSION 3.22)
 
+set(GIT_TAG_dehancer_common_cpp "develop")
+
+if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(GIT_TAG_dehancer_common_cpp "0.14.0")
+endif ()
+
 #
 # Project
 #
@@ -167,6 +173,8 @@ endif ()
 string(STRIP "${CMAKE_C_FLAGS} -D_ITERATOR_DEBUG_LEVEL=0" C_FLAGS)
 string(STRIP "${CMAKE_CXX_FLAGS} -D_ITERATOR_DEBUG_LEVEL=0" CXX_FLAGS)
 
+set(FETCHCONTENT_QUIET FALSE)
+
 #
 # Google Test
 #
@@ -187,6 +195,8 @@ if (BUILD_TESTING)
                 googletest
                 GIT_REPOSITORY https://github.com/google/googletest.git
                 GIT_TAG      v1.14.0
+                GIT_PROGRESS TRUE
+                GIT_SHALLOW TRUE
                 SOURCE_DIR "${CMAKE_BINARY_DIR}/googletest-src"
         )
 
@@ -246,12 +256,6 @@ set(DEBUG ${DEBUG_GLOBAL} CACHE INTERNAL "DEBUG restored")
 #
 # dehancer-common-cpp
 #
-set(GIT_TAG_dehancer_common_cpp "develop")
-
-if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(GIT_TAG_dehancer_common_cpp "1.14.0")
-endif ()
-
 FetchContent_Declare(
         dehancer_common_cpp
         GIT_REPOSITORY  https://github.com/dehancer/dehancer-common-cpp
