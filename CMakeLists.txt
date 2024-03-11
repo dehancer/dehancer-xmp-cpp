@@ -1,8 +1,10 @@
 cmake_minimum_required(VERSION 3.22)
 
+option(DEHANCER_DEBUG OFF)
+
 set(GIT_TAG_dehancer_common_cpp "develop")
 
-if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+if(NOT DEHANCER_DEBUG)
     set(GIT_TAG_dehancer_common_cpp "0.14.0")
 endif ()
 
@@ -19,7 +21,6 @@ set(CMAKE_CXX_STANDARD 17)
 #
 option(BUILD_TESTING "Enable creation of tests." OFF)
 option(VCPKG_TARGET_TRIPLET "")
-option(DEHANCER_DEBUG OFF)
 option(USE_UNICODE OFF)
 option(DEHANCER_CONTROLLED_SINGLETON OFF)
 

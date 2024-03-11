@@ -2,7 +2,7 @@
 <project version="4">
   <component name="CMakeSharedSettings">
     <configurations>
-      <configuration PROFILE_NAME="Debug-x86_64-ubunty" ENABLED="true" CONFIG_NAME="Debug" TOOLCHAIN_NAME="Docker-ubuntu-qt5" GENERATION_OPTIONS="-DCMAKE_INSTALL_PREFIX=~/Develop/local/ubuntu/x86_64/dehancer -DBUILD_TESTING=ON -DGTest_ROOT=/Users/denn/Develop/local/ubintu/x86_64" BUILD_OPTIONS="-j8 --verbose">
+      <configuration PROFILE_NAME="Debug-x86_64-ubunty" ENABLED="false" CONFIG_NAME="Debug" TOOLCHAIN_NAME="Docker-ubuntu-qt5" GENERATION_OPTIONS="-DCMAKE_INSTALL_PREFIX=~/Develop/local/ubuntu/x86_64/dehancer -DBUILD_TESTING=ON -DGTest_ROOT=/Users/denn/Develop/local/ubintu/x86_64" BUILD_OPTIONS="-j8 --verbose">
         <ADDITIONAL_GENERATION_ENVIRONMENT>
           <envs>
             <env name="PKG_CONFIG_PATH__" value="/opt/homebrew/opt/zlib/lib/pkgconfig:/Users/denn/Develop/local/x86_64/dehancer/lib/pkgconfig" />
