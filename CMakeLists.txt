@@ -19,6 +19,7 @@ set(CMAKE_CXX_STANDARD 17)
 #
 # Options
 #
+option(GTest_ROOT "Google Test SDK" "")
 option(BUILD_TESTING "Enable creation of tests." OFF)
 option(VCPKG_TARGET_TRIPLET "")
 option(USE_UNICODE OFF)
