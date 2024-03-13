@@ -39,25 +39,14 @@
 
       "binaryDir": "${sourceDir}/build-${presetName}",
 
-      "architecture": {
-        "value": "x86_amd64",
-        "strategy": "external"
-      },
-
-      "vendor": {
-        "microsoft.com/VisualStudioSettings/CMake/1.0": {
-          "intelliSenseMode": "windows-clang-x64"
-        }
-      },
-
       "toolchainFile": "C:/vcpkg/scripts/buildsystems/vcpkg.cmake",
 
       "cacheVariables": {
 
         "CMAKE_SHARED_LINKER_FLAGS": "/MANIFEST:NO",
         "CMAKE_EXE_LINKER_FLAGS": "/MANIFEST:NO",
-        "CMAKE_C_COMPILER": "clang-cl",
-        "CMAKE_CXX_COMPILER": "clang-cl",
+        "CMAKE_C_COMPILER": "$env{MSVC_BIN_DIR}/clang-cl.exe",
+        "CMAKE_CXX_COMPILER": "$env{MSVC_BIN_DIR}/clang-cl.exe",
 
         "CMAKE_SYSTEM_NAME": "Windows",
         "CMAKE_SYSTEM_VERSION": "10.0",
@@ -190,7 +179,7 @@
     {
       "name": "windows-debug",
       "displayName": "Dehancer xmp windows debug build, x86_64",
-      "inherits": [ "msvc2022", "ninja", "windows", "windows_debug" ]
+      "inherits": [ "windows_debug", "msvc2022", "ninja", "windows" ]
     },
 
     {
@@ -212,4 +201,5 @@
     }
 
   ]
+
 }
