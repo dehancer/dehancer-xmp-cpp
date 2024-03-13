@@ -1,0 +1,215 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 22,
+    "patch": 0
+  },
+
+  "configurePresets": [
+
+    {
+      "name": "vs17",
+      "hidden": true,
+      "generator": "Visual Studio 17 2022",
+      "toolset": "ClangCL"
+    },
+
+    {
+      "name": "ninja",
+      "hidden": true,
+      "generator": "Ninja"
+    },
+
+    {
+      "name": "msvc2022",
+      "hidden": true,
+
+      "environment": {
+        "MSVC_BIN_DIR": "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/Llvm/x64/bin",
+        "PATH": "$env{MSVC_BIN_DIR};$penv{PATH}"
+      }
+
+    },
+
+    {
+
+      "name": "windows",
+      "hidden": true,
+
+      "binaryDir": "${sourceDir}/build-${presetName}",
+
+      "architecture": {
+        "value": "x86_amd64",
+        "strategy": "external"
+      },
+
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "intelliSenseMode": "windows-clang-x64"
+        }
+      },
+
+      "toolchainFile": "C:/vcpkg/scripts/buildsystems/vcpkg.cmake",
+
+      "cacheVariables": {
+
+        "CMAKE_SHARED_LINKER_FLAGS": "/MANIFEST:NO",
+        "CMAKE_EXE_LINKER_FLAGS": "/MANIFEST:NO",
+        "CMAKE_C_COMPILER": "clang-cl",
+        "CMAKE_CXX_COMPILER": "clang-cl",
+
+        "CMAKE_SYSTEM_NAME": "Windows",
+        "CMAKE_SYSTEM_VERSION": "10.0",
+
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static",
+
+        "BUILD_SHARED_LIBS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+
+        "DEHANCER_CONTROLLED_SINGLETON": {
+          "type": "BOOL",
+          "value": "OFF"
+        }
+
+      }
+
+    },
+
+    {
+      "name": "macos",
+      "hidden": true,
+
+      "binaryDir": "${sourceDir}/build-${presetName}",
+
+      "cacheVariables": {
+
+        "CMAKE_OSX_ARCHITECTURES": {
+          "type": "STRING",
+          "value": "arm64;x86_64"
+        },
+
+        "CMAKE_OSX_DEPLOYMENT_TARGET": {
+          "type": "STRING",
+          "value": "11.0"
+        },
+
+        "CMAKE_OSX_SYSROOT": {
+          "type": "STRING",
+          "value": "macosx"
+        },
+
+        "BUILD_SHARED_LIBS": {
+          "type": "STRING",
+          "value": "OFF"
+        }
+
+      }
+    },
+
+    {
+
+      "name": "debug",
+      "hidden": true,
+      "cacheVariables": {
+
+        "GTest_ROOT": {
+          "type": "STRING",
+          "value": "$env{HOME}/Develop/local/universal"
+        },
+
+        "DEHANCER_DEBUG": {
+          "type": "STRING",
+          "value": "ON"
+        },
+
+        "PRINT_DEBUG": {
+          "type": "STRING",
+          "value": "ON"
+        },
+
+        "BUILD_TESTING": {
+          "type": "STRING",
+          "value": "ON"
+        },
+
+        "CMAKE_INSTALL_PREFIX": {
+          "type": "STRING",
+          "value": "$env{HOME}/Develop/local/${hostSystemName}/debug/dehancer"
+        },
+
+        "CMAKE_BUILD_TYPE": "Debug"
+
+      }
+    },
+
+    {
+      "name": "windows_debug",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      },
+      "inherits": ["debug"]
+    },
+
+    {
+
+      "name": "release",
+      "hidden": true,
+
+      "cacheVariables": {
+
+        "DEHANCER_DEBUG": {
+          "type": "STRING",
+          "value": "OFF"
+        },
+
+        "PRINT_DEBUG": {
+          "type": "STRING",
+          "value": "OFF"
+        },
+
+        "BUILD_TESTING": {
+          "type": "STRING",
+          "value": "OFF"
+        },
+
+        "CMAKE_INSTALL_PREFIX": {
+          "type": "STRING",
+          "value": "$env{HOME}/Develop/local/${hostSystemName}/release/dehancer"
+        },
+
+        "CMAKE_BUILD_TYPE": "Release"
+
+      }
+    },
+
+
+    {
+      "name": "windows-debug",
+      "displayName": "Dehancer xmp windows debug build, x86_64",
+      "inherits": [ "msvc2022", "ninja", "windows", "windows_debug" ]
+    },
+
+    {
+      "name": "windows-release",
+      "displayName": "Dehancer xmp windows release build, x86_64",
+      "inherits": [ "msvc2022", "ninja", "windows", "release" ]
+    },
+
+    {
+      "name": "macos-debug",
+      "displayName": "Dehancer xmp build, arm64; x86_64",
+      "inherits": [ "macos", "debug" ]
+    },
+
+    {
+      "name": "macos-release",
+      "displayName": "Dehancer xmp build, arm64; x86_64",
+      "inherits": [ "macos", "release" ]
+    }
+
+  ]
+}
