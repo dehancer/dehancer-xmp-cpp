@@ -33,6 +33,12 @@
     },
 
     {
+      "name": "unix",
+      "hidden": true,
+      "generator": "Unix Makefiles"
+    },
+
+    {
 
       "name": "windows",
       "hidden": true,
@@ -99,6 +105,35 @@
     },
 
     {
+      "name": "linux",
+
+      "hidden": true,
+
+      "binaryDir": "${sourceDir}/build-${presetName}",
+
+      "vendor": {
+        "jetbrains.com/clion": {
+          "toolchain": "Docker-rockylinux-qt5",
+          "toolset": "ClangCL"
+        }
+      },
+
+      "warnings": {
+        "unusedCli": false
+      },
+
+      "cacheVariables": {
+
+        "BUILD_SHARED_LIBS": {
+          "type": "STRING",
+          "value": "OFF"
+        }
+
+      }
+
+    },
+
+    {
 
       "name": "debug",
       "hidden": true,
@@ -106,7 +141,7 @@
 
         "GTest_ROOT": {
           "type": "STRING",
-          "value": "$env{HOME}/Develop/local/universal"
+          "value": "$env{HOME}/Develop/local/${hostSystemName}"
         },
 
         "DEHANCER_DEBUG": {
@@ -198,6 +233,18 @@
       "name": "macos-release",
       "displayName": "Dehancer xmp build, arm64; x86_64",
       "inherits": [ "macos", "release" ]
+    },
+
+    {
+      "name": "linux-debug",
+      "displayName": "Dehancer xmp build, arm64; x86_64",
+      "inherits": [ "unix", "linux", "debug" ]
+    },
+
+    {
+      "name": "linux-release",
+      "displayName": "Dehancer xmp build, arm64; x86_64",
+      "inherits": [ "unix", "linux", "release" ]
     }
 
   ]
