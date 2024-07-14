@@ -5,14 +5,14 @@ option(DEHANCER_DEBUG OFF)
 set(GIT_TAG_dehancer_common_cpp "develop")
 
 if(NOT DEHANCER_DEBUG)
-    set(GIT_TAG_dehancer_common_cpp "0.14.1")
+    set(GIT_TAG_dehancer_common_cpp "0.14.2")
 endif ()
 
 #
 # Project
 #
 set(PROJECT_LIB dehancer_xmp_cpp)
-project(${PROJECT_LIB} VERSION 0.11.0)
+project(${PROJECT_LIB} VERSION 0.11.1)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
