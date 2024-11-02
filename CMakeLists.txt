@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.22)
 
 option(DEHANCER_DEBUG OFF)
 
-set(GIT_TAG_dehancer_common_cpp "feature/subsriptions")
+set(GIT_TAG_dehancer_common_cpp "feature/subscriptions")
 
 if(NOT DEHANCER_DEBUG)
     set(GIT_TAG_dehancer_common_cpp "0.15.0")
