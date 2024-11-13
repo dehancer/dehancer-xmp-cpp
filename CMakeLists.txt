@@ -244,7 +244,7 @@ set(DEBUG_GLOBAL ${DEBUG})
 set(DEBUG OFF CACHE INTERNAL "DEBUG disabled for exiv2" )
 FetchContent_Declare(
         exiv2
-        GIT_REPOSITORY  https://github.com/Exiv2/exiv2.git
+        GIT_REPOSITORY  git@github.com:Exiv2/exiv2.git
         GIT_TAG     v0.28.2
         GIT_PROGRESS TRUE
         GIT_SHALLOW TRUE
