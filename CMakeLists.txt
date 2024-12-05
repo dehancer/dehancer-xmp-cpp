@@ -5,7 +5,7 @@ option(DEHANCER_DEBUG OFF)
 set(GIT_TAG_dehancer_common_cpp "develop")
 
 if(NOT DEHANCER_DEBUG)
-    set(GIT_TAG_dehancer_common_cpp "0.15.0")
+    set(GIT_TAG_dehancer_common_cpp "0.16.0")
 endif ()
 
 #
