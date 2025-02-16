@@ -5,14 +5,14 @@ option(DEHANCER_DEBUG OFF)
 set(GIT_TAG_dehancer_common_cpp "develop")
 
 if(NOT DEHANCER_DEBUG)
-    set(GIT_TAG_dehancer_common_cpp "0.16.0")
+    set(GIT_TAG_dehancer_common_cpp "0.17.0")
 endif ()
 
 #
 # Project
 #
 set(PROJECT_LIB dehancer_xmp_cpp)
-project(${PROJECT_LIB} VERSION 0.13.0)
+project(${PROJECT_LIB} VERSION 0.14.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -180,8 +180,6 @@ endif ()
 
 string(STRIP "${CMAKE_C_FLAGS} -D_ITERATOR_DEBUG_LEVEL=0" C_FLAGS)
 string(STRIP "${CMAKE_CXX_FLAGS} -D_ITERATOR_DEBUG_LEVEL=0" CXX_FLAGS)
-
-set(FETCHCONTENT_QUIET FALSE)
 
 #
 # Google Test
