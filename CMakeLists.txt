@@ -30,6 +30,7 @@ option(BUILD_TESTING "Enable creation of tests." OFF)
 option(VCPKG_TARGET_TRIPLET "")
 option(USE_UNICODE OFF)
 option(DEHANCER_CONTROLLED_SINGLETON OFF)
+option(PRINT_DEBUG "PRINT_DEBUG" OFF)
 
 option(DEHANCER_BLOWFISH_CACHE_DISABLED OFF)
 if(DEHANCER_BLOWFISH_CACHE_DISABLED)
@@ -161,7 +162,7 @@ set(COMMON_LIBRARIES
         ${EXPAT_LIBRARIES};
         ${Iconv_LIBRARIES};
         ${ZLIB_LIBRARIES};
-        )
+)
 
 if (MINGW)
     set(COMMON_LIBRARIES ${COMMON_LIBRARIES};ws2_32;kernel32;psapi)
@@ -206,12 +207,14 @@ if (BUILD_TESTING)
                 SOURCE_DIR "${CMAKE_BINARY_DIR}/googletest-src"
         )
 
-        FetchContent_GetProperties(googletest)
+        FetchContent_MakeAvailable(googletest)
 
-        if(NOT googletest_POPULATED)
-            FetchContent_Populate(googletest)
-            add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR} EXCLUDE_FROM_ALL)
-        endif()
+        #        FetchContent_GetProperties(googletest)
+#
+#        if(NOT googletest_POPULATED)
+#            FetchContent_Populate(googletest)
+#            add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR} EXCLUDE_FROM_ALL)
+#        endif()
 
     endif ()
 
@@ -232,6 +235,9 @@ set(EXIV2_BUILD_EXIV2_COMMAND OFF CACHE INTERNAL "Build without EXIV2_COMMAND ")
 set(EXIV2_ENABLE_XMP ON CACHE INTERNAL "Build without XMP lib")
 set(EXIV2_ENABLE_DYNAMIC_RUNTIME OFF CACHE INTERNAL "Build without DYNAMIC_RUNTIME")
 set(EXIV2_ENABLE_FILESYSTEM_ACCESS OFF CACHE INTERNAL "Build without EXIV2_ENABLE_FILESYSTEM_ACCESS")
+set(PRINT_DEBUG_KEEP ${PRINT_DEBUG})
+set(PRINT_DEBUG OFF CACHE INTERNAL "PRINT_DEBUG")
+
 if (WIN32)
     set(CMAKE_CXX_FLAGS "-DXMP_WinBuild=1 -D_ITERATOR_DEBUG_LEVEL=0 ${CMAKE_CXX_FLAGS}" CACHE INTERNAL "Build with XMP_WinBuild")
 else()
@@ -259,26 +265,42 @@ include_directories(${CMAKE_BINARY_DIR})
 
 set(DEBUG ${DEBUG_GLOBAL} CACHE INTERNAL "DEBUG restored")
 
+set(PRINT_DEBUG ${PRINT_DEBUG_KEEP})
+
+pkg_check_modules(dehancer_common_cpp dehancer-common-cpp)
 
 #
 # dehancer-common-cpp
 #
-FetchContent_Declare(
-        dehancer_common_cpp
-        GIT_REPOSITORY  https://github.com/dehancer/dehancer-common-cpp
-        GIT_TAG     ${GIT_TAG_dehancer_common_cpp}
-        SOURCE_DIR "${CMAKE_BINARY_DIR}/dehancer_common_cpp-src"
-        BINARY_DIR "${CMAKE_BINARY_DIR}/dehancer_common_cpp-build"
-)
+if (NOT dehancer_common_cpp_FOUND)
+    FetchContent_Declare(
+            dehancer_common_cpp
+            GIT_REPOSITORY  https://github.com/dehancer/dehancer-common-cpp
+            GIT_TAG     ${GIT_TAG_dehancer_common_cpp}
+            SOURCE_DIR "${CMAKE_BINARY_DIR}/dehancer_common_cpp-src"
+            BINARY_DIR "${CMAKE_BINARY_DIR}/dehancer_common_cpp-build"
+    )
 
-FetchContent_MakeAvailable(dehancer_common_cpp)
+    FetchContent_MakeAvailable(dehancer_common_cpp)
 
-include_directories(${dehancer_common_cpp_SOURCE_DIR}/include)
-include_directories(${dehancer_common_cpp_SOURCE_DIR}/external)
-include_directories(${base64cpp_SOURCE_DIR}/include)
+    include_directories(${dehancer_common_cpp_SOURCE_DIR}/include)
+    include_directories(${dehancer_common_cpp_SOURCE_DIR}/external)
+    include_directories(${base64cpp_SOURCE_DIR}/include)
 
-set(COMMON_LIBRARIES ${COMMON_LIBRARIES};dehancer_common_cpp;ed25519cpp;base64cpp;exiv2lib)
-set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dehancer_common_cpp;exiv2lib)
+    set(COMMON_LIBRARIES ${COMMON_LIBRARIES};dehancer_common_cpp;ed25519cpp;base64cpp;exiv2lib)
+    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dehancer_common_cpp;exiv2lib)
+else ()
+
+    include_directories(
+            ${dehancer_common_cpp_INCLUDE_DIRS}
+    )
+    link_directories(
+            ${dehancer_common_cpp_LIBRARY_DIRS}
+    )
+
+    set(COMMON_LIBRARIES ${dehancer_common_cpp_LIBRARIES};${COMMON_LIBRARIES};exiv2lib)
+
+endif ()
 
 if (WIN32)
     add_definitions(/DEBUG /Z7)
@@ -329,4 +351,4 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/dehancer-xmp-cpp.pc.in ${CMAKE_CURREN
 install(FILES
         ${CMAKE_CURRENT_BINARY_DIR}/dehancer-xmp-cpp.pc
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
-        )
+)

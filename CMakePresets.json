@@ -78,6 +78,10 @@
 
       "binaryDir": "${sourceDir}/build-${presetName}",
 
+      "environment": {
+        "PKG_CONFIG_PATH": "$env{HOME}/Develop/local/${hostSystemName}/$env{BUILD_SUBDIR}/dehancer/lib/pkgconfig"
+      },
+
       "cacheVariables": {
         "CMAKE_OSX_ARCHITECTURES": {
           "type": "STRING",
@@ -130,6 +134,10 @@
       "name": "debug",
       "hidden": true,
 
+      "environment": {
+        "BUILD_SUBDIR": "debug$env{DEHANCER_INSTALL_SINGLETON_DIR}"
+      },
+
       "cacheVariables": {
         "GTest_ROOT": {
           "type": "STRING",
@@ -174,6 +182,10 @@
     {
       "name": "release",
       "hidden": true,
+
+      "environment": {
+        "BUILD_SUBDIR": "release$env{DEHANCER_INSTALL_SINGLETON_DIR}"
+      },
 
       "cacheVariables": {
         "DEHANCER_DEBUG": {
