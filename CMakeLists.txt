@@ -276,7 +276,8 @@ if (NOT dehancer_common_cpp_FOUND)
     FetchContent_Declare(
             dehancer_common_cpp
             GIT_REPOSITORY  https://github.com/dehancer/dehancer-common-cpp
-            GIT_TAG     ${GIT_TAG_dehancer_common_cpp}
+            #GIT_TAG     ${GIT_TAG_dehancer_common_cpp}
+            GIT_TAG     feature/subscription-email
             SOURCE_DIR "${CMAKE_BINARY_DIR}/dehancer_common_cpp-src"
             BINARY_DIR "${CMAKE_BINARY_DIR}/dehancer_common_cpp-build"
     )
