@@ -1,10 +1,11 @@
 cmake_minimum_required(VERSION 3.22)
 
 option(DEHANCER_DEBUG OFF)
+option(DEHANCER_PIN_DEPENDENCIES OFF)
 
 set(GIT_TAG_dehancer_common_cpp "develop")
 
-if(NOT DEHANCER_DEBUG)
+if(DEHANCER_PIN_DEPENDENCIES)
     set(GIT_TAG_dehancer_common_cpp "0.18.0")
 endif ()
 
