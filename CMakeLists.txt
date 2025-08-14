@@ -1,18 +1,19 @@
 cmake_minimum_required(VERSION 3.22)
 
 option(DEHANCER_DEBUG OFF)
+option(DEHANCER_PIN_DEPENDENCIES OFF)
 
 set(GIT_TAG_dehancer_common_cpp "develop")
 
-if(NOT DEHANCER_DEBUG)
-    set(GIT_TAG_dehancer_common_cpp "0.18.0")
+if(DEHANCER_PIN_DEPENDENCIES)
+    set(GIT_TAG_dehancer_common_cpp "0.20.0")
 endif ()
 
 #
 # Project
 #
 set(PROJECT_LIB dehancer_xmp_cpp)
-project(${PROJECT_LIB} VERSION 0.15.0)
+project(${PROJECT_LIB} VERSION 0.15.1)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
