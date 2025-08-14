@@ -6,7 +6,7 @@ option(DEHANCER_PIN_DEPENDENCIES OFF)
 set(GIT_TAG_dehancer_common_cpp "develop")
 
 if(DEHANCER_PIN_DEPENDENCIES)
-    set(GIT_TAG_dehancer_common_cpp "0.18.0")
+    set(GIT_TAG_dehancer_common_cpp "0.20.0")
 endif ()
 
 #
