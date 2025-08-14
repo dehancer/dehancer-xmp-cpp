@@ -13,7 +13,7 @@ endif ()
 # Project
 #
 set(PROJECT_LIB dehancer_xmp_cpp)
-project(${PROJECT_LIB} VERSION 0.15.0)
+project(${PROJECT_LIB} VERSION 0.15.1)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
