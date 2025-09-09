@@ -3,11 +3,12 @@ cmake_minimum_required(VERSION 3.22)
 option(DEHANCER_DEBUG OFF)
 option(DEHANCER_PIN_DEPENDENCIES OFF)
 
-set(GIT_TAG_dehancer_common_cpp "develop")
+# v7 always tracks the `v7` branch disregarding DEHANCER_PIN_DEPENDENCIES
+set(GIT_TAG_dehancer_common_cpp "v7")
 
-if(DEHANCER_PIN_DEPENDENCIES)
-    set(GIT_TAG_dehancer_common_cpp "0.20.0")
-endif ()
+# if(DEHANCER_PIN_DEPENDENCIES)
+#     set(GIT_TAG_dehancer_common_cpp "0.20.0")
+# endif ()
 
 #
 # Project
