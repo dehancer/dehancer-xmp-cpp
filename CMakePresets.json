@@ -45,6 +45,10 @@
 
       "toolchainFile": "C:/vcpkg/scripts/buildsystems/vcpkg.cmake",
 
+      "environment": {
+        "PKG_CONFIG_PATH": "$env{HOME}/Develop/local/${hostSystemName}/$env{BUILD_SUBDIR}/dehancer/lib/pkgconfig"
+      },
+
       "cacheVariables": {
         "CMAKE_SHARED_LINKER_FLAGS": "/MANIFEST:NO",
 
