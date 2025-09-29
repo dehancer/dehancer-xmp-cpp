@@ -10,6 +10,8 @@
 #include "nlohmann/json.h"
 #include "dehancer/Log.h"
 
+#include <fstream>
+
 #if defined(IOS_SYSTEM) || (DEHANCER_BLOWFISH_CACHE_DISABLED)
 #define DEHANCER_BLOWFISH_CACHE_ENABLED 0
 #else
