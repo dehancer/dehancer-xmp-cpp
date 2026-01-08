@@ -63,11 +63,6 @@
         "BUILD_SHARED_LIBS": {
           "type": "BOOL",
           "value": "OFF"
-        },
-
-        "DEHANCER_CONTROLLED_SINGLETON": {
-          "type": "BOOL",
-          "value": "OFF"
         }
       }
     },
@@ -135,7 +130,7 @@
       "hidden": true,
 
       "environment": {
-        "BUILD_SUBDIR": "debug$env{DEHANCER_INSTALL_SINGLETON_DIR}"
+        "BUILD_SUBDIR": "debug"
       },
 
       "cacheVariables": {
@@ -184,7 +179,7 @@
       "hidden": true,
 
       "environment": {
-        "BUILD_SUBDIR": "release$env{DEHANCER_INSTALL_SINGLETON_DIR}"
+        "BUILD_SUBDIR": "release"
       },
 
       "cacheVariables": {

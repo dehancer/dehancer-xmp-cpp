@@ -31,7 +31,6 @@ option(GTest_ROOT "Google Test SDK" "")
 option(BUILD_TESTING "Enable creation of tests." OFF)
 option(VCPKG_TARGET_TRIPLET "")
 option(USE_UNICODE OFF)
-option(DEHANCER_CONTROLLED_SINGLETON OFF)
 option(PRINT_DEBUG "PRINT_DEBUG" OFF)
 
 option(DEHANCER_BLOWFISH_CACHE_DISABLED OFF)
