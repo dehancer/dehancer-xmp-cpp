@@ -260,19 +260,13 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON CACHE INTERNAL "Build with CMAKE_POSITION
 # )
 # FetchContent_MakeAvailable(exiv2)
 
-find_package(exiv2 REQUIRED CONFIG NAMES exiv2)
-
-# This is a bit brain damaged. Why would exiv2 not provide its include path via the config file?
+pkg_check_modules(exiv2 exiv2)
 if(exiv2_FOUND)
-    message(STATUS "exiv2 found at: ${exiv2_DIR}")
-
-    # Try to get include path from the config directory itself
-    if(EXISTS "${exiv2_DIR}/../../../include")
-        set(EXIV2_INCLUDE_DIR "${exiv2_DIR}/../../../include")
-        message(STATUS "Found include at: ${EXIV2_INCLUDE_DIR}")
-    else()
-        message(FATAL_ERROR "Could not find exiv2 include directory!")
-    endif()
+    message(STATUS "exiv2 found")
+    message(STATUS "-- includes:  ${exiv2_INCLUDE_DIRS}")
+    message(STATUS "-- libraries: ${exiv2_LIBRARY_DIRS}")
+    include_directories(${exiv2_INCLUDE_DIRS})
+    link_directories(${exiv2_LIBRARY_DIRS})
 else()
     message(FATAL_ERROR "exiv2 not found!")
 endif()
@@ -282,7 +276,6 @@ endif()
 # include_directories(${exiv2_SOURCE_DIR}/include/exiv2)
 
 include_directories(${CMAKE_BINARY_DIR})
-include_directories(${EXIV2_INCLUDE_DIR})
 
 set(DEBUG ${DEBUG_GLOBAL} CACHE INTERNAL "DEBUG restored")
 
