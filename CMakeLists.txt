@@ -250,7 +250,7 @@ set(DEBUG OFF CACHE INTERNAL "DEBUG disabled for exiv2" )
 FetchContent_Declare(
         exiv2
         GIT_REPOSITORY  https://github.com/Exiv2/exiv2.git
-        GIT_TAG     v0.28.2
+        GIT_TAG     v0.28.7
         GIT_PROGRESS TRUE
         GIT_SHALLOW TRUE
         SOURCE_DIR "${CMAKE_BINARY_DIR}/exiv2-src"
