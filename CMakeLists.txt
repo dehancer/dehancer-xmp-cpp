@@ -304,7 +304,7 @@ if (NOT dehancer_common_cpp_FOUND)
     set(COMMON_LIBRARIES ${COMMON_LIBRARIES};dehancer_common_cpp;ed25519cpp;base64cpp;exiv2)
 
     if (WIN32)
-        set(COMMON_LIBRARIES ${COMMON_LIBRARIES};inih)
+        set(COMMON_LIBRARIES ${COMMON_LIBRARIES};inih;INIReader)
     endif()
 
     set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dehancer_common_cpp)
@@ -320,7 +320,7 @@ else ()
     set(COMMON_LIBRARIES ${dehancer_common_cpp_LIBRARIES};${COMMON_LIBRARIES};exiv2)
 
     if (WIN32)
-        set(COMMON_LIBRARIES ${COMMON_LIBRARIES};inih)
+        set(COMMON_LIBRARIES ${COMMON_LIBRARIES};inih;INIReader)
     endif()
 endif ()
 
