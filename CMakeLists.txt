@@ -302,6 +302,11 @@ if (NOT dehancer_common_cpp_FOUND)
     include_directories(${base64cpp_SOURCE_DIR}/include)
 
     set(COMMON_LIBRARIES ${COMMON_LIBRARIES};dehancer_common_cpp;ed25519cpp;base64cpp;exiv2)
+
+    if (WIN32)
+        set(COMMON_LIBRARIES ${COMMON_LIBRARIES};inih)
+    endif()
+
     set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dehancer_common_cpp)
 else ()
 
@@ -314,6 +319,9 @@ else ()
 
     set(COMMON_LIBRARIES ${dehancer_common_cpp_LIBRARIES};${COMMON_LIBRARIES};exiv2)
 
+    if (WIN32)
+        set(COMMON_LIBRARIES ${COMMON_LIBRARIES};inih)
+    endif()
 endif ()
 
 if (WIN32)
