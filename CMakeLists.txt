@@ -317,7 +317,7 @@ else ()
 endif ()
 
 # exiv2 for Linux and Windows is compiled with brotli support.
-if(LINUX || WIN32)
+if(LINUX OR WIN32)
     set(COMMON_LIBRARIES ${COMMON_LIBRARIES};brotlicommon;brotlidec)
 endif()
 
