@@ -316,14 +316,8 @@ else ()
     set(COMMON_LIBRARIES ${dehancer_common_cpp_LIBRARIES};${COMMON_LIBRARIES};exiv2)
 endif ()
 
-# inih and INIReader are required for Windows because vcpkg's exiv2 is built with
-# inih support. We don't care. It's going to be optimized by linker anyway OR
-# will not ever be called from within our code.
-if (WIN32)
-    set(COMMON_LIBRARIES ${COMMON_LIBRARIES};inih;INIReader)
-
-# exiv2 for Linux is compiled with brotli support. Won't hurt at all.
-elseif(LINUX)
+# exiv2 for Linux is compiled with brotli support.
+if(LINUX)
     set(COMMON_LIBRARIES ${COMMON_LIBRARIES};brotlicommon;brotlidec)
 endif()
 
