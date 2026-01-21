@@ -316,8 +316,8 @@ else ()
     set(COMMON_LIBRARIES ${dehancer_common_cpp_LIBRARIES};${COMMON_LIBRARIES};exiv2)
 endif ()
 
-# exiv2 for Linux is compiled with brotli support.
-if(LINUX)
+# exiv2 for Linux and Windows is compiled with brotli support.
+if(LINUX || WIN32)
     set(COMMON_LIBRARIES ${COMMON_LIBRARIES};brotlicommon;brotlidec)
 endif()
 
