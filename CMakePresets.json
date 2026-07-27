@@ -67,11 +67,6 @@
         "BUILD_SHARED_LIBS": {
           "type": "BOOL",
           "value": "OFF"
-        },
-
-        "DEHANCER_CONTROLLED_SINGLETON": {
-          "type": "BOOL",
-          "value": "OFF"
         }
       }
     },
@@ -94,7 +89,7 @@
 
         "CMAKE_OSX_DEPLOYMENT_TARGET": {
           "type": "STRING",
-          "value": "11.0"
+          "value": "13.0"
         },
 
         "CMAKE_OSX_SYSROOT": {
@@ -139,7 +134,7 @@
       "hidden": true,
 
       "environment": {
-        "BUILD_SUBDIR": "debug$env{DEHANCER_INSTALL_SINGLETON_DIR}"
+        "BUILD_SUBDIR": "debug"
       },
 
       "cacheVariables": {
@@ -188,7 +183,7 @@
       "hidden": true,
 
       "environment": {
-        "BUILD_SUBDIR": "release$env{DEHANCER_INSTALL_SINGLETON_DIR}"
+        "BUILD_SUBDIR": "release"
       },
 
       "cacheVariables": {

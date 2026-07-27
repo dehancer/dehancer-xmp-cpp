@@ -3,17 +3,18 @@ cmake_minimum_required(VERSION 3.22)
 option(DEHANCER_DEBUG OFF)
 option(DEHANCER_PIN_DEPENDENCIES OFF)
 
-set(GIT_TAG_dehancer_common_cpp "develop")
+# v7 always tracks the `v7` branch disregarding DEHANCER_PIN_DEPENDENCIES
+set(GIT_TAG_dehancer_common_cpp "feature/dehancer-promise")
 
-if(DEHANCER_PIN_DEPENDENCIES)
-    set(GIT_TAG_dehancer_common_cpp "0.20.0")
-endif ()
+# if(DEHANCER_PIN_DEPENDENCIES)
+#     set(GIT_TAG_dehancer_common_cpp "0.20.1")
+# endif ()
 
 #
 # Project
 #
 set(PROJECT_LIB dehancer_xmp_cpp)
-project(${PROJECT_LIB} VERSION 0.15.1)
+project(${PROJECT_LIB} VERSION 0.15.2)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -30,7 +31,6 @@ option(GTest_ROOT "Google Test SDK" "")
 option(BUILD_TESTING "Enable creation of tests." OFF)
 option(VCPKG_TARGET_TRIPLET "")
 option(USE_UNICODE OFF)
-option(DEHANCER_CONTROLLED_SINGLETON OFF)
 option(PRINT_DEBUG "PRINT_DEBUG" OFF)
 
 
@@ -227,42 +227,55 @@ include(FetchContent)
 set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "Build static libraries")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON CACHE INTERNAL "Build with CMAKE_POSITION_INDEPENDENT_CODE lib")
 
+# FIXME remove below after exiv2 is settled outside of this cmake.
 #
 # Exiv2
 #
-set(EXIV2_ENABLE_BROTLI OFF CACHE INTERNAL "Build without BROTLI lib")
-set(EXIV2_ENABLE_INIH OFF CACHE INTERNAL "Build without INIH lib")
-set(EXIV2_BUILD_SAMPLES OFF CACHE INTERNAL "Build with CMAKE_POSITION_INDEPENDENT_CODE lib")
-set(EXIV2_BUILD_EXIV2_COMMAND OFF CACHE INTERNAL "Build without EXIV2_COMMAND ")
-set(EXIV2_ENABLE_XMP ON CACHE INTERNAL "Build without XMP lib")
-set(EXIV2_ENABLE_DYNAMIC_RUNTIME OFF CACHE INTERNAL "Build without DYNAMIC_RUNTIME")
-set(EXIV2_ENABLE_FILESYSTEM_ACCESS OFF CACHE INTERNAL "Build without EXIV2_ENABLE_FILESYSTEM_ACCESS")
-set(PRINT_DEBUG_KEEP ${PRINT_DEBUG})
-set(PRINT_DEBUG OFF CACHE INTERNAL "PRINT_DEBUG")
+# set(EXIV2_ENABLE_BROTLI OFF CACHE INTERNAL "Build without BROTLI lib")
+# set(EXIV2_ENABLE_INIH OFF CACHE INTERNAL "Build without INIH lib")
+# set(EXIV2_BUILD_SAMPLES OFF CACHE INTERNAL "Build with CMAKE_POSITION_INDEPENDENT_CODE lib")
+# set(EXIV2_BUILD_EXIV2_COMMAND OFF CACHE INTERNAL "Build without EXIV2_COMMAND ")
+# set(EXIV2_ENABLE_XMP ON CACHE INTERNAL "Build without XMP lib")
+# set(EXIV2_ENABLE_DYNAMIC_RUNTIME OFF CACHE INTERNAL "Build without DYNAMIC_RUNTIME")
+# set(EXIV2_ENABLE_FILESYSTEM_ACCESS ON CACHE INTERNAL "Build with EXIV2_ENABLE_FILESYSTEM_ACCESS")
+# set(PRINT_DEBUG_KEEP ${PRINT_DEBUG})
+# set(PRINT_DEBUG OFF CACHE INTERNAL "PRINT_DEBUG")
 
-if (WIN32)
-    set(CMAKE_CXX_FLAGS "-DXMP_WinBuild=1 -D_ITERATOR_DEBUG_LEVEL=0 ${CMAKE_CXX_FLAGS}" CACHE INTERNAL "Build with XMP_WinBuild")
+# if (WIN32)
+#     set(CMAKE_CXX_FLAGS "-DXMP_WinBuild=1 -D_ITERATOR_DEBUG_LEVEL=0 ${CMAKE_CXX_FLAGS}" CACHE INTERNAL "Build with XMP_WinBuild")
+# else()
+#     set(CMAKE_CXX_FLAGS "-Wno-deprecated-copy ${CMAKE_CXX_FLAGS}" CACHE INTERNAL "Build with -Wno-deprecated-copy")
+# endif ()
+
+# set(DEBUG_GLOBAL ${DEBUG})
+# set(DEBUG OFF CACHE INTERNAL "DEBUG disabled for exiv2" )
+# FetchContent_Declare(
+#         exiv2
+#         GIT_REPOSITORY  https://github.com/Exiv2/exiv2.git
+#         GIT_TAG     v0.28.7
+#         GIT_PROGRESS TRUE
+#         GIT_SHALLOW TRUE
+#         SOURCE_DIR "${CMAKE_BINARY_DIR}/exiv2-src"
+#         BINARY_DIR "${CMAKE_BINARY_DIR}/exiv2-build"
+#         INSTALL_COMMAND ${CMAKE_COMMAND} -E cmake --build . --target=install
+# )
+# FetchContent_MakeAvailable(exiv2)
+
+pkg_check_modules(exiv2 exiv2)
+if(exiv2_FOUND)
+    message(STATUS "exiv2 found")
+    message(STATUS "-- includes:  ${exiv2_INCLUDE_DIRS}")
+    message(STATUS "-- libraries: ${exiv2_LIBRARY_DIRS}")
+    include_directories(${exiv2_INCLUDE_DIRS})
+    link_directories(${exiv2_LIBRARY_DIRS})
 else()
-    set(CMAKE_CXX_FLAGS "-Wno-deprecated-copy ${CMAKE_CXX_FLAGS}" CACHE INTERNAL "Build with -Wno-deprecated-copy")
-endif ()
+    message(FATAL_ERROR "exiv2 not found!")
+endif()
 
-set(DEBUG_GLOBAL ${DEBUG})
-set(DEBUG OFF CACHE INTERNAL "DEBUG disabled for exiv2" )
-FetchContent_Declare(
-        exiv2
-        GIT_REPOSITORY  https://github.com/Exiv2/exiv2.git
-        GIT_TAG     v0.28.2
-        GIT_PROGRESS TRUE
-        GIT_SHALLOW TRUE
-        SOURCE_DIR "${CMAKE_BINARY_DIR}/exiv2-src"
-        BINARY_DIR "${CMAKE_BINARY_DIR}/exiv2-build"
-        INSTALL_COMMAND ${CMAKE_COMMAND} -E cmake --build . --target=install
-)
+# FIXME remove below after exiv2 is settled outside of this cmake.
+# include_directories(${exiv2_SOURCE_DIR}/include)
+# include_directories(${exiv2_SOURCE_DIR}/include/exiv2)
 
-FetchContent_MakeAvailable(exiv2)
-
-include_directories(${exiv2_SOURCE_DIR}/include)
-include_directories(${exiv2_SOURCE_DIR}/include/exiv2)
 include_directories(${CMAKE_BINARY_DIR})
 
 set(DEBUG ${DEBUG_GLOBAL} CACHE INTERNAL "DEBUG restored")
@@ -289,8 +302,9 @@ if (NOT dehancer_common_cpp_FOUND)
     include_directories(${dehancer_common_cpp_SOURCE_DIR}/external)
     include_directories(${base64cpp_SOURCE_DIR}/include)
 
-    set(COMMON_LIBRARIES ${COMMON_LIBRARIES};dehancer_common_cpp;ed25519cpp;base64cpp;exiv2lib)
-    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dehancer_common_cpp;exiv2lib)
+    set(COMMON_LIBRARIES ${COMMON_LIBRARIES};dehancer_common_cpp;ed25519cpp;base64cpp;exiv2)
+
+    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dehancer_common_cpp)
 else ()
 
     include_directories(
@@ -300,9 +314,13 @@ else ()
             ${dehancer_common_cpp_LIBRARY_DIRS}
     )
 
-    set(COMMON_LIBRARIES ${dehancer_common_cpp_LIBRARIES};${COMMON_LIBRARIES};exiv2lib)
-
+    set(COMMON_LIBRARIES ${dehancer_common_cpp_LIBRARIES};${COMMON_LIBRARIES};exiv2)
 endif ()
+
+# exiv2 for Linux and Windows is compiled with brotli support.
+if(LINUX OR WIN32)
+    set(COMMON_LIBRARIES ${COMMON_LIBRARIES};brotlicommon;brotlidec)
+endif()
 
 if (WIN32)
     add_definitions(/DEBUG /Z7)
