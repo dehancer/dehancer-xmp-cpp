@@ -139,11 +139,6 @@
           "value": "$env{HOME}/Develop/local/${hostSystemName}"
         },
 
-        "DEHANCER_DEBUG": {
-          "type": "STRING",
-          "value": "ON"
-        },
-
         "PRINT_DEBUG": {
           "type": "STRING",
           "value": "ON"
@@ -183,11 +178,6 @@
       },
 
       "cacheVariables": {
-        "DEHANCER_DEBUG": {
-          "type": "STRING",
-          "value": "OFF"
-        },
-
         "PRINT_DEBUG": {
           "type": "STRING",
           "value": "OFF"
