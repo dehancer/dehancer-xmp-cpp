@@ -41,8 +41,6 @@
       "name": "windows",
       "hidden": true,
 
-      "binaryDir": "${sourceDir}/build-${presetName}",
-
       "toolchainFile": "C:/vcpkg/scripts/buildsystems/vcpkg.cmake",
 
       "cacheVariables": {
@@ -70,8 +68,6 @@
     {
       "name": "macos",
       "hidden": true,
-
-      "binaryDir": "${sourceDir}/build-${presetName}",
 
       "environment": {
         "PKG_CONFIG_PATH": "$env{HOME}/Develop/local/${hostSystemName}/$env{BUILD_SUBDIR}/dehancer/lib/pkgconfig"
@@ -103,8 +99,6 @@
     {
       "name": "linux",
       "hidden": true,
-
-      "binaryDir": "${sourceDir}/build-${presetName}",
 
       "vendor": {
         "jetbrains.com/clion": {
