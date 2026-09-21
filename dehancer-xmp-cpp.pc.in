@@ -1,5 +1,4 @@
 prefix=@prefix@
-exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
 
@@ -7,7 +6,6 @@ Name: dehancer-xmp-cpp
 Description: Dehancer xmp layer SDK
 Version: @PROJECT_VERSION@
 URL: https://github.com/dehancer/dehancer-xmp-cpp
-Requires.private: @requires_private@
-Libs: -L${libdir} -ldehancer_xmp_cpp -lexiv2 -ldehancer_common_cpp -led25519cpp -lbase64cpp
-Libs.private: @libs_private@
-CFlags: -I${includedir}
+Requires: dehancer-common-cpp, exiv2
+Libs: -L${libdir} -ldehancer_xmp_cpp
+Cflags: -I${includedir}

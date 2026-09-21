@@ -24,7 +24,7 @@ TEST(XMP, XMPOpenTest) {
   
   std::cout << std::endl;
   
-  std::string file_path = "../../../tests/cameralut_xmp/clut.clut";
+  std::string file_path = "clut.clut";
   std::string cache_dir = "./cache/";
   
   auto ec = dehancer::platform::create_directories(cache_dir);

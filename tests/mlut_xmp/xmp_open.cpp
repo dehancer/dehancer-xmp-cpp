@@ -21,7 +21,7 @@ TEST(XMP, XMPOpenTest) {
 
     std::cout << std::endl;
 
-    std::string file_path = "../../../tests/mlut_xmp/mlut.mlut";
+    std::string file_path = "mlut.mlut";
     std::string cache_dir = "./cache";
 
     auto ec = dehancer::platform::create_directories(cache_dir);
