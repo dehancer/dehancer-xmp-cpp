@@ -2,19 +2,20 @@
 
 ## Build
 
-Requires CMake 4.3+, C++17, and installed dependencies. Use Ninja Multi-Config,
-Xcode, or Visual Studio. Dependencies supplied by a parent target are reused.
+Requires CMake 4.3+ and installed dependencies.
+Dependencies supplied by a parent target are reused.
 
 Dependencies: `dehancer_common_cpp` and Exiv2 (with XMP support).
 
 ```sh
 cmake -S . -B build \
-  -G "Ninja Multi-Config" \
+  -DCMAKE_INSTALL_PREFIX="$HOME/local-dehancer" \
   -DCMAKE_PREFIX_PATH="/opt/dehancer-dependencies;$HOME/local-dehancer" \
+  -DCMAKE_BUILD_TYPE=Release \
   -DBUILD_TESTING=OFF \
-  -DCREATE_PKG_CONFIG=OFF
+  -DCREATE_PKG_CONFIG=OFF \
 cmake --build build --config Release --parallel $(nproc)
-cmake --install build --config Release --prefix $HOME/local-dehancer
+cmake --install build --config Release
 ```
 
 ## Usage
