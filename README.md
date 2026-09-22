@@ -8,7 +8,6 @@ Xcode, or Visual Studio. Dependencies supplied by a parent target are reused.
 Dependencies: `dehancer_common_cpp` and Exiv2 (with XMP support).
 
 ```sh
-# export PKG_CONFIG_PATH=/opt/dehancer-dependencies/lib/pkgconfig:$PKG_CONFIG_PATH
 cmake -S . -B build \
   -G "Ninja Multi-Config" \
   -DCMAKE_PREFIX_PATH="/opt/dehancer-dependencies;$HOME/local-dehancer" \
