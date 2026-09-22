@@ -13,7 +13,7 @@ cmake -S . -B build \
   -DCMAKE_PREFIX_PATH="/opt/dehancer-dependencies;$HOME/local-dehancer" \
   -DCMAKE_BUILD_TYPE=Release \
   -DBUILD_TESTING=OFF \
-  -DCREATE_PKG_CONFIG=OFF \
+  -DCREATE_PKG_CONFIG=OFF
 cmake --build build --config Release --parallel $(nproc)
 cmake --install build --config Release
 ```
