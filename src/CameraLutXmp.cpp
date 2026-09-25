@@ -7,7 +7,7 @@
 #include "dehancer/Base64.h"
 #include "dehancer/Utils.h"
 #include "dehancer/FileUtils.h"
-#include "nlohmann/json.h"
+#include <nlohmann/json.hpp>
 
 namespace dehancer {
     

@@ -12,6 +12,9 @@ option(USE_UNICODE "Use Unicode Windows APIs" OFF)
 if(NOT TARGET dehancer_common_cpp::dehancer_common_cpp)
     find_package(dehancer_common_cpp CONFIG REQUIRED)
 endif()
+if(NOT TARGET nlohmann_json::nlohmann_json)
+    find_package(nlohmann_json CONFIG REQUIRED)
+endif()
 
 if(NOT TARGET Exiv2::exiv2lib)
     find_package(exiv2 CONFIG REQUIRED)
@@ -38,7 +41,7 @@ if(WIN32)
     target_compile_definitions(dehancer_xmp_cpp PUBLIC WIN32=1
         $<$<BOOL:${USE_UNICODE}>:UNICODE;_UNICODE>)
 endif()
-target_link_libraries(dehancer_xmp_cpp PUBLIC dehancer_common_cpp::dehancer_common_cpp Exiv2::exiv2lib)
+target_link_libraries(dehancer_xmp_cpp PUBLIC dehancer_common_cpp::dehancer_common_cpp Exiv2::exiv2lib PRIVATE nlohmann_json::nlohmann_json)
 option(DEHANCER_BLOWFISH_CACHE_DISABLED "Disable Blowfish cache" OFF)
 target_compile_definitions(dehancer_xmp_cpp PRIVATE
     $<$<BOOL:${DEHANCER_BLOWFISH_CACHE_DISABLED}>:DEHANCER_BLOWFISH_CACHE_DISABLED=1>
