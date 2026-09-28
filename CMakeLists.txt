@@ -38,7 +38,7 @@ if(MSVC AND DEHANCER_DEBUG)
 endif()
 if(WIN32)
     target_compile_definitions(dehancer_xmp_cpp PRIVATE UNICODE _UNICODE)
-    target_compile_definitions(dehancer_xmp_cpp PUBLIC WIN32=1) # FIXME do we need WIN32?
+    target_compile_definitions(dehancer_xmp_cpp PUBLIC WIN32=1) # Needed for OpenFX
 endif()
 target_link_libraries(dehancer_xmp_cpp PUBLIC dehancer_common_cpp::dehancer_common_cpp Exiv2::exiv2lib PRIVATE nlohmann_json::nlohmann_json)
 
