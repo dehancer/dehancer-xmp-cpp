@@ -7,7 +7,6 @@ option(CREATE_PKG_CONFIG "Generate and install pkg-config metadata" OFF)
 option(BUILD_TESTING "Build tests" OFF)
 option(DEHANCER_DEBUG "Enable release diagnostics" OFF)
 option(PRINT_DEBUG "Enable logging" OFF)
-option(USE_UNICODE "Use Unicode Windows APIs" OFF)
 
 if(NOT TARGET dehancer_common_cpp::dehancer_common_cpp)
     find_package(dehancer_common_cpp CONFIG REQUIRED)
@@ -38,8 +37,8 @@ if(MSVC AND DEHANCER_DEBUG)
     target_compile_options(dehancer_xmp_cpp PRIVATE /Od /Ob0 /Z7 /UNDEBUG)
 endif()
 if(WIN32)
-    target_compile_definitions(dehancer_xmp_cpp PUBLIC WIN32=1
-        $<$<BOOL:${USE_UNICODE}>:UNICODE;_UNICODE>)
+    target_compile_definitions(dehancer_xmp_cpp PRIVATE UNICODE _UNICODE)
+    target_compile_definitions(dehancer_xmp_cpp PUBLIC WIN32=1) # FIXME do we need WIN32?
 endif()
 target_link_libraries(dehancer_xmp_cpp PUBLIC dehancer_common_cpp::dehancer_common_cpp Exiv2::exiv2lib PRIVATE nlohmann_json::nlohmann_json)
 
