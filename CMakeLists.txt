@@ -42,9 +42,8 @@ if(WIN32)
         $<$<BOOL:${USE_UNICODE}>:UNICODE;_UNICODE>)
 endif()
 target_link_libraries(dehancer_xmp_cpp PUBLIC dehancer_common_cpp::dehancer_common_cpp Exiv2::exiv2lib PRIVATE nlohmann_json::nlohmann_json)
-option(DEHANCER_BLOWFISH_CACHE_DISABLED "Disable Blowfish cache" OFF)
+
 target_compile_definitions(dehancer_xmp_cpp PRIVATE
-    $<$<BOOL:${DEHANCER_BLOWFISH_CACHE_DISABLED}>:DEHANCER_BLOWFISH_CACHE_DISABLED=1>
     $<$<BOOL:${IOS_SYSTEM}>:IOS_SYSTEM=1>)
 
 install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}

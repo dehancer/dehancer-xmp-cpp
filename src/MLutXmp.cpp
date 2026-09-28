@@ -10,7 +10,7 @@
 #include <nlohmann/json.hpp>
 #include "dehancer/Log.h"
 
-#if defined(IOS_SYSTEM) || (DEHANCER_BLOWFISH_CACHE_DISABLED)
+#if defined(IOS_SYSTEM)
 #define DEHANCER_BLOWFISH_CACHE_ENABLED 0
 #else
 #define DEHANCER_BLOWFISH_CACHE_ENABLED 1
@@ -36,8 +36,7 @@ namespace dehancer {
     static const std::string xmp_meta_prefix = "Xmp.Dehancer.mlutAttributes.undo[1]/rdf:";
     static const std::string xmp_clut_prefix = "Xmp.Dehancer.mlutClutList.undo[1]/rdf:";
 
-    inline bool  has_prefix(const std::string& str, const std::string& prefix) {
-      auto res = std::mismatch(prefix.begin(), prefix.end(), str.begin());
+    inline bool  has_prefix(const std::string& str, const std::string& prefix) {      auto res = std::mismatch(prefix.begin(), prefix.end(), str.begin());
       return res.first == prefix.end();
     }
 
