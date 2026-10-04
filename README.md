@@ -1,37 +1,44 @@
 # dehancer-xmp-cpp
 
-## Build
-
-Requires CMake 4.3+ and installed dependencies.
-Dependencies supplied by a parent target are reused.
-
-Dependencies: `dehancer_common_cpp` and Exiv2 (with XMP support).
+## Build and install
 
 ```sh
-cmake -S . -B build \
-  -DCMAKE_INSTALL_PREFIX="$HOME/local-dehancer" \
-  -DCMAKE_PREFIX_PATH="/opt/dehancer-dependencies;$HOME/local-dehancer" \
-  -DCMAKE_BUILD_TYPE=Release \
-  -DBUILD_TESTING=OFF \
-  -DCREATE_PKG_CONFIG=OFF
-cmake --build build --config Release --parallel $(nproc)
-cmake --install build --config Release
+cmake -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --parallel $(nproc)
+cmake --install build --parallel $(nproc)
 ```
 
-## Usage
+Make sure to set proper `CMAKE_PREFIX_PATH` and `CMAKE_INSTALL_PREFIX` to discover dependencies and install.
+
+Use `-DBUILD_SHARED_LIBS=ON` for a shared library; the default is static.
+
+`CMAKE_POSITION_INDEPENDENT_CODE` is set to `ON`.
+
+## Usage in CMake
 
 ```cmake
 find_package(dehancer_xmp_cpp CONFIG REQUIRED)
 target_link_libraries(app PRIVATE dehancer_xmp_cpp::dehancer_xmp_cpp)
 ```
 
-The same target is available with `add_subdirectory(path/to/dehancer-xmp-cpp)`
-or FetchContent:
+The CMake package is always generated and installed.
 
-```cmake
-include(FetchContent)
-FetchContent_Declare(dehancer_xmp_cpp
-    GIT_REPOSITORY https://github.com/dehancer/dehancer-xmp-cpp.git
-    GIT_TAG v7)
-FetchContent_MakeAvailable(dehancer_xmp_cpp)
+## Usage with pkg-config
+
+Disabled by default. Configure with `-DCREATE_PKG_CONFIG=ON` to generate and
+install `dehancer-xmp-cpp.pc`.
+
+```sh
+export PKG_CONFIG_PATH="$HOME/local-dehancer/lib/pkgconfig"
+pkg-config --cflags --libs dehancer-xmp-cpp
+```
+
+## Tests
+
+Install GoogleTest, then:
+
+```sh
+cmake -B build -DBUILD_TESTING=ON
+cmake --build build --parallel $(nproc)
+ctest --test-dir build --output-on-failure
 ```

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 4.3)
-project(dehancer_xmp_cpp VERSION 0.16.0 LANGUAGES CXX)
+project(dehancer_xmp_cpp VERSION 0.20.0 LANGUAGES CXX)
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
@@ -11,6 +11,7 @@ option(PRINT_DEBUG "Enable logging" OFF)
 if(NOT TARGET dehancer_common_cpp::dehancer_common_cpp)
     find_package(dehancer_common_cpp CONFIG REQUIRED)
 endif()
+
 if(NOT TARGET nlohmann_json::nlohmann_json)
     find_package(nlohmann_json CONFIG REQUIRED)
 endif()
@@ -19,13 +20,14 @@ if(NOT TARGET Exiv2::exiv2lib)
     find_package(exiv2 CONFIG REQUIRED)
 endif()
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 add_library(dehancer_xmp_cpp
     src/MLutXmp.cpp
     src/CameraLutXmp.cpp
 )
 add_library(dehancer_xmp_cpp::dehancer_xmp_cpp ALIAS dehancer_xmp_cpp)
 target_compile_features(dehancer_xmp_cpp PUBLIC cxx_std_17)
-set_target_properties(dehancer_xmp_cpp PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_include_directories(dehancer_xmp_cpp PUBLIC
     "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
     "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
