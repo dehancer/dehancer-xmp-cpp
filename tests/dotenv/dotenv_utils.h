@@ -13,12 +13,9 @@ std::vector<std::uint8_t> split_by_pattern(const std::string& content, const std
 	auto p = std::regex(pattern);
 	std::vector<uint8_t> floats;
 
-	std::transform(std::sregex_token_iterator(content.begin(), content.end(), p, -1),
-	               std::sregex_token_iterator(),
-	               back_inserter(floats),
-	               [](const std::string& name) {
-		               return std::stof(name);
-	               });
+	std::transform(std::sregex_token_iterator(content.begin(), content.end(), p, -1), std::sregex_token_iterator(), back_inserter(floats), [](const std::string& name) {
+		return std::stof(name);
+	});
 
 	return floats;
 }

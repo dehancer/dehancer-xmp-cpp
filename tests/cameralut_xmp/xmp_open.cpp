@@ -56,12 +56,10 @@ TEST(XMP, XMPOpenTest) {
 			if (value) {
 				if (value->typeId() == Exiv2::TypeId::string || value->typeId() == Exiv2::TypeId::xmpText)
 					std::cout << " clut_xmp[txt] key: " << key << " = " << value->toString() << std::endl;
-				else if (value->typeId() == Exiv2::TypeId::signedLong ||
-				         value->typeId() == Exiv2::TypeId::unsignedLong)
+				else if (value->typeId() == Exiv2::TypeId::signedLong || value->typeId() == Exiv2::TypeId::unsignedLong)
 					std::cout << " clut_xmp[number] key: " << key << " = " << value->toInt64() << std::endl;
 				else {
-					std::cout << " clut_xmp key: " << key << " type:  " << std::hex << value->typeId()
-					          << std::endl;
+					std::cout << " clut_xmp key: " << key << " type:  " << std::hex << value->typeId() << std::endl;
 				}
 			}
 		});

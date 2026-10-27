@@ -23,8 +23,7 @@ public:
 	using exiv2_ptr_t = Exiv2::Value::UniquePtr;
 
 public:
-	static dehancer::expected<MLutXmp, Error> Create(const std::string& buffer,
-	                                                 const Blowfish::KeyType& key);
+	static dehancer::expected<MLutXmp, Error> Create(const std::string& buffer, const Blowfish::KeyType& key);
 	static dehancer::expected<MLutXmp, Error> Create(const std::string& buffer);
 
 	/**
@@ -33,8 +32,7 @@ public:
 	 * @param key - pass key, by default empty means properties read only
 	 * @return
 	 */
-	static dehancer::expected<MLutXmp, Error> Open(const std::string& path,
-	                                               const Blowfish::KeyType& key);
+	static dehancer::expected<MLutXmp, Error> Open(const std::string& path, const Blowfish::KeyType& key);
 
 	/**
 	 * Open xmp-mlut-file
@@ -43,10 +41,7 @@ public:
 	 * @param cache_path
 	 * @return
 	 */
-	static dehancer::expected<MLutXmp, Error> Open(const std::string& path,
-	                                               const Blowfish::KeyType& key,
-	                                               const std::string& cache_dir,
-	                                               bool purge_cache = false);
+	static dehancer::expected<MLutXmp, Error> Open(const std::string& path, const Blowfish::KeyType& key, const std::string& cache_dir, bool purge_cache = false);
 
 	static dehancer::expected<MLutXmp, Error> Open(const std::string& path);
 
@@ -92,9 +87,6 @@ private:
 	[[nodiscard]] std::string get_cache_clut_path(int index) const;
 
 private:
-	static dehancer::expected<MLutXmp, Error> parse(const std::string& metaBuffer,
-	                                                const Blowfish::KeyType& key,
-	                                                const std::string& path,
-	                                                const std::string& cache_dir);
+	static dehancer::expected<MLutXmp, Error> parse(const std::string& metaBuffer, const Blowfish::KeyType& key, const std::string& path, const std::string& cache_dir);
 };
 }  // namespace dehancer

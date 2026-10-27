@@ -11,10 +11,8 @@
 #ifdef _DEBUG
 #include <iostream>
 
-#define DEBUG_ENTER(x) \
-	std::cerr << "ENTER " << row_count << ":" << col_count << " " << #x << std::endl
-#define DEBUG_EXIT(x) \
-	std::cerr << "EXIT  " << row_count << ":" << col_count << " " << #x << std::endl
+#define DEBUG_ENTER(x) std::cerr << "ENTER " << row_count << ":" << col_count << " " << #x << std::endl
+#define DEBUG_EXIT(x) std::cerr << "EXIT  " << row_count << ":" << col_count << " " << #x << std::endl
 #else
 #define DEBUG_ENTER(x)
 #define DEBUG_EXIT(x)
@@ -282,8 +280,7 @@ public:
 	}
 
 	inline void syntax_err() {
-		throw syntax_error("Syntax error on line " + std::to_string(row_count) + ":" +
-		                   std::to_string(col_count));
+		throw syntax_error("Syntax error on line " + std::to_string(row_count) + ":" + std::to_string(col_count));
 	}
 
 	inline void bind(std::string& s) {
@@ -338,11 +335,9 @@ private:
 
 inline const container parser::SP{container::CHAR_MODE::INCLUDE, SP_C, TB_C};
 
-inline const container parser::UNQUOTED_KEY_CHAR{
-    container::CHAR_MODE::EXCLUDE, CS_C, EQ_C, SP_C, DQ_C, SQ_C, TB_C, NL_C, CR_C};
+inline const container parser::UNQUOTED_KEY_CHAR{container::CHAR_MODE::EXCLUDE, CS_C, EQ_C, SP_C, DQ_C, SQ_C, TB_C, NL_C, CR_C};
 
-inline const container parser::UNQUOTED_VALUE_CHAR{
-    container::CHAR_MODE::EXCLUDE, CS_C, SP_C, DQ_C, SQ_C, TB_C, NL_C, CR_C};
+inline const container parser::UNQUOTED_VALUE_CHAR{container::CHAR_MODE::EXCLUDE, CS_C, SP_C, DQ_C, SQ_C, TB_C, NL_C, CR_C};
 
 inline const container parser::UNQUOTED_COMMENT_CHAR{container::CHAR_MODE::EXCLUDE, NL_C, CR_C};
 
@@ -407,8 +402,7 @@ inline dotenv dotenv::_instance;
 
 static dotenv& env = dotenv::instance().config();
 
-static inline nonstd::expected<std::string, dehancer::Error> get_dotenv(
-    const std::string& variable_name) {
+static inline nonstd::expected<std::string, dehancer::Error> get_dotenv(const std::string& variable_name) {
 	using namespace dotenv;
 	try {
 		return env[variable_name];

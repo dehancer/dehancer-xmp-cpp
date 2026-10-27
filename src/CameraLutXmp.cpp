@@ -38,16 +38,11 @@ std::vector<T> slice(std::vector<T> const& v, int m, int n) {
 
 CameraLutXmp::~CameraLutXmp() = default;
 
-dehancer::expected<CameraLutXmp, Error> CameraLutXmp::parse(const std::string& metaBuffer,
-                                                            const Blowfish::KeyType& key,
-                                                            const std::string& path,
-                                                            const std::string& cache_dir) {
+dehancer::expected<CameraLutXmp, Error> CameraLutXmp::parse(const std::string& metaBuffer, const Blowfish::KeyType& key, const std::string& path, const std::string& cache_dir) {
 	Exiv2::XmpData xmpData;
 
 	if (0 != Exiv2::XmpParser::decode(xmpData, metaBuffer)) {
-		return dehancer::make_unexpected(
-		    Error(CommonError::PARSE_ERROR,
-				      error_string("clut xmp file %s could not be parsed", path.c_str())));
+		return dehancer::make_unexpected(Error(CommonError::PARSE_ERROR, error_string("clut xmp file %s could not be parsed", path.c_str())));
 	}
 
 	Exiv2::XmpParser::terminate();
@@ -111,8 +106,7 @@ dehancer::expected<CameraLutXmp, Error> CameraLutXmp::parse(const std::string& m
 			meta["meta"] = "[]"_json;
 
 			for (auto& m : xmp.meta_) {
-				meta["meta"].push_back(
-				    {{"key", m.first}, {"type_id", m.second->typeId()}, {"value", m.second->toString()}});
+				meta["meta"].push_back({{"key", m.first}, {"type_id", m.second->typeId()}, {"value", m.second->toString()}});
 			}
 
 			meta["license_matrix"] = "[]"_json;
@@ -135,10 +129,7 @@ dehancer::expected<CameraLutXmp, Error> CameraLutXmp::parse(const std::string& m
 				fout.close();
 			}
 		} catch (std::exception& e) {
-			return dehancer::make_unexpected(
-			    Error(CommonError::PARSE_ERROR,
-					      error_string(
-			              "clut xmp file %s could not be writen to cache: %s", path.c_str(), e.what())));
+			return dehancer::make_unexpected(Error(CommonError::PARSE_ERROR, error_string("clut xmp file %s could not be writen to cache: %s", path.c_str(), e.what())));
 		}
 	}
 
@@ -170,8 +161,7 @@ dehancer::expected<CameraLutXmp, Error> CameraLutXmp::Create(const std::string& 
 	return CameraLutXmp::Create(metaBuffer, Blowfish::KeyType());
 }
 
-dehancer::expected<CameraLutXmp, Error> CameraLutXmp::Create(const std::string& metaBuffer,
-                                                             const Blowfish::KeyType& key) {
+dehancer::expected<CameraLutXmp, Error> CameraLutXmp::Create(const std::string& metaBuffer, const Blowfish::KeyType& key) {
 	return parse(metaBuffer, key, "", "");
 }
 
@@ -179,18 +169,13 @@ dehancer::expected<CameraLutXmp, Error> CameraLutXmp::Open(const std::string& pa
 	return CameraLutXmp::Open(path, Blowfish::KeyType());
 }
 
-dehancer::expected<CameraLutXmp, Error> CameraLutXmp::Open(const std::string& path,
-                                                           const Blowfish::KeyType& key) {
+dehancer::expected<CameraLutXmp, Error> CameraLutXmp::Open(const std::string& path, const Blowfish::KeyType& key) {
 	return Open(path, key, "");
 }
 
-dehancer::expected<CameraLutXmp, Error> CameraLutXmp::Open(const std::string& path,
-                                                           const Blowfish::KeyType& key,
-                                                           const std::string& cache_dir,
-                                                           bool purge_cache) {
+dehancer::expected<CameraLutXmp, Error> CameraLutXmp::Open(const std::string& path, const Blowfish::KeyType& key, const std::string& cache_dir, bool purge_cache) {
 	try {
-		if (!purge_cache && !cache_dir.empty() &&
-		    platform::access(cache_dir, W_OK) == Error(CommonError::OK)) {
+		if (!purge_cache && !cache_dir.empty() && platform::access(cache_dir, W_OK) == Error(CommonError::OK)) {
 			auto xmp = CameraLutXmp();
 			xmp.path_ = path;
 			xmp.cache_dir_ = cache_dir;
@@ -206,8 +191,7 @@ dehancer::expected<CameraLutXmp, Error> CameraLutXmp::Open(const std::string& pa
 				platform::ifstream instream(lut_file, std::ios::in | std::ios::binary);
 				Blowfish fish(key.empty() ? Blowfish::KeyType({0, 0, 0, 0, 0, 0, 0, 0}) : key);
 
-				CLutBuffer tmp((std::istreambuf_iterator<char>(instream)),
-				               std::istreambuf_iterator<char>());
+				CLutBuffer tmp((std::istreambuf_iterator<char>(instream)), std::istreambuf_iterator<char>());
 
 				fish.decrypt(tmp, xmp.clut_);
 
@@ -232,9 +216,7 @@ dehancer::expected<CameraLutXmp, Error> CameraLutXmp::Open(const std::string& pa
 		inFile.open(path.c_str(), std::fstream::in);
 
 		if (!inFile.is_open()) {
-			return dehancer::make_unexpected(
-			    Error(CommonError::NOT_FOUND,
-					      error_string("clut xmp file %s could not be opened or found", path.c_str())));
+			return dehancer::make_unexpected(Error(CommonError::NOT_FOUND, error_string("clut xmp file %s could not be opened or found", path.c_str())));
 		}
 
 		inFile.seekg(0, std::ios::end);
@@ -274,10 +256,8 @@ CameraLutXmp::exiv2_ptr_t CameraLutXmp::get_value(const std::string& name) const
 }
 
 static std::vector<std::string> keys = {
-    "nsrevision", "nsauthor",   "nscaption",        "nsdescription",    "nsmaintainer",
-    "nslutSize",  "nsfilmType", "nslutType",        "nstags",           "serial",
-    "datetime",   "nsorder",    "nsisPhotoEnabled", "nsisVideoEnabled", "nslicenseMatrix",
-    "nsid",       "nsvendor",   "nsmodel",          "nsformat",
+    "nsrevision", "nsauthor", "nscaption",        "nsdescription",    "nsmaintainer",    "nslutSize", "nsfilmType", "nslutType", "nstags",   "serial",
+    "datetime",   "nsorder",  "nsisPhotoEnabled", "nsisVideoEnabled", "nslicenseMatrix", "nsid",      "nsvendor",   "nsmodel",   "nsformat",
 };
 
 const std::vector<std::string>& CameraLutXmp::get_key_list() const {

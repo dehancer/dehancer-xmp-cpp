@@ -54,8 +54,7 @@ dehancer::expected<MLutXmp, Error> MLutXmp::Create(const std::string& buffer) {
 	return MLutXmp::Create(buffer, Blowfish::KeyType());
 }
 
-dehancer::expected<MLutXmp, Error> MLutXmp::Create(const std::string& buffer,
-                                                   const Blowfish::KeyType& key) {
+dehancer::expected<MLutXmp, Error> MLutXmp::Create(const std::string& buffer, const Blowfish::KeyType& key) {
 	return parse(buffer, key, "", "");
 }
 
@@ -63,18 +62,13 @@ dehancer::expected<MLutXmp, Error> MLutXmp::Open(const std::string& path) {
 	return MLutXmp::Open(path, Blowfish::KeyType());
 }
 
-dehancer::expected<MLutXmp, Error> MLutXmp::Open(const std::string& path,
-                                                 const Blowfish::KeyType& key) {
+dehancer::expected<MLutXmp, Error> MLutXmp::Open(const std::string& path, const Blowfish::KeyType& key) {
 	return Open(path, key, "");
 }
 
-dehancer::expected<MLutXmp, Error> MLutXmp::Open(const std::string& path,
-                                                 const Blowfish::KeyType& key,
-                                                 const std::string& cache_dir,
-                                                 bool purge_cache) {
+dehancer::expected<MLutXmp, Error> MLutXmp::Open(const std::string& path, const Blowfish::KeyType& key, const std::string& cache_dir, bool purge_cache) {
 	try {
-		if (!purge_cache && !cache_dir.empty() &&
-		    platform::access(cache_dir, W_OK) == Error(CommonError::OK)) {
+		if (!purge_cache && !cache_dir.empty() && platform::access(cache_dir, W_OK) == Error(CommonError::OK)) {
 			auto xmp = MLutXmp();
 
 			xmp.path_ = path;
@@ -100,15 +94,13 @@ dehancer::expected<MLutXmp, Error> MLutXmp::Open(const std::string& path,
 #if DEHANCER_BLOWFISH_CACHE_ENABLED
 					Blowfish fish(key.empty() ? Blowfish::KeyType({0, 0, 0, 0, 0, 0, 0, 0}) : key);
 
-					CLutBuffer tmp((std::istreambuf_iterator<char>(instream)),
-					               std::istreambuf_iterator<char>());
+					CLutBuffer tmp((std::istreambuf_iterator<char>(instream)), std::istreambuf_iterator<char>());
 					CLutBuffer buffer;
 
 					fish.decrypt(tmp, buffer);
 					xmp.cluts_.push_back(buffer);
 #else
-					CLutBuffer buffer((std::istreambuf_iterator<char>(instream)),
-					                  std::istreambuf_iterator<char>());
+					CLutBuffer buffer((std::istreambuf_iterator<char>(instream)), std::istreambuf_iterator<char>());
 					xmp.cluts_.push_back(buffer);
 #endif
 				}
@@ -135,9 +127,7 @@ dehancer::expected<MLutXmp, Error> MLutXmp::Open(const std::string& path,
 		inFile.open(path, std::fstream::in);
 
 		if (!inFile.is_open()) {
-			return dehancer::make_unexpected(
-			    Error(CommonError::NOT_FOUND,
-					      error_string("mlut xmp file %s could not be opened or found", path.c_str())));
+			return dehancer::make_unexpected(Error(CommonError::NOT_FOUND, error_string("mlut xmp file %s could not be opened or found", path.c_str())));
 		}
 
 		inFile.seekg(0, std::ios::end);
@@ -155,16 +145,11 @@ dehancer::expected<MLutXmp, Error> MLutXmp::Open(const std::string& path,
 	}
 }
 
-dehancer::expected<MLutXmp, Error> MLutXmp::parse(const std::string& metaBuffer,
-                                                  const Blowfish::KeyType& key,
-                                                  const std::string& path,
-                                                  const std::string& cache_dir) {
+dehancer::expected<MLutXmp, Error> MLutXmp::parse(const std::string& metaBuffer, const Blowfish::KeyType& key, const std::string& path, const std::string& cache_dir) {
 	Exiv2::XmpData xmpData;
 
 	if (0 != Exiv2::XmpParser::decode(xmpData, metaBuffer)) {
-		return dehancer::make_unexpected(
-		    Error(CommonError::PARSE_ERROR,
-				      error_string("mlut xmp file %s could not be parsed", path.c_str())));
+		return dehancer::make_unexpected(Error(CommonError::PARSE_ERROR, error_string("mlut xmp file %s could not be parsed", path.c_str())));
 	}
 
 	Exiv2::XmpParser::terminate();
@@ -182,8 +167,7 @@ dehancer::expected<MLutXmp, Error> MLutXmp::parse(const std::string& metaBuffer,
 		lic_matrix_prefix << xmp_meta_prefix << "nslicenseMatrix[";
 
 		if (has_prefix(md->key(), lic_matrix_prefix.str())) {
-			xmp.license_matrix_.push_back(
-			    static_cast<dehancer::License::Type>(md->getValue()->toInt64()));
+			xmp.license_matrix_.push_back(static_cast<dehancer::License::Type>(md->getValue()->toInt64()));
 		}
 
 		if (!key.empty()) {
@@ -230,8 +214,7 @@ dehancer::expected<MLutXmp, Error> MLutXmp::parse(const std::string& metaBuffer,
 			meta["lut_count"] = xmp.cluts_.size();
 
 			for (auto& m : xmp.meta_) {
-				meta["meta"].push_back(
-				    {{"key", m.first}, {"type_id", m.second->typeId()}, {"value", m.second->toString()}});
+				meta["meta"].push_back({{"key", m.first}, {"type_id", m.second->typeId()}, {"value", m.second->toString()}});
 			}
 
 			meta["license_matrix"] = "[]"_json;
@@ -261,10 +244,7 @@ dehancer::expected<MLutXmp, Error> MLutXmp::parse(const std::string& metaBuffer,
 				}
 			}
 		} catch (std::exception& e) {
-			return dehancer::make_unexpected(
-			    Error(CommonError::PARSE_ERROR,
-					      error_string(
-			              "mlut xmp file %s could not be writen to cache: %s", path.c_str(), e.what())));
+			return dehancer::make_unexpected(Error(CommonError::PARSE_ERROR, error_string("mlut xmp file %s could not be writen to cache: %s", path.c_str(), e.what())));
 		}
 	}
 
@@ -341,27 +321,9 @@ MLutXmp::exiv2_ptr_t MLutXmp::get_value(const std::string& name) const {
 	}
 }
 
-static std::vector<std::string> keys = {"nsid",
-                                        "nscaption",
-                                        "nsdescription",
-                                        "nsrevision",
-                                        "nscolorType",
-                                        "nsISOIndex",
-                                        "nsexpandBlendingMode",
-                                        "nsexpandImpact",
-                                        "nsauthor",
-                                        "nsmaintainer",
-                                        "nslutSize",
-                                        "nsfilmType",
-                                        "nslutType",
-                                        "nsisPrinted",
-                                        "nsisPrintMedia",
-                                        "nsisPhotoEnabled",
-                                        "nsisVideoEnabled",
-                                        "nslicenseMatrix",
-                                        "nstags",
-                                        "serial",
-                                        "datetime"};
+static std::vector<std::string> keys = {"nsid",           "nscaption",        "nsdescription",    "nsrevision",      "nscolorType", "nsISOIndex", "nsexpandBlendingMode",
+                                        "nsexpandImpact", "nsauthor",         "nsmaintainer",     "nslutSize",       "nsfilmType",  "nslutType",  "nsisPrinted",
+                                        "nsisPrintMedia", "nsisPhotoEnabled", "nsisVideoEnabled", "nslicenseMatrix", "nstags",      "serial",     "datetime"};
 
 const std::vector<std::string>& MLutXmp::get_key_list() const {
 	return keys;

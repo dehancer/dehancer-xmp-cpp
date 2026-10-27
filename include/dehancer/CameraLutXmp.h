@@ -19,8 +19,7 @@ public:
 	using exiv2_ptr_t = Exiv2::Value::UniquePtr;
 
 public:
-	static dehancer::expected<CameraLutXmp, Error> Create(const std::string& buffer,
-	                                                      const Blowfish::KeyType& key);
+	static dehancer::expected<CameraLutXmp, Error> Create(const std::string& buffer, const Blowfish::KeyType& key);
 	static dehancer::expected<CameraLutXmp, Error> Create(const std::string& buffer);
 
 	/**
@@ -29,8 +28,7 @@ public:
 	 * @param key - pass key, by default empty means properties read only
 	 * @return
 	 */
-	static dehancer::expected<CameraLutXmp, Error> Open(const std::string& path,
-	                                                    const Blowfish::KeyType& key);
+	static dehancer::expected<CameraLutXmp, Error> Open(const std::string& path, const Blowfish::KeyType& key);
 
 	/**
 	 * Open xmp-mlut-file
@@ -39,10 +37,7 @@ public:
 	 * @param cache_dir
 	 * @return
 	 */
-	static dehancer::expected<CameraLutXmp, Error> Open(const std::string& path,
-	                                                    const Blowfish::KeyType& key,
-	                                                    const std::string& cache_dir,
-	                                                    bool purge_cache = false);
+	static dehancer::expected<CameraLutXmp, Error> Open(const std::string& path, const Blowfish::KeyType& key, const std::string& cache_dir, bool purge_cache = false);
 	static dehancer::expected<CameraLutXmp, Error> Open(const std::string& path);
 
 	[[nodiscard]] exiv2_ptr_t get_value(const std::string& key) const;
@@ -81,9 +76,6 @@ private:
 	[[nodiscard]] std::string get_cache_clut_path() const;
 
 private:
-	static dehancer::expected<CameraLutXmp, Error> parse(const std::string& metaBuffer,
-	                                                     const Blowfish::KeyType& key,
-	                                                     const std::string& path,
-	                                                     const std::string& cache_dir);
+	static dehancer::expected<CameraLutXmp, Error> parse(const std::string& metaBuffer, const Blowfish::KeyType& key, const std::string& path, const std::string& cache_dir);
 };
 }  // namespace dehancer
