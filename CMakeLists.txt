@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 4.3)
-project(dehancer_xmp_cpp VERSION 0.20.0 LANGUAGES CXX)
+project(dehancer_xmp_cpp VERSION 0.40.0 LANGUAGES CXX)
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
